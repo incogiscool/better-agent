@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../lib/generated/prisma"
@@ -10,4 +5,262 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+enum ProjectPlan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum ToolType {
+  route
+  client_invocation
+}
+
+enum MessageRole {
+  system
+  user
+  assistant
+  tool
+}
+
+enum ConversationStatus {
+  active
+  completed
+  abandoned
+}
+
+enum ToolExecutionStatus {
+  pending
+  succeeded
+  failed
+  timed_out
+  abandoned
+}
+
+enum CreditEventType {
+  conversation_start
+  message
+  tool_call
+  ai_description_generation
+  overage_adjustment
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  projects      Project[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Account {
+  id                     String    @id @default(cuid())
+  accountId              String
+  providerId             String
+  userId                 String
+  accessToken            String?
+  refreshToken           String?
+  idToken                String?
+  accessTokenExpiresAt   DateTime?
+  refreshTokenExpiresAt  DateTime?
+  scope                  String?
+  password               String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@unique([providerId, accountId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@unique([identifier, value])
+}
+
+model Project {
+  id                 String          @id @default(cuid())
+  ownerId            String
+  name               String
+  baseUrl            String?
+  clientKey          String          @unique
+  secretKeyHash      String
+  systemPrompt       String?
+  plan               ProjectPlan     @default(FREE)
+  stripeCustomerId   String?         @unique
+  stripeSubscriptionId String?       @unique
+  billingCycleAnchor DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  owner              User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  tools              Tool[]
+  toolOverrides      ToolOverride[]
+  conversations      Conversation[]
+  billingPeriods     BillingPeriod[]
+  creditEvents       CreditEvent[]
+
+  @@index([ownerId])
+}
+
+model Tool {
+  id                       String        @id @default(cuid())
+  projectId                String
+  name                     String
+  type                     ToolType
+  method                   String?
+  path                     String?
+  inputSchema              Json
+  description              String?
+  aiGeneratedDescription   Boolean       @default(false)
+  version                  Int           @default(1)
+  deletedAt                DateTime?
+  lastSyncedAt             DateTime      @default(now())
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+  project                  Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  override                 ToolOverride?
+  executions               ToolExecution[]
+
+  @@unique([projectId, name])
+  @@index([projectId, type])
+}
+
+model ToolOverride {
+  id          String   @id @default(cuid())
+  projectId   String
+  toolId      String   @unique
+  description String?
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tool        Tool     @relation(fields: [toolId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model Conversation {
+  id          String              @id @default(cuid())
+  projectId   String
+  endUserId   String
+  title       String?
+  status      ConversationStatus  @default(active)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  project     Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  messages    Message[]
+  executions  ToolExecution[]
+  creditEvents CreditEvent[]
+
+  @@index([projectId, endUserId])
+  @@index([projectId, createdAt])
+}
+
+model Message {
+  id             String      @id @default(cuid())
+  conversationId String
+  role           MessageRole
+  content        Json
+  toolCalls      Json?
+  toolCallId     String?
+  createdAt      DateTime    @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  toolExecutions ToolExecution[]
+
+  @@index([conversationId, createdAt])
+}
+
+model ToolExecution {
+  id            String              @id @default(cuid())
+  conversationId String
+  messageId     String?
+  toolId        String?
+  toolName      String
+  toolCallId    String
+  status        ToolExecutionStatus @default(pending)
+  input         Json
+  output        Json?
+  durationMs    Int?
+  errorMessage  String?
+  toolVersion   Int?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  conversation  Conversation        @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  message       Message?            @relation(fields: [messageId], references: [id], onDelete: SetNull)
+  tool          Tool?               @relation(fields: [toolId], references: [id], onDelete: SetNull)
+  creditEvents  CreditEvent[]
+
+  @@index([conversationId, createdAt])
+  @@index([toolId])
+  @@index([messageId])
+}
+
+model BillingPeriod {
+  id              String      @id @default(cuid())
+  projectId       String
+  startsAt        DateTime
+  endsAt          DateTime
+  includedCredits Int
+  creditsUsed     Int         @default(0)
+  overageCredits  Int         @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  project         Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creditEvents    CreditEvent[]
+
+  @@index([projectId, startsAt])
+}
+
+model CreditEvent {
+  id              String          @id @default(cuid())
+  projectId       String
+  billingPeriodId String
+  conversationId  String?
+  toolExecutionId String?
+  type            CreditEventType
+  credits         Int
+  tokensInput     Int?
+  tokensOutput    Int?
+  tokensCached    Int?
+  costUsd         Decimal?        @db.Decimal(10, 4)
+  model           String?
+  metadata        Json?
+  createdAt       DateTime        @default(now())
+  project         Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  billingPeriod   BillingPeriod   @relation(fields: [billingPeriodId], references: [id], onDelete: Cascade)
+  conversation    Conversation?   @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  toolExecution   ToolExecution?  @relation(fields: [toolExecutionId], references: [id], onDelete: SetNull)
+
+  @@index([projectId, createdAt])
+  @@index([billingPeriodId, createdAt])
+  @@index([conversationId])
+  @@index([toolExecutionId])
 }
