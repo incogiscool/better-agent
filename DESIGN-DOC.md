@@ -42,7 +42,7 @@ A normalized JSON-Schema-based contract for tool definitions and chat. SDKs and 
 | Layer                     | Choice                                                                             |
 | ------------------------- | ---------------------------------------------------------------------------------- |
 | Language                  | TypeScript everywhere                                                              |
-| Frontend (dashboard)      | Next.js 15, Tailwind 4, shadcn (`--preset buH8COm`)                                |
+| Frontend (dashboard)      | Next.js 16, Tailwind 4, shadcn (`--preset buH8COm`)                                |
 | Backend                   | Next.js API routes, deployed to Vercel                                             |
 | LLM SDK                   | Vercel AI SDK, isolated behind `ChatEngine` interface                              |
 | Default model             | Claude Sonnet 4.6                                                                  |
@@ -438,7 +438,7 @@ CSS variables that inherit from shadcn tokens, exposed via Tailwind utility clas
 
 - [ ] Lock domain name, buy `.com` and `.dev`
 - [ ] Create GitHub org and main repo
-- [ ] Create Next.js 15 app with `npx shadcn@latest init --preset buH8COm`
+- [ ] Create Next.js 16 app with `npx shadcn@latest init --preset buH8COm`
 - [ ] Set up Tailwind 4
 - [ ] Set up Neon project, copy connection string
 - [ ] Set up Better Auth (email + Google)
