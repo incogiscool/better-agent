@@ -1,8 +1,8 @@
 import { type NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { verifyProjectSecret } from "@/lib/projects/keys";
-import { syncRequestSchema } from "@/lib/schemas/sync";
-import { syncTools } from "@/lib/tools/sync";
+import { describeRequestSchema } from "@/lib/schemas/describe";
+import { getOrGenerateDescription } from "@/lib/tools/describe";
 
 function extractBearerToken(req: NextRequest): string | null {
   const auth = req.headers.get("authorization");
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const parsed = syncRequestSchema.safeParse(body);
+  const parsed = describeRequestSchema.safeParse(body);
   if (!parsed.success) {
     return Response.json(
       { error: "Invalid request body", issues: parsed.error.issues },
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { projectId, tools } = parsed.data;
+  const { projectId, sourceHash, source } = parsed.data;
 
   let project: { id: string; secretKeyHash: string } | null;
   try {
@@ -43,11 +43,10 @@ export async function POST(req: NextRequest) {
       select: { id: true, secretKeyHash: true },
     });
   } catch (err) {
-    console.error("[sync] DB lookup failed:", err);
+    console.error("[describe] DB lookup failed:", err);
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 
-  // Constant-time-safe: always attempt verify even if project not found
   const storedHash = project?.secretKeyHash ?? "00:00";
   const keyValid = verifyProjectSecret(secretKey, storedHash);
 
@@ -55,17 +54,11 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Invalid project ID or secret key" }, { status: 401 });
   }
 
-  let result: Awaited<ReturnType<typeof syncTools>>;
   try {
-    result = await syncTools(projectId, tools);
+    const result = await getOrGenerateDescription(sourceHash, source);
+    return Response.json({ ok: true, ...result });
   } catch (err) {
-    console.error("[sync] Tool sync failed:", err);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    console.error("[describe] Generation failed:", err);
+    return Response.json({ error: "Failed to generate description" }, { status: 500 });
   }
-
-  return Response.json({
-    ok: true,
-    ...result,
-    total: tools.length,
-  });
 }
