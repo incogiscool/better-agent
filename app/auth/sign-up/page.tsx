@@ -2,25 +2,25 @@ import Link from "next/link";
 import {
   AuthShell,
   AuthTerminal,
-  SIGNIN_TERMINAL,
-  SigninForm,
+  SIGNUP_TERMINAL,
+  SignupForm,
 } from "@/components/public/auth";
 
-export default function SignInPage() {
+export default function SignUpPage() {
   return (
     <AuthShell
-      badges={[{ label: "live", tone: "live" }, { label: "us-west-2 · 38ms" }]}
+      badges={[{ label: "provisioning", tone: "live" }, { label: "~ 1.4s" }]}
       terminal={
         <AuthTerminal
-          title="betteragent.auth"
-          // rightLabel="agent · auth.session"
-          lines={SIGNIN_TERMINAL}
+          title="provisioning.log"
+          // rightLabel="agent · workspace.create"
+          lines={SIGNUP_TERMINAL}
         />
       }
       footer={
         <div className="flex items-center gap-3">
-          <Link href="/auth/sign-up" className="hover:text-foreground">
-            New here? Create an account
+          <Link href="/auth/sign-in" className="hover:text-foreground">
+            Already have an account? Sign in
           </Link>
           <Link href="/privacy" className="hover:text-foreground">
             Privacy
@@ -31,7 +31,7 @@ export default function SignInPage() {
         </div>
       }
     >
-      <SigninForm />
+      <SignupForm />
     </AuthShell>
   );
 }
