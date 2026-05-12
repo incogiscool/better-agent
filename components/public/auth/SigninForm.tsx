@@ -28,7 +28,11 @@ const signinFormSchema = signInSchema.extend({
 
 type SigninFormValues = z.infer<typeof signinFormSchema>;
 
-export function SigninForm({ callbackURL = "/dashboard" }: { callbackURL?: string }) {
+export function SigninForm({
+  callbackURL = "/dashboard",
+}: {
+  callbackURL?: string;
+}) {
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
   const signIn = useSignInEmail();
@@ -117,9 +121,15 @@ export function SigninForm({ callbackURL = "/dashboard" }: { callbackURL?: strin
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
                       className="absolute top-1/2 right-2 -translate-y-1/2 border border-border bg-background p-1 text-muted-foreground hover:text-foreground"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
                     >
-                      {showPassword ? <EyeSlash size={12} /> : <Eye size={12} />}
+                      {showPassword ? (
+                        <EyeSlash size={12} />
+                      ) : (
+                        <Eye size={12} />
+                      )}
                     </button>
                   </div>
                 </FormControl>
@@ -129,7 +139,9 @@ export function SigninForm({ callbackURL = "/dashboard" }: { callbackURL?: strin
           />
 
           {signIn.error && (
-            <p className="text-[10px] text-destructive">{signIn.error.message}</p>
+            <p className="text-[10px] text-destructive">
+              {signIn.error.message}
+            </p>
           )}
 
           <Button type="submit" className="w-full" disabled={signIn.isPending}>
@@ -154,7 +166,6 @@ export function SigninForm({ callbackURL = "/dashboard" }: { callbackURL?: strin
               )}
             />
             <div className="flex items-center gap-2">
-              <kbd className="border border-border px-1">x</kbd>
               <kbd className="border border-border px-1">↵</kbd>
               <span>submit</span>
             </div>

@@ -1,11 +1,11 @@
-export default function RunsPage() {
+export default function ToolsPage() {
   return (
     <main className="flex h-full flex-col">
       <div className="border-b border-border px-6 py-5">
-        <h1 className="text-sm font-medium">Runs</h1>
+        <h1 className="text-sm font-medium">Tools</h1>
       </div>
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-xs text-muted-foreground">Runs — coming soon</p>
+        <p className="text-xs text-muted-foreground">Tools — coming soon</p>
       </div>
     </main>
   );

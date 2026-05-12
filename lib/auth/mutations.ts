@@ -85,3 +85,40 @@ export function useVerifyEmail() {
       unwrap(await authClient.emailOtp.verifyEmail(input)),
   });
 }
+
+export function useUpdateUser() {
+  return useMutation({
+    mutationFn: async (input: { name?: string; image?: string }) =>
+      unwrap(await authClient.updateUser(input)),
+  });
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: async (input: {
+      currentPassword: string;
+      newPassword: string;
+      revokeOtherSessions?: boolean;
+    }) => unwrap(await authClient.changePassword(input)),
+  });
+}
+
+export function useChangeEmail() {
+  return useMutation({
+    mutationFn: async (input: { newEmail: string; callbackURL?: string }) =>
+      unwrap(await authClient.changeEmail(input)),
+  });
+}
+
+export function useDeleteUser() {
+  return useMutation({
+    mutationFn: async (input: { password?: string; callbackURL?: string }) =>
+      unwrap(await authClient.deleteUser(input)),
+  });
+}
+
+export function useSignOut() {
+  return useMutation({
+    mutationFn: async () => unwrap(await authClient.signOut()),
+  });
+}

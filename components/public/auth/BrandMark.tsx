@@ -1,9 +1,13 @@
 import Link from "next/link";
 
-export function BrandMark() {
+interface BrandMarkProps {
+  href?: string;
+}
+
+export function BrandMark({ href = "/" }: BrandMarkProps) {
   return (
     <Link
-      href="/"
+      href={href}
       className="inline-flex items-center gap-2 text-xs font-medium text-foreground"
     >
       <span className="text-primary">&gt;</span>

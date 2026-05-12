@@ -5,7 +5,11 @@ import { Resend } from "resend";
 import { prisma } from "./db";
 import { emailOTP } from "better-auth/plugins";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return null;
+  return new Resend(key);
+}
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -66,12 +70,17 @@ export const auth = betterAuth({
     nextCookies(),
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {
+        const client = getResend();
+        if (!client) {
+          console.log(`[auth] OTP for ${email} (type=${type}): ${otp}`);
+          return;
+        }
         const subjects: Record<string, string> = {
           "email-verification": "Verify your BetterAgent email",
           "sign-in": "Your BetterAgent sign-in code",
           "forget-password": "Reset your BetterAgent password",
         };
-        await resend.emails.send({
+        await client.emails.send({
           from: "BetterAgent <noreply@betteragent.dev>",
           to: email,
           subject: subjects[type] ?? "Your BetterAgent code",

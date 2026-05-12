@@ -12,6 +12,7 @@
     "db:generate": "bunx dotenv -e .env.local -- bunx prisma generate"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.77",
     "@ai-sdk/react": "^3.0.179",
     "@hookform/resolvers": "^5.2.2",
     "@phosphor-icons/react": "^2.1.10",
