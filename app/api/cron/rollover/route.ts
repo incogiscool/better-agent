@@ -1,0 +1,27 @@
+import { type NextRequest } from "next/server";
+import { rolloverExpiredPeriods } from "@/lib/billing/periods";
+
+export async function GET(req: NextRequest) {
+  const cronSecret = process.env.CRON_SECRET;
+  if (!cronSecret) {
+    console.error("[cron/rollover] CRON_SECRET env var is not set");
+    return Response.json({ error: "Cron secret not configured" }, { status: 500 });
+  }
+
+  const auth = req.headers.get("authorization");
+  const token = auth?.startsWith("Bearer ") ? auth.slice(7).trim() : null;
+
+  if (!token || token !== cronSecret) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let rolledOver: number;
+  try {
+    rolledOver = await rolloverExpiredPeriods();
+  } catch (err) {
+    console.error("[cron/rollover] rolloverExpiredPeriods failed:", err);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
+  }
+
+  return Response.json({ ok: true, rolledOver });
+}

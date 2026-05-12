@@ -239,6 +239,14 @@ model BillingPeriod {
   @@index([projectId, startsAt])
 }
 
+model DescriptionCache {
+  id          String   @id @default(cuid())
+  sourceHash  String   @unique
+  description String
+  model       String
+  createdAt   DateTime @default(now())
+}
+
 model CreditEvent {
   id              String          @id @default(cuid())
   projectId       String
