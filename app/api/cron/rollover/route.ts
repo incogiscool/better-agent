@@ -1,5 +1,6 @@
 import { type NextRequest } from "next/server";
 import { rolloverExpiredPeriods } from "@/lib/billing/periods";
+import { purgeExpiredIdempotencyKeys } from "@/lib/chat/idempotency";
 
 export async function GET(req: NextRequest) {
   const cronSecret = process.env.CRON_SECRET;
@@ -16,12 +17,14 @@ export async function GET(req: NextRequest) {
   }
 
   let rolledOver: number;
+  let purged: number;
   try {
     rolledOver = await rolloverExpiredPeriods();
+    purged = await purgeExpiredIdempotencyKeys();
   } catch (err) {
-    console.error("[cron/rollover] rolloverExpiredPeriods failed:", err);
+    console.error("[cron/rollover] failed:", err);
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 
-  return Response.json({ ok: true, rolledOver });
+  return Response.json({ ok: true, rolledOver, purged });
 }

@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/rollover",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/abandoned",
+      "schedule": "* * * * *"
+    }
+  ]
+}
