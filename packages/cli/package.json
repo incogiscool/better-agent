@@ -1,0 +1,37 @@
+{
+  "name": "@betteragent/cli",
+  "version": "0.1.0",
+  "description": "Command-line tool for syncing BetterAgent tools from your codebase.",
+  "type": "module",
+  "bin": {
+    "betteragent": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "bun build src/cli.ts --target=node --format=esm --outdir=dist --banner '#!/usr/bin/env node' --external citty --external jiti --external picocolors --external prompts --external zod && chmod +x dist/cli.js",
+    "dev": "bun src/cli.ts",
+    "types": "bunx tsc --noEmit"
+  },
+  "dependencies": {
+    "citty": "^0.1.6",
+    "jiti": "^2.4.2",
+    "picocolors": "^1.1.1",
+    "prompts": "^2.4.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@betteragent/next": "workspace:*",
+    "@types/node": "^20",
+    "@types/prompts": "^2.4.9",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

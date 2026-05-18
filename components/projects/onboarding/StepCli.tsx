@@ -5,12 +5,13 @@ import { CodeBlock } from "@/components/dashboard/common/CodeBlock";
 
 interface StepCliProps {
   secretKey: string;
+  projectId: string;
 }
 
-export function StepCli({ secretKey }: StepCliProps) {
+export function StepCli({ secretKey, projectId }: StepCliProps) {
   const install = "npm i -D @betteragent/cli";
-  const login = `npx betteragent login --key ${secretKey}`;
-  const init = "npx betteragent init";
+  const login = `npx betteragent login --key ${secretKey} --project ${projectId}`;
+  const init = "npx betteragent sync";
 
   return (
     <div className="space-y-5">
@@ -45,14 +46,14 @@ export function StepCli({ secretKey }: StepCliProps) {
               03
             </span>
             <h3 className="text-xs font-medium">
-              Scaffold tool files & sync your first tools
+              Write your tool files & sync
             </h3>
           </div>
           <CodeBlock code={init} language="bash" />
           <p className="text-[11px] text-muted-foreground">
-            Walks you through picking routes and server actions to expose. The
-            next step will light up automatically the moment your first sync
-            lands.
+            Author your `routes.betteragent.ts` and `server-actions.betteragent.ts`
+            files using `@betteragent/next` helpers, then run sync. The next
+            step will light up automatically once your first sync lands.
           </p>
         </li>
       </ol>

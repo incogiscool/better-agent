@@ -143,7 +143,9 @@ export function OnboardingWizard() {
           </Button>
         </>
       ),
-      body: creds && <StepCli secretKey={creds.secretKey} />,
+      body: creds && (
+        <StepCli secretKey={creds.secretKey} projectId={creds.projectId} />
+      ),
     },
     {
       title: "Waiting for your first sync",

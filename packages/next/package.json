@@ -1,0 +1,35 @@
+{
+  "name": "@betteragent/next",
+  "version": "0.1.0",
+  "description": "Define tools, server actions, and client actions for BetterAgent in Next.js.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "bun build src/index.ts --target=node --format=esm --outdir=dist --external zod --external next && bunx tsc --emitDeclarationOnly",
+    "types": "bunx tsc --noEmit"
+  },
+  "peerDependencies": {
+    "next": ">=14",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "next": "16.2.6",
+    "typescript": "^5",
+    "zod": "^4.4.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
