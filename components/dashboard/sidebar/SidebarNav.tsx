@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  File,
-  Gear,
-  Hexagon,
-  Plus,
-  Pulse,
-  SquaresFour,
-  Terminal,
+  FileIcon,
+  GearIcon,
+  PulseIcon,
+  SquaresFourIcon,
+  TerminalIcon,
+  CreditCardIcon,
+  PlusIcon,
+  HexagonIcon,
 } from "@phosphor-icons/react";
 import {
   SidebarGroup,
@@ -20,13 +21,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
-const NAV_ITEMS = [
-  { label: "Projects", href: "/dashboard", icon: SquaresFour, exact: true },
-  { label: "Runs", href: "/dashboard/runs", icon: Pulse, exact: false },
-  { label: "Tools", href: "/dashboard/tools", icon: Terminal, exact: false },
-  { label: "Logs", href: "/dashboard/logs", icon: File, exact: false },
-  { label: "Settings", href: "/dashboard/settings", icon: Gear, exact: false },
+const PROJECT_SECTIONS = [
+  { label: "Runs", segment: "runs", icon: PulseIcon },
+  { label: "Tools", segment: "tools", icon: TerminalIcon },
+  { label: "Logs", segment: "logs", icon: FileIcon },
+  { label: "Usage", segment: "usage", icon: CreditCardIcon },
+  { label: "Settings", segment: "settings", icon: GearIcon },
 ] as const;
 
 type Project = {
@@ -37,31 +39,85 @@ type Project = {
 
 interface SidebarNavProps {
   projects: Project[];
+  activeProjectId: string | null;
 }
 
-export function SidebarNav({ projects }: SidebarNavProps) {
+function pickActiveProjectId(
+  pathname: string,
+  projects: Project[],
+  fallback: string | null,
+): string | null {
+  const match = pathname.match(/^\/dashboard\/projects\/([^/]+)/);
+  if (match && projects.some((p) => p.id === match[1])) {
+    return match[1];
+  }
+  return fallback;
+}
+
+export function SidebarNav({ projects, activeProjectId }: SidebarNavProps) {
   const pathname = usePathname();
+  const effectiveProjectId = pickActiveProjectId(
+    pathname,
+    projects,
+    activeProjectId,
+  );
+  const hasProjects = projects.length > 0;
 
   return (
     <>
       <SidebarGroup className="px-0">
         <SidebarMenu>
-          {NAV_ITEMS.map((item) => {
-            const { label, href, icon: Icon } = item;
-            const isActive = item.exact
-            ? pathname === href
-            : pathname === href || pathname.startsWith(href + "/");
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === "/dashboard"}
+              className="rounded-none pl-4 data-[active=true]:border-l-2 data-[active=true]:border-primary data-[active=true]:bg-muted/60 data-[active=true]:text-primary"
+            >
+              <Link href="/dashboard">
+                <SquaresFourIcon
+                  size={14}
+                  weight={pathname === "/dashboard" ? "bold" : "regular"}
+                />
+                <span>Projects</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          {PROJECT_SECTIONS.map((item) => {
+            const { label, segment, icon: Icon } = item;
+            const href = effectiveProjectId
+              ? `/dashboard/projects/${effectiveProjectId}/${segment}`
+              : `/dashboard/${segment}`;
+            const isActive =
+              effectiveProjectId != null &&
+              pathname.startsWith(
+                `/dashboard/projects/${effectiveProjectId}/${segment}`,
+              );
+            const disabled = !hasProjects;
+
             return (
-              <SidebarMenuItem key={href}>
+              <SidebarMenuItem key={segment}>
                 <SidebarMenuButton
                   asChild
                   isActive={isActive}
-                  className="rounded-none pl-4 data-[active=true]:border-l-2 data-[active=true]:border-primary data-[active=true]:bg-muted/60 data-[active=true]:text-primary"
+                  className={cn(
+                    "rounded-none pl-4 data-[active=true]:border-l-2 data-[active=true]:border-primary data-[active=true]:bg-muted/60 data-[active=true]:text-primary",
+                    disabled && "cursor-not-allowed opacity-40",
+                  )}
+                  aria-disabled={disabled || undefined}
+                  title={disabled ? "Create a project first" : undefined}
                 >
-                  <Link href={href}>
-                    <Icon size={14} weight={isActive ? "bold" : "regular"} />
-                    <span>{label}</span>
-                  </Link>
+                  {disabled ? (
+                    <div>
+                      <Icon size={14} />
+                      <span>{label}</span>
+                    </div>
+                  ) : (
+                    <Link href={href}>
+                      <Icon size={14} weight={isActive ? "bold" : "regular"} />
+                      <span>{label}</span>
+                    </Link>
+                  )}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             );
@@ -75,7 +131,7 @@ export function SidebarNav({ projects }: SidebarNavProps) {
         </SidebarGroupLabel>
         <SidebarGroupAction asChild title="New project">
           <Link href="/dashboard/projects/new">
-            <Plus size={13} />
+            <PlusIcon size={13} />
           </Link>
         </SidebarGroupAction>
         <SidebarMenu>
@@ -87,9 +143,8 @@ export function SidebarNav({ projects }: SidebarNavProps) {
             </SidebarMenuItem>
           ) : (
             projects.map((project) => {
-              const href = `/dashboard/projects/${project.id}`;
-              const isActive =
-                pathname === href || pathname.startsWith(href + "/");
+              const isActive = effectiveProjectId === project.id;
+              const href = `/dashboard/projects/${project.id}/runs`;
               return (
                 <SidebarMenuItem key={project.id}>
                   <SidebarMenuButton
@@ -98,7 +153,10 @@ export function SidebarNav({ projects }: SidebarNavProps) {
                     className="rounded-none pl-4 data-[active=true]:border-l-2 data-[active=true]:border-primary data-[active=true]:bg-muted/60 data-[active=true]:text-primary"
                   >
                     <Link href={href}>
-                      <Hexagon size={13} />
+                      <HexagonIcon
+                        size={13}
+                        weight={isActive ? "fill" : "regular"}
+                      />
                       <span className="font-mono text-xs">{project.name}</span>
                     </Link>
                   </SidebarMenuButton>

@@ -1,12 +1,8 @@
-export default function RunsPage() {
-  return (
-    <main className="flex h-full flex-col">
-      <div className="border-b border-border px-6 py-5">
-        <h1 className="text-sm font-medium">Runs</h1>
-      </div>
-      <div className="flex flex-1 items-center justify-center">
-        <p className="text-xs text-muted-foreground">Runs — coming soon</p>
-      </div>
-    </main>
-  );
+import { redirect } from "next/navigation";
+import { resolveActiveProjectId } from "@/lib/dashboard/context";
+
+export default async function RunsRedirectPage() {
+  const projectId = await resolveActiveProjectId();
+  if (!projectId) redirect("/dashboard");
+  redirect(`/dashboard/projects/${projectId}/runs`);
 }

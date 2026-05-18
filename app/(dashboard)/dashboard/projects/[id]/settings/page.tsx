@@ -1,40 +1,39 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
 import { ProjectSettingsForm } from "@/app/(dashboard)/dashboard/projects/[id]/settings/ProjectSettingsForm";
-import { Button } from "@/components/ui/button";
-import { requireCurrentUser } from "@/lib/auth/session";
-import { getProjectForOwner } from "@/lib/projects/service";
+import { ProjectDangerZone } from "@/app/(dashboard)/dashboard/projects/[id]/settings/ProjectDangerZone";
+import { loadProjectContext } from "@/lib/dashboard/context";
+import { SectionHeader } from "@/components/dashboard/common";
+import { formatDate } from "@/lib/format";
 
 type ProjectSettingsPageProps = {
-  params: Promise<{
-    id: string;
-  }>;
+  params: Promise<{ id: string }>;
 };
 
 export default async function ProjectSettingsPage({
   params,
 }: ProjectSettingsPageProps) {
-  const user = await requireCurrentUser();
   const { id } = await params;
-  const project = await getProjectForOwner(id, user.id);
-
-  if (!project) {
-    notFound();
-  }
+  const { project } = await loadProjectContext(id);
 
   return (
-    <main className="space-y-6 p-6">
-      <div className="flex items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-semibold">Project settings</h1>
-          <p className="text-sm text-muted-foreground">{project.name}</p>
-        </div>
-        <Button asChild variant="outline">
-          <Link href={`/dashboard/projects/${project.id}`}>Back to project</Link>
-        </Button>
-      </div>
+    <main className="space-y-6 px-6 py-6">
+      <SectionHeader
+        size="lg"
+        className="border-0 p-0"
+        title="Settings"
+        description={`Project created ${formatDate(project.createdAt)}.`}
+      />
 
-      <ProjectSettingsForm project={project} />
+      <ProjectSettingsForm
+        project={{
+          id: project.id,
+          name: project.name,
+          baseUrl: project.baseUrl,
+          systemPrompt: project.systemPrompt,
+          clientKey: project.clientKey,
+        }}
+      />
+
+      <ProjectDangerZone projectId={project.id} projectName={project.name} />
     </main>
   );
 }

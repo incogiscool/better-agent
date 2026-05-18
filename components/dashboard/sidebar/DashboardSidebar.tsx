@@ -10,14 +10,20 @@ import {
 } from "@/components/ui/sidebar";
 import { BrandMark } from "@/components/public/auth";
 import { getCurrentSession } from "@/lib/auth/session";
-import { listProjectsForOwner } from "@/lib/projects/service";
+import { prisma } from "@/lib/db";
 import { SidebarNav } from "./SidebarNav";
 
 export async function DashboardSidebar() {
   const session = await getCurrentSession();
   const projects = session?.user
-    ? await listProjectsForOwner(session.user.id)
+    ? await prisma.project.findMany({
+        where: { ownerId: session.user.id },
+        orderBy: { updatedAt: "desc" },
+        select: { id: true, name: true, plan: true },
+      })
     : [];
+
+  const activeProjectId = projects[0]?.id ?? null;
 
   return (
     <Sidebar className="border-r border-border">
@@ -26,7 +32,7 @@ export async function DashboardSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarNav projects={projects} />
+        <SidebarNav projects={projects} activeProjectId={activeProjectId} />
       </SidebarContent>
 
       <SidebarFooter className="border-t border-border">
