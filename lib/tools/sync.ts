@@ -8,8 +8,37 @@ type SyncResult = {
   unchanged: number;
 };
 
-function schemasAreEqual(a: Record<string, unknown>, b: Record<string, unknown>): boolean {
-  return JSON.stringify(a) === JSON.stringify(b);
+// JSON.stringify is key-order-dependent; Postgres jsonb does not preserve key order,
+// so a round-tripped schema may serialize differently even when logically identical.
+// Use a recursive deep-equal that sorts object keys before comparing.
+function schemasAreEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (a === null || b === null) return a === b;
+  if (typeof a !== typeof b) return false;
+  if (typeof a !== "object") return a === b;
+
+  const aIsArr = Array.isArray(a);
+  const bIsArr = Array.isArray(b);
+  if (aIsArr !== bIsArr) return false;
+
+  if (aIsArr) {
+    const aa = a as unknown[];
+    const ba = b as unknown[];
+    if (aa.length !== ba.length) return false;
+    return aa.every((v, i) => schemasAreEqual(v, ba[i]));
+  }
+
+  const aKeys = Object.keys(a as object).sort();
+  const bKeys = Object.keys(b as object).sort();
+  if (aKeys.length !== bKeys.length) return false;
+  if (!aKeys.every((k, i) => k === bKeys[i])) return false;
+
+  return aKeys.every((k) =>
+    schemasAreEqual(
+      (a as Record<string, unknown>)[k],
+      (b as Record<string, unknown>)[k],
+    ),
+  );
 }
 
 export async function syncTools(projectId: string, incoming: SyncTool[]): Promise<SyncResult> {
