@@ -9,15 +9,12 @@ import {
 import { ToolExecutionStatus } from "@/lib/generated/prisma/enums";
 import {
   SectionHeader,
-  DataTable,
   EmptyState,
-  StatusBadge,
   TableSkeleton,
-  type Column,
 } from "@/components/dashboard/common";
 import { LogsFilters } from "@/components/dashboard/logs/LogsFilters";
+import { LogsTableClient } from "@/components/dashboard/logs/LogsTableClient";
 import { Button } from "@/components/ui/button";
-import { formatDuration, formatRelativeTime } from "@/lib/format";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -92,59 +89,13 @@ async function LogsTable({
     );
   }
 
-  const columns: Column<ExecutionLog>[] = [
-    {
-      key: "id",
-      header: "Execution",
-      width: "minmax(120px, 1.1fr)",
-      cell: (r) => <span className="text-foreground">exec_{r.id.slice(-6)}</span>,
-    },
-    {
-      key: "status",
-      header: "Status",
-      width: "minmax(110px, 1fr)",
-      cell: (r) => <StatusBadge status={r.status} />,
-    },
-    {
-      key: "tool",
-      header: "Tool",
-      width: "minmax(150px, 1.6fr)",
-      cell: (r) => <span>{r.toolName}</span>,
-    },
-    {
-      key: "duration",
-      header: "Duration",
-      width: "100px",
-      align: "right",
-      cell: (r) => (r.durationMs == null ? "—" : formatDuration(r.durationMs)),
-    },
-    {
-      key: "when",
-      header: "When",
-      width: "minmax(100px, 1fr)",
-      align: "right",
-      cell: (r) => (
-        <span className="text-muted-foreground">
-          {formatRelativeTime(r.createdAt)}
-        </span>
-      ),
-    },
-  ];
-
   const nextParams = nextCursor
     ? buildQuery({ status, toolId, cursor: nextCursor })
     : null;
 
   return (
     <div className="space-y-3">
-      <DataTable
-        columns={columns}
-        rows={items}
-        rowKey={(r) => r.id}
-        rowHref={(r) =>
-          `/dashboard/projects/${projectId}/runs/${r.conversationId}`
-        }
-      />
+      <LogsTableClient rows={items} projectId={projectId} />
       {nextParams && (
         <div className="flex justify-end">
           <Button asChild variant="outline" size="sm">

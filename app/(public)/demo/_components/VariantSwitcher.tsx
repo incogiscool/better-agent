@@ -103,7 +103,6 @@ export function VariantSwitcher() {
         setCampaigns((prev) => [...prev, campaign]);
         return { ok: true, campaign };
       },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }),
     [campaigns],
   );

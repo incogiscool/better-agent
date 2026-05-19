@@ -51,36 +51,38 @@ export function JsonViewer({
 
   return (
     <div className={cn("border border-border", className)}>
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-2 bg-muted/30 px-3 py-2 text-left text-xs hover:bg-muted/50"
-      >
-        <CaretRight
-          size={12}
-          className={cn("text-muted-foreground transition-transform", open && "rotate-90")}
-        />
-        {label && (
-          <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-            {label}
-          </span>
-        )}
-        {!open && (
-          <span className="ml-auto truncate font-mono text-[11px] text-muted-foreground/80">
-            {preview}
-          </span>
-        )}
+      <div className="flex w-full items-center bg-muted/30 hover:bg-muted/50">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="flex flex-1 items-center gap-2 px-3 py-2 text-left text-xs"
+        >
+          <CaretRight
+            size={12}
+            className={cn("text-muted-foreground transition-transform", open && "rotate-90")}
+          />
+          {label && (
+            <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+              {label}
+            </span>
+          )}
+          {!open && (
+            <span className="ml-auto truncate font-mono text-[11px] text-muted-foreground/80">
+              {preview}
+            </span>
+          )}
+        </button>
         {open && (
           <button
             type="button"
             onClick={handleCopy}
             aria-label="Copy JSON"
-            className="ml-auto inline-flex size-5 items-center justify-center text-muted-foreground hover:text-foreground"
+            className="mr-2 inline-flex size-5 items-center justify-center text-muted-foreground hover:text-foreground"
           >
             {copied ? <Check size={11} weight="bold" /> : <Copy size={11} />}
           </button>
         )}
-      </button>
+      </div>
       {open && (
         <pre className="overflow-x-auto bg-background p-3 font-mono text-[11px] leading-relaxed">
           <code>{formatted}</code>
