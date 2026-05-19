@@ -1,0 +1,83 @@
+/*
+ * BetterAgent embed components — theming variables.
+ *
+ * Each --ba-* token falls back to a shadcn token (when present) and then to
+ * a sensible neutral default. Override by redeclaring any --ba-* var in your
+ * own globals.
+ *
+ * Import once near the top of your globals.css:
+ *   @import "./components/chat/styles/betteragent.css";
+ */
+
+:root {
+  /* Surfaces */
+  --ba-bg: var(--background, oklch(1 0 0));
+  --ba-fg: var(--foreground, oklch(0.145 0 0));
+  --ba-panel-bg: var(--card, var(--ba-bg));
+  --ba-muted: var(--muted, oklch(0.97 0 0));
+  --ba-muted-fg: var(--muted-foreground, oklch(0.556 0 0));
+  --ba-border: var(--border, oklch(0.922 0 0));
+
+  /* Brand */
+  --ba-primary: var(--primary, oklch(0.555 0.163 48.998));
+  --ba-primary-fg: var(--primary-foreground, oklch(0.987 0.022 95.277));
+  --ba-accent: var(--accent, var(--ba-muted));
+  --ba-destructive: var(--destructive, oklch(0.577 0.245 27.325));
+
+  /* Message-specific */
+  --ba-msg-user-bg: var(--ba-primary);
+  --ba-msg-user-fg: var(--ba-primary-fg);
+  --ba-msg-assistant-bg: var(--ba-muted);
+  --ba-msg-assistant-fg: var(--ba-fg);
+
+  /* Shape + typography */
+  --ba-radius: 0;
+  --ba-radius-msg: 0.5rem;
+  --ba-font-sans: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  --ba-font-mono: var(
+    --font-mono,
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace
+  );
+  --ba-spacing: 1rem;
+}
+
+.dark {
+  --ba-bg: var(--background, oklch(0.145 0 0));
+  --ba-fg: var(--foreground, oklch(0.985 0 0));
+  --ba-panel-bg: var(--card, oklch(0.205 0 0));
+  --ba-muted: var(--muted, oklch(0.269 0 0));
+  --ba-muted-fg: var(--muted-foreground, oklch(0.708 0 0));
+  --ba-border: var(--border, oklch(1 0 0 / 10%));
+  --ba-primary: var(--primary, oklch(0.473 0.137 46.201));
+  --ba-primary-fg: var(--primary-foreground, oklch(0.987 0.022 95.277));
+  --ba-accent: var(--accent, var(--ba-muted));
+  --ba-destructive: var(--destructive, oklch(0.704 0.191 22.216));
+  --ba-msg-assistant-bg: var(--ba-muted);
+  --ba-msg-assistant-fg: var(--ba-fg);
+}
+
+/* Tiny utility classes the components reference. Kept low-specificity so
+   customer styles always win. */
+.ba-typing-dot {
+  animation: ba-typing-dot 1.2s infinite ease-in-out;
+}
+.ba-typing-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.ba-typing-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes ba-typing-dot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+  }
+  30% {
+    opacity: 1;
+  }
+}

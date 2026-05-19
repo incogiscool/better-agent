@@ -1,0 +1,48 @@
+{
+  "name": "@betteragent/react",
+  "version": "0.1.0",
+  "description": "React SDK for embedding BetterAgent chat in your app.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "bunx tsc --project tsconfig.json",
+    "types": "bunx tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^18 || ^19",
+    "react-dom": "^18 || ^19",
+    "next": ">=14"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.6.0"
+  },
+  "devDependencies": {
+    "@betteragent/next": "workspace:*",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "typescript": "^5"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
