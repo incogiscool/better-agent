@@ -39,6 +39,15 @@ export function verifyProjectSecret(secretKey: string, storedHash: string) {
   return timingSafeEqual(expectedHash, candidateHash);
 }
 
+/** First 16 chars after the prefix — safe to store plaintext for DB lookup. */
+export function extractKeyPrefix(secretKey: string): string {
+  // Format: ba_secret_<32-char-base64url>
+  const afterPrefix = secretKey.startsWith("ba_secret_")
+    ? secretKey.slice("ba_secret_".length)
+    : secretKey;
+  return afterPrefix.slice(0, 16);
+}
+
 export function generateProjectCredentials() {
   const clientKey = generateProjectKey("ba_client");
   const secretKey = generateProjectKey("ba_secret");
@@ -47,5 +56,6 @@ export function generateProjectCredentials() {
     clientKey,
     secretKey,
     secretKeyHash: hashProjectSecret(secretKey),
+    secretKeyPrefix: extractKeyPrefix(secretKey),
   };
 }

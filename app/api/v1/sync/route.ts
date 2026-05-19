@@ -1,6 +1,5 @@
 import { type NextRequest } from "next/server";
-import { prisma } from "@/lib/db";
-import { verifyProjectSecret } from "@/lib/projects/keys";
+import { authenticateSecretKey } from "@/lib/projects/auth";
 import { syncRequestSchema } from "@/lib/schemas/sync";
 import { syncTools } from "@/lib/tools/sync";
 
@@ -34,30 +33,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { projectId, tools } = parsed.data;
-
-  let project: { id: string; secretKeyHash: string } | null;
-  try {
-    project = await prisma.project.findUnique({
-      where: { id: projectId },
-      select: { id: true, secretKeyHash: true },
-    });
-  } catch (err) {
-    console.error("[sync] DB lookup failed:", err);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-
-  // Constant-time-safe: always attempt verify even if project not found
-  const storedHash = project?.secretKeyHash ?? "00:00";
-  const keyValid = verifyProjectSecret(secretKey, storedHash);
-
-  if (!project || !keyValid) {
-    return Response.json({ error: "Invalid project ID or secret key" }, { status: 401 });
+  const project = await authenticateSecretKey(secretKey);
+  if (!project) {
+    return Response.json({ error: "Invalid secret key" }, { status: 401 });
   }
 
   let result: Awaited<ReturnType<typeof syncTools>>;
   try {
-    result = await syncTools(projectId, tools);
+    result = await syncTools(project.id, parsed.data.tools);
   } catch (err) {
     console.error("[sync] Tool sync failed:", err);
     return Response.json({ error: "Internal server error" }, { status: 500 });
@@ -66,6 +49,6 @@ export async function POST(req: NextRequest) {
   return Response.json({
     ok: true,
     ...result,
-    total: tools.length,
+    total: parsed.data.tools.length,
   });
 }

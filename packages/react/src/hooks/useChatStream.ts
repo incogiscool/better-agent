@@ -171,13 +171,6 @@ export function useChatStream(
     error: null,
   });
 
-  // Latest conversationId in a ref so consumeStream can read it without
-  // re-binding the closure on every event.
-  const conversationIdRef = React.useRef(state.conversationId);
-  React.useEffect(() => {
-    conversationIdRef.current = state.conversationId;
-  }, [state.conversationId]);
-
   const abortRef = React.useRef<AbortController | null>(null);
   const toolStartRef = React.useRef<Map<string, number>>(new Map());
 
@@ -266,17 +259,11 @@ export function useChatStream(
                 },
               });
 
-              const convId = conversationIdRef.current;
-              if (!convId) {
-                dispatch({
-                  type: "set_error",
-                  error: {
-                    message:
-                      "Received action_call before conversationId was known.",
-                  },
-                });
-                return null;
-              }
+              // conversationId is now embedded in the action_call event itself.
+              const convId = event.data.conversationId;
+
+              // Also persist it in state so the next send() picks it up.
+              dispatch({ type: "set_conversation", conversationId: convId });
 
               try {
                 const resumed = await dispatcher.dispatch({

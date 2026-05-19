@@ -37,9 +37,11 @@ export const syncToolSchema = z
   });
 
 export const syncRequestSchema = z.object({
-  projectId: z.string().min(1),
   tools: z.array(syncToolSchema).max(200),
 });
 
 export type SyncTool = z.infer<typeof syncToolSchema>;
 export type SyncRequest = z.infer<typeof syncRequestSchema>;
+
+/** @deprecated projectId is now derived from the Bearer key server-side */
+export const _legacySyncRequestSchema = syncRequestSchema;

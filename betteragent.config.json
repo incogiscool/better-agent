@@ -1,0 +1,7 @@
+{
+  "apiUrl": "http://localhost:3000",
+  "files": {
+    "routes": "./routes.betteragent.ts",
+    "serverActions": "./server-actions.betteragent.ts"
+  }
+}

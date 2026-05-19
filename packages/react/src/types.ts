@@ -17,7 +17,7 @@ export type ChatEvent =
     }
   | {
       event: "action_call";
-      data: { toolCallId: string; toolName: string; input: unknown };
+      data: { toolCallId: string; toolName: string; input: unknown; conversationId: string };
     }
   | { event: "done"; data: { conversationId: string } }
   | { event: "error"; data: { message: string; code?: string } };
@@ -65,7 +65,8 @@ export type ChatError = {
  * `action_call`; the SDK looks up the handler by `toolName`, invokes it with
  * the validated input, and posts the result back to /v1/execute-result.
  */
-export type ActionHandler = (input: unknown) => Promise<unknown> | unknown;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ActionHandler = (input: any) => Promise<unknown> | unknown;
 
 export type ActionRegistry = Record<string, ActionHandler>;
 

@@ -39,7 +39,7 @@ export const syncCommand = defineCommand({
     if (!credential) {
       return fail(
         "Not signed in.",
-        "Run `betteragent login --key <secret> --project <id>` first.",
+        "Run `betteragent login --key <secret>` first.",
       );
     }
 
@@ -49,7 +49,6 @@ export const syncCommand = defineCommand({
     }
 
     const files = resolveFilePaths(cwd, config.files);
-    const projectId = config.projectId ?? credential.projectId;
     const apiUrl =
       config.apiUrl ?? process.env.BETTERAGENT_API_URL ?? credential.apiUrl;
 
@@ -109,10 +108,7 @@ export const syncCommand = defineCommand({
 
     let result: SyncResponse;
     try {
-      result = await client.post<SyncResponse>("/api/v1/sync", {
-        projectId,
-        tools,
-      });
+      result = await client.post<SyncResponse>("/api/v1/sync", { tools });
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 422 && err.data && typeof err.data === "object" && "issues" in err.data) {

@@ -67,10 +67,14 @@ export async function loadTools(
   files: ResolvedFiles,
   cwd: string,
 ): Promise<LoadedTools> {
+  // Read tsconfig.json in cwd to discover path aliases like `@/*`.
+  const aliases = await readTsConfigAliases(cwd);
+
   const jiti = createJiti(cwd, {
     interopDefault: true,
     moduleCache: false,
     fsCache: false,
+    alias: aliases,
   });
 
   const out: LoadedToolFile[] = [];
@@ -126,4 +130,37 @@ export async function loadTools(
   }
 
   return { files: out };
+}
+
+/**
+ * Read tsconfig.json in the given directory and convert `compilerOptions.paths`
+ * to the flat alias map jiti expects: `{ "@/*": "/abs/path/to/root/*" }` →
+ * `{ "@/": "/abs/path/to/root/" }`.
+ */
+async function readTsConfigAliases(cwd: string): Promise<Record<string, string>> {
+  const tsconfigPath = path.join(cwd, "tsconfig.json");
+  try {
+    const raw = await fs.readFile(tsconfigPath, "utf-8");
+    const tsconfig = JSON.parse(raw) as {
+      compilerOptions?: { paths?: Record<string, string[]>; baseUrl?: string };
+    };
+    const paths = tsconfig.compilerOptions?.paths;
+    if (!paths) return {};
+
+    const baseUrl = path.resolve(cwd, tsconfig.compilerOptions?.baseUrl ?? ".");
+    const aliases: Record<string, string> = {};
+
+    for (const [alias, targets] of Object.entries(paths)) {
+      const target = targets[0];
+      if (!target) continue;
+      // Strip trailing `*` from both sides: `@/*` → `@/`, `./src/*` → `./src/`
+      const aliasKey = alias.endsWith("/*") ? alias.slice(0, -1) : alias;
+      const targetVal = target.endsWith("/*") ? target.slice(0, -1) : target;
+      aliases[aliasKey] = path.resolve(baseUrl, targetVal);
+    }
+
+    return aliases;
+  } catch {
+    return {};
+  }
 }

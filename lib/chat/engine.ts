@@ -143,6 +143,7 @@ async function orchestrate(ctx: ChatTurnContext, sse: SseController): Promise<vo
                 toolCallId: part.toolCallId,
                 toolName: part.toolName,
                 input: part.input,
+                conversationId: ctx.conversationId,
               },
             });
             aborted = true; // Intentional pause — wait for /v1/execute-result

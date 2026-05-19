@@ -19,7 +19,8 @@
     "next:types": "cd packages/next && bunx tsc --noEmit",
     "react:build": "cd packages/react && bun run build",
     "react:types": "cd packages/react && bunx tsc --noEmit",
-    "packages:build": "bun run next:build && bun run react:build && bun run cli:build"
+    "packages:build": "bun run next:build && bun run react:build && bun run cli:build",
+    "ba": "node packages/cli/dist/cli.js"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.77",

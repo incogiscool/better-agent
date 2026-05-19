@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CAMPAIGNS, type Campaign } from "../_data/campaigns";
+import type { Campaign } from "../_data/campaigns";
 
 function formatReach(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
@@ -28,13 +28,17 @@ function StatusBadge({ status }: { status: Campaign["status"] }) {
   );
 }
 
-export function LumenShell({ children }: { children?: React.ReactNode }) {
-  const totalReach = CAMPAIGNS.reduce((s, c) => s + c.reach, 0);
-  const totalSpend = CAMPAIGNS.reduce((s, c) => s + c.spend, 0);
-  const avgCpm =
-    CAMPAIGNS.reduce((s, c) => s + c.cpm, 0) / CAMPAIGNS.length;
-  const avgEngagement =
-    CAMPAIGNS.reduce((s, c) => s + c.engagement, 0) / CAMPAIGNS.length;
+export function LumenShell({
+  campaigns,
+  children,
+}: {
+  campaigns: Campaign[];
+  children?: React.ReactNode;
+}) {
+  const totalReach = campaigns.reduce((s, c) => s + c.reach, 0);
+  const totalSpend = campaigns.reduce((s, c) => s + c.spend, 0);
+  const avgCpm = campaigns.reduce((s, c) => s + c.cpm, 0) / (campaigns.length || 1);
+  const avgEngagement = campaigns.reduce((s, c) => s + c.engagement, 0) / (campaigns.length || 1);
 
   return (
     <div className="flex h-full min-h-screen">
@@ -69,7 +73,7 @@ export function LumenShell({ children }: { children?: React.ReactNode }) {
           <div className="space-y-1">
             <h1 className="text-2xl font-semibold">Campaigns</h1>
             <p className="text-xs text-muted-foreground">
-              {CAMPAIGNS.filter((c) => c.status === "live").length} active ·
+              {campaigns.filter((c) => c.status === "live").length} active ·
               last 30 days
             </p>
           </div>
@@ -115,7 +119,7 @@ export function LumenShell({ children }: { children?: React.ReactNode }) {
                 </div>
               ))}
             </div>
-            {CAMPAIGNS.map((c) => (
+            {campaigns.map((c) => (
               <div
                 key={c.id}
                 className="grid grid-cols-[minmax(80px,1fr)_2fr_1fr_1fr_1fr] gap-px bg-border text-xs"

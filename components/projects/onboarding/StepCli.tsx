@@ -5,12 +5,11 @@ import { CodeBlock } from "@/components/dashboard/common/CodeBlock";
 
 interface StepCliProps {
   secretKey: string;
-  projectId: string;
 }
 
-export function StepCli({ secretKey, projectId }: StepCliProps) {
+export function StepCli({ secretKey }: StepCliProps) {
   const install = "npm i -D @betteragent/cli";
-  const login = `npx betteragent login --key ${secretKey} --project ${projectId}`;
+  const login = `npx betteragent login --key ${secretKey}`;
   const init = "npx betteragent sync";
 
   return (

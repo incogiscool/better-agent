@@ -67,6 +67,7 @@ export async function createProjectForOwner(input: CreateProjectInput) {
       systemPrompt: input.systemPrompt,
       clientKey: credentials.clientKey,
       secretKeyHash: credentials.secretKeyHash,
+      secretKeyPrefix: credentials.secretKeyPrefix,
     },
     select: {
       id: true,
@@ -114,6 +115,7 @@ export async function regenerateProjectCredentialsForOwner(
     data: {
       clientKey: credentials.clientKey,
       secretKeyHash: credentials.secretKeyHash,
+      secretKeyPrefix: credentials.secretKeyPrefix,
     },
   });
 

@@ -2,7 +2,7 @@ export type SseEvent =
   | { event: "text_delta"; data: { delta: string } }
   | { event: "tool_call"; data: { toolCallId: string; toolName: string; input: unknown } }
   | { event: "tool_result"; data: { toolCallId: string; toolName: string; output: unknown } }
-  | { event: "action_call"; data: { toolCallId: string; toolName: string; input: unknown } }
+  | { event: "action_call"; data: { toolCallId: string; toolName: string; input: unknown; conversationId: string } }
   | { event: "done"; data: { conversationId: string } }
   | { event: "error"; data: { message: string; code?: string } };
 

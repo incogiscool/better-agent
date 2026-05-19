@@ -113,6 +113,7 @@ model Project {
   baseUrl            String?
   clientKey          String          @unique
   secretKeyHash      String
+  secretKeyPrefix    String?         @unique
   systemPrompt       String?
   plan               ProjectPlan     @default(FREE)
   stripeCustomerId   String?         @unique
