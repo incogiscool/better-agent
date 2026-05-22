@@ -8,6 +8,7 @@ type WhoamiResponse = {
   projectId: string;
   name: string;
   plan: string;
+  clientKey: string;
 };
 
 export const whoamiCommand = defineCommand({
@@ -31,9 +32,10 @@ export const whoamiCommand = defineCommand({
         projectId: credential.projectId,
       });
       log.plain(`${result.name}`);
-      log.dim(`  project: ${result.projectId}`);
-      log.dim(`  plan:    ${result.plan}`);
-      log.dim(`  api:     ${credential.apiUrl}`);
+      log.dim(`  project:    ${result.projectId}`);
+      log.dim(`  client key: ${result.clientKey}`);
+      log.dim(`  plan:       ${result.plan}`);
+      log.dim(`  api:        ${credential.apiUrl}`);
     } catch (err) {
       if (err instanceof ApiError) {
         return fail(

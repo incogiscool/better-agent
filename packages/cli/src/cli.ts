@@ -5,6 +5,7 @@ import { whoamiCommand } from "./commands/whoami";
 import { syncCommand } from "./commands/sync";
 import { addCommand } from "./commands/add";
 import { discoverCommand } from "./commands/discover";
+import { initCommand } from "./commands/init";
 
 const main = defineCommand({
   meta: {
@@ -16,6 +17,7 @@ const main = defineCommand({
     login: loginCommand,
     logout: logoutCommand,
     whoami: whoamiCommand,
+    init: initCommand,
     discover: discoverCommand,
     sync: syncCommand,
     add: addCommand,

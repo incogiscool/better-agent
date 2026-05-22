@@ -10,7 +10,7 @@ interface StepCliProps {
 export function StepCli({ secretKey }: StepCliProps) {
   const install = "npm i -D @betteragent/cli";
   const login = `npx betteragent login --key ${secretKey}`;
-  const init = "npx betteragent sync";
+  const init = "npx betteragent init";
 
   return (
     <div className="space-y-5">
@@ -50,9 +50,9 @@ export function StepCli({ secretKey }: StepCliProps) {
           </div>
           <CodeBlock code={init} language="bash" />
           <p className="text-[11px] text-muted-foreground">
-            Author your `routes.betteragent.ts` and `server-actions.betteragent.ts`
-            files using `@betteragent/next` helpers, then run sync. The next
-            step will light up automatically once your first sync lands.
+            Sets up your config, installs a chat component, scans for tools, and
+            writes your .env.local. Ends with instructions to run sync — which will
+            light up this step automatically once it completes.
           </p>
         </li>
       </ol>

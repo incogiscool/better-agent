@@ -11,11 +11,12 @@ import {
 import { readProjectConfig } from "../config/project";
 import { ApiError, createClient } from "../http/client";
 
-type WhoamiResponse = {
+export type WhoamiResponse = {
   ok: true;
   projectId: string;
   name: string;
   plan: string;
+  clientKey: string;
 };
 
 export const loginCommand = defineCommand({
@@ -76,6 +77,7 @@ export const loginCommand = defineCommand({
       secretKey,
       projectId: result.projectId,
       projectName: result.name,
+      clientKey: result.clientKey,
     };
     await writeCredential(credential);
 

@@ -9,6 +9,7 @@ export type Credential = {
   secretKey: string;
   projectId: string;
   projectName: string;
+  clientKey: string;
 };
 
 type CredentialsFile = {

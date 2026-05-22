@@ -1,10 +1,11 @@
 import { prisma } from "@/lib/db";
 import { extractKeyPrefix, verifyProjectSecret } from "./keys";
 
-type ProjectForAuth = {
+export type ProjectForAuth = {
   id: string;
   name: string;
   plan: string;
+  clientKey: string;
   baseUrl: string | null;
   systemPrompt: string | null;
 };
@@ -22,6 +23,7 @@ export async function authenticateSecretKey(secretKey: string): Promise<ProjectF
       id: true,
       name: true,
       plan: true,
+      clientKey: true,
       baseUrl: true,
       systemPrompt: true,
       secretKeyHash: true,

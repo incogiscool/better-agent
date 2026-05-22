@@ -27,5 +27,6 @@ export async function GET(req: NextRequest) {
     projectId: project.id,
     name: project.name,
     plan: project.plan,
+    clientKey: project.clientKey,
   });
 }
