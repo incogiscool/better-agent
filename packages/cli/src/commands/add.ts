@@ -2,34 +2,24 @@ import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { defineCommand } from "citty";
 import pc from "picocolors";
+import prompts from "prompts";
 import { log, fail } from "../logger";
-import {
-  DEFAULT_API_URL,
-  readCredential,
-} from "../config/credentials";
+import { DEFAULT_API_URL, readCredential } from "../config/credentials";
 import { readProjectConfig } from "../config/project";
-import { writeRegistryFiles, type RegistryFile } from "../registry/install";
-import { ApiError, createClient } from "../http/client";
-
-type RegistryItem = {
-  name: string;
-  type: string;
-  description: string;
-  dependencies: string[];
-  registryDependencies: string[];
-  files: RegistryFile[];
-};
+import { writeRegistryFiles } from "../registry/install";
+import { makeRegistryClient, type RegistryComponent } from "../registry/client";
+import { markInstalled, getInstalled } from "../registry/tracker";
 
 export const addCommand = defineCommand({
   meta: {
     name: "add",
-    description: "Install a BetterAgent chat component into your project.",
+    description: "Install BetterAgent chat components into your project.",
   },
   args: {
     name: {
       type: "positional",
-      required: true,
-      description: "Component name: sidebar | chat-popup | command-bar | inline-bar",
+      required: false,
+      description: "Component name (omit for interactive picker).",
     },
     cwd: {
       type: "string",
@@ -46,7 +36,8 @@ export const addCommand = defineCommand({
   },
   async run({ args }) {
     const cwd = path.resolve((args.cwd as string | undefined) ?? process.cwd());
-    const componentName = args.name as string;
+    const overwrite = !!args.overwrite;
+    const dryRun = !!args["dry-run"];
 
     const { config } = await readProjectConfig(cwd);
     const credential = await readCredential();
@@ -56,125 +47,124 @@ export const addCommand = defineCommand({
       credential?.apiUrl ??
       DEFAULT_API_URL;
 
-    // Build a minimal client (no auth needed for public registry reads).
-    const client = createClient({ baseUrl: apiUrl, secretKey: "" });
+    const registry = makeRegistryClient(apiUrl);
+    const installed = await getInstalled(cwd);
 
-    log.step(`Fetching ${pc.bold(componentName)} from ${pc.dim(apiUrl)}`);
+    let toInstall: string[] = [];
+    const nameArg = args.name as string | undefined;
 
-    let item: RegistryItem;
-    try {
-      item = await client.get<RegistryItem>(
-        `/registry/components/${componentName}`,
-      );
-    } catch (err) {
-      if (err instanceof ApiError) {
-        if (err.status === 404) {
-          return fail(
-            `Component "${componentName}" not found.`,
-            "Available: sidebar · chat-popup · command-bar · inline-bar",
-          );
-        }
-        return fail(`Registry error: ${err.message}`);
+    if (!nameArg) {
+      log.step("Fetching component list from " + apiUrl + "...");
+      let index;
+      try {
+        index = await registry.fetchIndex();
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        return fail("Could not reach registry: " + message);
       }
-      const message = err instanceof Error ? err.message : String(err);
-      return fail(`Could not reach ${apiUrl}: ${message}`);
-    }
 
-    log.success(
-      `Found ${pc.bold(item.name)}: ${item.description}`,
-    );
+      if (index.items.length === 0) return fail("Registry returned no components.");
+      log.plain("");
 
-    if (item.files.length === 0) {
-      return fail("Registry returned no files.");
-    }
+      const { selected } = await prompts({
+        type: "multiselect",
+        name: "selected",
+        message: "Which components do you want to install?",
+        hint: "Space to toggle, Enter to confirm",
+        instructions: false,
+        choices: index.items.map((item) => ({
+          title: formatChoice(item.name, item.description, installed[item.name] != null),
+          value: item.name,
+          selected: false,
+        })),
+      });
 
-    log.plain(
-      `\n  ${item.files.length} files · ${item.dependencies.length} deps · ${item.registryDependencies.length} shadcn deps\n`,
-    );
-
-    if (args["dry-run"]) {
-      log.info("Dry run — skipping file writes and installs.");
-      for (const f of item.files) {
-        log.dim(`  ${f.path}`);
+      if (!selected || (selected as string[]).length === 0) {
+        log.info("Nothing selected.");
+        return;
       }
-      return;
+      toInstall = selected as string[];
+    } else {
+      toInstall = [nameArg];
     }
 
-    const { written, skipped } = await writeRegistryFiles({
-      cwd,
-      files: item.files,
-      overwrite: !!args.overwrite,
-    });
-
-    for (const p of written) {
-      log.success(path.relative(cwd, p));
+    log.plain("");
+    for (const name of toInstall) {
+      await installOne({ name, cwd, overwrite, dryRun, registry, installed });
+      log.plain("");
     }
-    for (const p of skipped) {
-      log.warn(`${path.relative(cwd, p)} already exists — use --overwrite to replace`);
-    }
-
-    // Install npm deps
-    if (item.dependencies.length > 0) {
-      log.step(`Installing npm deps: ${item.dependencies.join(", ")}`);
-      const res = spawnSync(
-        "npm",
-        ["install", "--save", ...item.dependencies],
-        { cwd, stdio: "inherit" },
-      );
-      if (res.status !== 0) {
-        log.warn("npm install did not exit cleanly. Run it manually:");
-        log.plain(`  npm install ${item.dependencies.join(" ")}`);
-      }
-    }
-
-    // Install shadcn deps
-    if (item.registryDependencies.length > 0) {
-      log.step(
-        `Installing shadcn primitives: ${item.registryDependencies.join(", ")}`,
-      );
-      const shadcnBin = locateShadcnBin(cwd);
-      if (shadcnBin) {
-        const res = spawnSync(
-          "npx",
-          ["shadcn", "add", ...item.registryDependencies],
-          { cwd, stdio: "inherit" },
-        );
-        if (res.status !== 0) {
-          log.warn("shadcn add did not exit cleanly. Run it manually:");
-          log.plain(`  npx shadcn add ${item.registryDependencies.join(" ")}`);
-        }
-      } else {
-        log.warn("shadcn not found. Install the primitives manually:");
-        log.plain(`  npx shadcn add ${item.registryDependencies.join(" ")}`);
-      }
-    }
-
-    log.success(`\n${pc.bold(componentName)} installed.`);
-    log.hint(
-      `Import the theming CSS once in your globals.css:\n  @import "./components/chat/styles/betteragent.css";`,
-    );
-    log.hint(
-      `Wrap your app with <BetterAgentProvider clientKey={…} endUserId={…}> from @betteragent/react.`,
-    );
-    log.hint(`Then drop in the component:\n  <${toComponentName(componentName)} />`);
   },
 });
 
-function locateShadcnBin(cwd: string): boolean {
+async function installOne({
+  name, cwd, overwrite, dryRun, registry, installed,
+}: {
+  name: string;
+  cwd: string;
+  overwrite: boolean;
+  dryRun: boolean;
+  registry: ReturnType<typeof makeRegistryClient>;
+  installed: Record<string, unknown>;
+}) {
+  const isUpdate = installed[name] != null;
+  log.step(isUpdate ? "Updating " + name + "..." : "Installing " + name + "...");
+
+  let item: RegistryComponent;
   try {
-    const res = spawnSync("npx", ["shadcn", "--version"], {
-      cwd,
-      stdio: "pipe",
-    });
-    return res.status === 0;
-  } catch {
-    return false;
+    item = await registry.fetchComponent(name);
+  } catch (err) {
+    log.error(err instanceof Error ? err.message : String(err));
+    return;
+  }
+
+  if (item.files.length === 0) { log.warn(name + ": no files in registry — skipping."); return; }
+
+  log.dim("  " + item.files.length + " files · " + item.dependencies.length + " deps · " + item.registryDependencies.length + " shadcn deps");
+
+  if (dryRun) {
+    log.info("Dry run — no files written.");
+    for (const f of item.files) log.dim("  " + f.path);
+    return;
+  }
+
+  const { written, skipped } = await writeRegistryFiles({ cwd, files: item.files, overwrite });
+  for (const p of written) log.success(path.relative(cwd, p));
+  for (const p of skipped) log.warn(path.relative(cwd, p) + " already exists — use --overwrite to replace");
+
+  await markInstalled(cwd, name, item.files.map((f) => path.join(cwd, f.path)));
+
+  if (item.dependencies.length > 0) {
+    log.step("Installing npm deps: " + item.dependencies.join(", "));
+    const r = spawnSync("npm", ["install", "--save", ...item.dependencies], { cwd, stdio: "inherit" });
+    if (r.status !== 0) { log.warn("npm install failed. Run manually:"); log.plain("  npm install " + item.dependencies.join(" ")); }
+  }
+
+  if (item.registryDependencies.length > 0) {
+    log.step("Installing shadcn primitives: " + item.registryDependencies.join(", "));
+    if (locateShadcnBin(cwd)) {
+      const r = spawnSync("npx", ["shadcn", "add", ...item.registryDependencies], { cwd, stdio: "inherit" });
+      if (r.status !== 0) { log.warn("shadcn add failed. Run manually:"); log.plain("  npx shadcn add " + item.registryDependencies.join(" ")); }
+    } else {
+      log.warn("shadcn not found. Run manually:"); log.plain("  npx shadcn add " + item.registryDependencies.join(" "));
+    }
+  }
+
+  log.success(name + (isUpdate ? " updated." : " installed."));
+  if (!isUpdate) {
+    log.hint("Import theming once:\n  @import \"./components/chat/styles/betteragent.css\";");
+    log.hint("Drop in the component:\n  <" + toComponentName(name) + " />");
   }
 }
 
+function formatChoice(name: string, description: string, isInstalled: boolean): string {
+  return name.padEnd(14) + "  " + pc.dim(description) + (isInstalled ? pc.green(" ✓") : "");
+}
+
+function locateShadcnBin(cwd: string): boolean {
+  try { return spawnSync("npx", ["shadcn", "--version"], { cwd, stdio: "pipe" }).status === 0; }
+  catch { return false; }
+}
+
 function toComponentName(name: string): string {
-  return name
-    .split("-")
-    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-    .join("");
+  return name.split("-").map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join("");
 }

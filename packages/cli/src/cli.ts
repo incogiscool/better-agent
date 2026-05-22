@@ -4,6 +4,7 @@ import { logoutCommand } from "./commands/logout";
 import { whoamiCommand } from "./commands/whoami";
 import { syncCommand } from "./commands/sync";
 import { addCommand } from "./commands/add";
+import { removeCommand } from "./commands/remove";
 import { discoverCommand } from "./commands/discover";
 import { initCommand } from "./commands/init";
 
@@ -21,6 +22,7 @@ const main = defineCommand({
     discover: discoverCommand,
     sync: syncCommand,
     add: addCommand,
+    remove: removeCommand,
   },
 });
 
