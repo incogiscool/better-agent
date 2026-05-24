@@ -8,7 +8,9 @@ interface OAuthButtonsProps {
   callbackURL?: string;
 }
 
-export function OAuthButtons({ callbackURL = "/dashboard" }: OAuthButtonsProps) {
+export function OAuthButtons({
+  callbackURL = "/dashboard",
+}: OAuthButtonsProps) {
   const { mutate, isPending, variables } = useSocialSignIn();
 
   return (
@@ -30,7 +32,7 @@ export function OAuthButtons({ callbackURL = "/dashboard" }: OAuthButtonsProps) 
         onClick={() => mutate({ provider: "google", callbackURL })}
         disabled={isPending}
       >
-        <GoogleLogo weight="fill" className="text-[#EA4335]" />
+        <GoogleLogo weight="fill" />
         {isPending && variables?.provider === "google"
           ? "Redirecting..."
           : "Continue with Google"}

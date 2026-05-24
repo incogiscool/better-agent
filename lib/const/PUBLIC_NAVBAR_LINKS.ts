@@ -15,9 +15,9 @@ export const PUBLIC_NAVBAR_LINKS = [
     link: "/pricing",
   },
   {
-    name: "Changelog",
-    id: "changelog",
-    link: "/changelog",
+    name: "Demo",
+    id: "demo",
+    link: "/demo",
   },
   {
     name: "Contact",

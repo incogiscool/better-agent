@@ -1,0 +1,117 @@
+"use client";
+import { cn } from "@/lib/utils";
+import { Check } from "@phosphor-icons/react";
+import Link from "next/link";
+import { Button } from "../ui/button";
+
+export const PLANS = [
+  {
+    name: "Free",
+    price: "$0",
+    unit: "/mo",
+    primary: false,
+    cta: "Start free",
+    href: "/auth/sign-up",
+    tagline: "For prototyping. Hard-capped — never bills you by surprise.",
+    features: [
+      "500 credits / month",
+      "1 project, 7-day history",
+      "Hosted Sonnet 4.6",
+      '"Powered by BetterAgent"',
+    ],
+  },
+  {
+    name: "Pro",
+    price: "$39",
+    unit: "/mo",
+    primary: true,
+    cta: "Start 14-day trial",
+    href: "/auth/sign-up",
+    tagline:
+      "For production apps. Generous limits and pay-as-you-grow overage.",
+    features: [
+      "10,000 credits / month",
+      "$5 per 1k additional credits",
+      "Unlimited projects, full history",
+      "Remove watermark",
+      "Evals, replays, exports",
+    ],
+  },
+  {
+    name: "Enterprise",
+    price: "Custom",
+    unit: "",
+    primary: false,
+    cta: "Talk to sales",
+    href: "#",
+    tagline: "BYOK, SSO, SLA, self-host for teams shipping at scale.",
+    features: [
+      "Bring your own LLM keys",
+      "SSO + SAML + audit log",
+      "Self-host runtime (Docker)",
+      "99.9% SLA + dedicated support",
+    ],
+  },
+] as const;
+
+export function PricingCards() {
+  return (
+    <div className="grid grid-cols-3 gap-3.5">
+      {PLANS.map((p) => (
+        <div
+          key={p.name}
+          className={cn(
+            "border rounded-xl p-7 flex flex-col gap-4",
+            p.primary ? "border-primary bg-primary/4" : "border-border bg-card",
+          )}
+        >
+          <span
+            className={cn(
+              "font-mono text-sm font-medium tracking-[0.04em] uppercase",
+              p.primary ? "text-primary" : "text-muted-foreground",
+            )}
+          >
+            {p.name}
+            {p.primary && (
+              <span className="ml-1.5 text-[10px] px-1.5 py-px rounded bg-primary text-primary-foreground">
+                POPULAR
+              </span>
+            )}
+          </span>
+
+          <div className="font-mono text-[44px] font-medium tracking-[-0.025em] leading-none">
+            {p.price}
+            <span className="text-sm text-muted-foreground ml-1">{p.unit}</span>
+          </div>
+
+          <p className="font-sans text-sm text-muted-foreground leading-relaxed m-0">
+            {p.tagline}
+          </p>
+
+          <ul className="list-none p-0 m-0 flex flex-col gap-2">
+            {p.features.map((f) => (
+              <li
+                key={f}
+                className="flex items-start gap-2 font-mono text-[12.5px] leading-relaxed"
+              >
+                <span className="text-[oklch(0.55_0.17_145)] shrink-0 mt-0.5">
+                  <Check size={11} />
+                </span>
+                {f}
+              </li>
+            ))}
+          </ul>
+
+          <Link href={p.href} className={"mt-auto w-full"}>
+            <Button
+              variant={p.primary ? "default" : "outline"}
+              className="mt-auto w-full"
+            >
+              {p.cta}
+            </Button>
+          </Link>
+        </div>
+      ))}
+    </div>
+  );
+}
