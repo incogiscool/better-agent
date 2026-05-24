@@ -1,11 +1,7 @@
 import { anthropic } from "@ai-sdk/anthropic";
-import { stepCountIs, streamText, type ModelMessage } from "ai";
+import { stepCountIs, streamText, type ModelMessage, type ToolSet } from "ai";
 import { consumeCredits, CREDIT_WEIGHTS } from "@/lib/billing";
-import {
-  getRunningTokenTotal,
-  isOverTokenCap,
-  MAX_STEPS,
-} from "./caps";
+import { getRunningTokenTotal, isOverTokenCap, MAX_STEPS } from "./caps";
 import {
   insertPendingExecution,
   markConversationAbandoned,
@@ -50,7 +46,31 @@ export function runChatTurn(ctx: ChatTurnContext): ChatTurnResult {
   return { stream: sse.stream, done };
 }
 
-async function orchestrate(ctx: ChatTurnContext, sse: SseController): Promise<void> {
+const CACHE_CONTROL = {
+  anthropic: { cacheControl: { type: "ephemeral" as const } },
+};
+
+function withCachePrefix(history: ModelMessage[]): ModelMessage[] {
+  if (history.length < 2) return history;
+  return history.map((msg, i) =>
+    i === history.length - 2 ? { ...msg, providerOptions: CACHE_CONTROL } : msg,
+  );
+}
+
+function withToolCaching(toolSet: ToolSet): ToolSet {
+  const names = Object.keys(toolSet);
+  if (names.length === 0) return toolSet;
+  const lastName = names[names.length - 1];
+  return {
+    ...toolSet,
+    [lastName]: { ...toolSet[lastName], providerOptions: CACHE_CONTROL },
+  };
+}
+
+async function orchestrate(
+  ctx: ChatTurnContext,
+  sse: SseController,
+): Promise<void> {
   const built = await buildToolSet({
     projectId: ctx.project.id,
     baseUrl: ctx.project.baseUrl,
@@ -69,9 +89,9 @@ async function orchestrate(ctx: ChatTurnContext, sse: SseController): Promise<vo
 
   const result = streamText({
     model: anthropic(MODEL_ID),
-    system,
-    messages: ctx.history,
-    tools: built.toolSet,
+    system: { role: "system", content: system, providerOptions: CACHE_CONTROL },
+    messages: withCachePrefix(ctx.history),
+    tools: withToolCaching(built.toolSet),
     stopWhen: stepCountIs(MAX_STEPS),
     onFinish: async ({ totalUsage }) => {
       try {
@@ -89,7 +109,10 @@ async function orchestrate(ctx: ChatTurnContext, sse: SseController): Promise<vo
           await markConversationAbandoned(ctx.conversationId);
           sse.send({
             event: "error",
-            data: { message: "conversation token cap reached", code: "token_cap" },
+            data: {
+              message: "conversation token cap reached",
+              code: "token_cap",
+            },
           });
         }
       } catch (err) {
@@ -192,7 +215,11 @@ async function orchestrate(ctx: ChatTurnContext, sse: SseController): Promise<vo
     }
 
     if (assistantText || collectedToolCalls.length > 0) {
-      await saveAssistantMessage(ctx.conversationId, assistantText, collectedToolCalls);
+      await saveAssistantMessage(
+        ctx.conversationId,
+        assistantText,
+        collectedToolCalls,
+      );
     }
 
     sse.send({ event: "done", data: { conversationId: ctx.conversationId } });
