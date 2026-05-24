@@ -1,3 +1,2 @@
-import { searchCampaigns, pauseCampaign, createCampaign } from "./app/(public)/demo/_actions/server-actions";
-
-export const serverActions = [searchCampaigns, pauseCampaign, createCampaign];
+// All demo tools are client actions — nothing to sync here.
+export const serverActions = [];

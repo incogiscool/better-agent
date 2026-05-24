@@ -14,28 +14,31 @@ import {
 } from "@/components/chat";
 import type { SuggestedPrompt } from "@/components/chat";
 import { CAMPAIGNS, type Campaign } from "../_data/campaigns";
-import { LumenShell } from "./LumenShell";
+import { INFLUENCERS, type Influencer } from "../_data/influencers";
+import { LumenShell, type ActiveTab, type LumenShellProps } from "./LumenShell";
+import { CodePanel } from "./CodePanel";
 
 const VARIANTS = ["sidebar", "popup", "cmdk", "inline-bar", "drawer"] as const;
 type Variant = (typeof VARIANTS)[number];
 
 const SUGGESTED: SuggestedPrompt[] = [
   {
-    label: "Find the top 4 running influencers in Canada and draft a campaign",
+    label: "Find top running influencers in Canada and launch a campaign",
     prompt:
-      "Find the top 4 running influencers in Canada and draft a campaign for our new Trail Runner II launch.",
+      "Find the top running influencers in Canada, create a campaign called 'Trail Runner II Launch' with a $10,000 budget, assign each of them to it, then show me the influencers tab.",
     icon: <MagnifyingGlass size={12} />,
   },
   {
-    label: "What's the audience overlap between our last 3 campaigns?",
-    prompt: "What's the audience overlap between our last 3 campaigns?",
-    icon: <ChartBar size={12} />,
+    label: "Pause underperforming campaigns",
+    prompt:
+      "Search for all live campaigns, find the ones with engagement under 1.5%, and pause them.",
+    icon: <PauseCircle size={12} />,
   },
   {
-    label: "Pause all campaigns under 1.2% engagement and notify their owners.",
+    label: "Show me this week's analytics",
     prompt:
-      "Pause all campaigns under 1.2% engagement and notify their owners.",
-    icon: <PauseCircle size={12} />,
+      "Get analytics for the last 7 days and tell me which campaign has the best engagement rate. Then switch to the analytics tab.",
+    icon: <ChartBar size={12} />,
   },
 ];
 
@@ -47,12 +50,27 @@ const END_USER_ID = "demo_user";
 export function VariantSwitcher() {
   const searchParams = useSearchParams();
   const variant = (searchParams.get("variant") ?? "sidebar") as Variant;
+
   const [campaigns, setCampaigns] = React.useState<Campaign[]>([...CAMPAIGNS]);
+  const [influencers, setInfluencers] = React.useState<Influencer[]>([
+    ...INFLUENCERS,
+  ]);
+  const [activeTab, setActiveTab] = React.useState<ActiveTab>("campaigns");
+  const [showCode, setShowCode] = React.useState(false);
   const [isMac, setIsMac] = React.useState(true);
+
+  // Refs so action closures always read the latest state, not a stale snapshot
+  const campaignsRef = React.useRef(campaigns);
+  campaignsRef.current = campaigns;
+  const influencersRef = React.useRef(influencers);
+  influencersRef.current = influencers;
+
   React.useEffect(() => {
     setIsMac(/Mac|iPhone|iPad|iPod/.test(navigator.platform));
   }, []);
 
+  // Actions use refs for reads so they always see the latest state even when
+  // the agent fires multiple tool calls before React re-renders.
   const actions = React.useMemo(
     () => ({
       searchCampaigns: ({
@@ -62,7 +80,7 @@ export function VariantSwitcher() {
         query?: string;
         status?: Campaign["status"];
       }) => {
-        let results = campaigns;
+        let results = campaignsRef.current;
         if (status) results = results.filter((c) => c.status === status);
         if (query) {
           const q = query.toLowerCase();
@@ -74,6 +92,7 @@ export function VariantSwitcher() {
             name: c.name,
             status: c.status,
             reach: c.reach,
+            budget: c.budget,
             engagement: `${(c.engagement * 100).toFixed(1)}%`,
             cpm: `$${c.cpm.toFixed(2)}`,
           })),
@@ -82,7 +101,7 @@ export function VariantSwitcher() {
       },
 
       pauseCampaign: ({ id }: { id: string }) => {
-        const campaign = campaigns.find((c) => c.id === id);
+        const campaign = campaignsRef.current.find((c) => c.id === id);
         if (!campaign) return { ok: false, error: `Campaign ${id} not found.` };
         if (campaign.status !== "live")
           return { ok: false, error: `Campaign ${id} is not live.` };
@@ -92,6 +111,19 @@ export function VariantSwitcher() {
           ),
         );
         return { ok: true, campaign: { ...campaign, status: "paused" } };
+      },
+
+      resumeCampaign: ({ id }: { id: string }) => {
+        const campaign = campaignsRef.current.find((c) => c.id === id);
+        if (!campaign) return { ok: false, error: `Campaign ${id} not found.` };
+        if (campaign.status !== "paused")
+          return { ok: false, error: `Campaign ${id} is not paused.` };
+        setCampaigns((prev) =>
+          prev.map((c) =>
+            c.id === id ? { ...c, status: "live" as const } : c,
+          ),
+        );
+        return { ok: true, campaign: { ...campaign, status: "live" } };
       },
 
       createCampaign: ({ name }: { name: string }) => {
@@ -104,16 +136,172 @@ export function VariantSwitcher() {
           cpm: 0,
           engagement: 0,
           status: "draft",
+          budget: 0,
         };
         setCampaigns((prev) => [...prev, campaign]);
+        campaignsRef.current = [...campaignsRef.current, campaign];
         return { ok: true, campaign };
       },
+
+      updateCampaignBudget: ({
+        id,
+        budget,
+      }: {
+        id: string;
+        budget: number;
+      }) => {
+        const campaign = campaignsRef.current.find((c) => c.id === id);
+        if (!campaign) return { ok: false, error: `Campaign ${id} not found.` };
+        setCampaigns((prev) =>
+          prev.map((c) => (c.id === id ? { ...c, budget } : c)),
+        );
+        campaignsRef.current = campaignsRef.current.map((c) =>
+          c.id === id ? { ...c, budget } : c,
+        );
+        return { ok: true, campaign: { ...campaign, budget } };
+      },
+
+      bulkPause: ({ ids }: { ids: string[] }) => {
+        const topause = campaignsRef.current.filter(
+          (c) => ids.includes(c.id) && c.status === "live",
+        );
+        setCampaigns((prev) =>
+          prev.map((c) =>
+            ids.includes(c.id) && c.status === "live"
+              ? { ...c, status: "paused" as const }
+              : c,
+          ),
+        );
+        campaignsRef.current = campaignsRef.current.map((c) =>
+          ids.includes(c.id) && c.status === "live"
+            ? { ...c, status: "paused" as const }
+            : c,
+        );
+        return { ok: true, paused: topause.length, ids: topause.map((c) => c.id) };
+      },
+
+      searchInfluencers: ({
+        query,
+        platform,
+        country,
+        minFollowers,
+        niche,
+      }: {
+        query?: string;
+        platform?: Influencer["platform"];
+        country?: string;
+        minFollowers?: number;
+        niche?: string;
+      }) => {
+        let results = influencersRef.current;
+        if (platform) results = results.filter((i) => i.platform === platform);
+        if (country)
+          results = results.filter(
+            (i) => i.country.toLowerCase() === country.toLowerCase(),
+          );
+        if (minFollowers !== undefined)
+          results = results.filter((i) => i.followers >= minFollowers);
+        if (niche)
+          results = results.filter((i) =>
+            i.niche.some((n) => n.toLowerCase().includes(niche.toLowerCase())),
+          );
+        if (query) {
+          const q = query.toLowerCase();
+          results = results.filter(
+            (i) =>
+              i.name.toLowerCase().includes(q) ||
+              i.handle.toLowerCase().includes(q),
+          );
+        }
+        return {
+          influencers: results.map((i) => ({
+            id: i.id,
+            name: i.name,
+            handle: i.handle,
+            platform: i.platform,
+            followers: i.followers,
+            engagementRate: `${(i.engagementRate * 100).toFixed(1)}%`,
+            country: i.country,
+            niche: i.niche,
+          })),
+          total: results.length,
+        };
+      },
+
+      assignInfluencerToCampaign: ({
+        influencerId,
+        campaignId,
+      }: {
+        influencerId: string;
+        campaignId: string;
+      }) => {
+        const influencer = influencersRef.current.find((i) => i.id === influencerId);
+        if (!influencer)
+          return { ok: false, error: `Influencer ${influencerId} not found.` };
+        const campaign = campaignsRef.current.find((c) => c.id === campaignId);
+        if (!campaign)
+          return { ok: false, error: `Campaign ${campaignId} not found.` };
+        if (influencer.assignedCampaignIds.includes(campaignId))
+          return { ok: false, error: "Already assigned." };
+        const updated = {
+          ...influencer,
+          assignedCampaignIds: [...influencer.assignedCampaignIds, campaignId],
+        };
+        setInfluencers((prev) =>
+          prev.map((i) => (i.id === influencerId ? updated : i)),
+        );
+        influencersRef.current = influencersRef.current.map((i) =>
+          i.id === influencerId ? updated : i,
+        );
+        return {
+          ok: true,
+          influencer: updated,
+          campaign: { id: campaign.id, name: campaign.name },
+        };
+      },
+
+      getAnalytics: ({
+        campaignId,
+        days = 7,
+      }: {
+        campaignId?: string;
+        days?: number;
+      }) => {
+        const targets = campaignId
+          ? campaignsRef.current.filter((c) => c.id === campaignId)
+          : campaignsRef.current.filter((c) => c.status === "live");
+        return {
+          days,
+          campaigns: targets.map((c) => ({
+            id: c.id,
+            name: c.name,
+            dailyReach: Math.round(c.reach / days),
+            dailySpend: +(c.spend / days).toFixed(2),
+            engagement: `${(c.engagement * 100).toFixed(1)}%`,
+            totalReach: c.reach,
+            totalSpend: c.spend,
+          })),
+        };
+      },
+
+      switchTab: ({ tab }: { tab: ActiveTab }) => {
+        setActiveTab(tab);
+        return { ok: true, tab };
+      },
     }),
-    [campaigns],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
 
+  const shellProps: Omit<LumenShellProps, "children"> = {
+    campaigns,
+    influencers,
+    activeTab,
+    onTabChange: setActiveTab,
+  };
+
   const shell = (children?: React.ReactNode) => (
-    <LumenShell campaigns={campaigns}>{children}</LumenShell>
+    <LumenShell {...shellProps}>{children}</LumenShell>
   );
 
   return (
@@ -139,9 +327,15 @@ export function VariantSwitcher() {
             {v}
           </Link>
         ))}
-        <span className="ml-auto font-mono text-muted-foreground/60">
-          running on Lumen — a demo marketing host
-        </span>
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={() => setShowCode((v) => !v)}
+            className="font-mono text-[10px] text-muted-foreground hover:text-foreground border border-border px-2 py-1 transition-colors"
+          >
+            &lt;/&gt; code
+          </button>
+
+        </div>
       </div>
 
       <div className="pt-10">
@@ -149,8 +343,8 @@ export function VariantSwitcher() {
           shell(
             <ChatSidebar
               title="Lumen agent"
-              subtitle="3 tools · runs as you"
-              greeting="Hi Rachel — I have access to your campaigns, audiences, and analytics endpoints. I can run them in sequence on your behalf. Try one of these."
+              subtitle="10 tools · runs as you"
+              greeting="Hi Rachel — I have access to your campaigns, influencers, and analytics. I can run them in sequence on your behalf. Try one of these."
               suggestedPrompts={SUGGESTED}
             />,
           )}
@@ -195,12 +389,12 @@ export function VariantSwitcher() {
           </>
         )}
         {variant === "inline-bar" && (
-          <div className="flex flex-col gap-4 p-6 pt-4">
+          <>
             {shell()}
-            <div className="sticky bottom-8">
+            <div className="fixed bottom-8 left-0 right-0 px-6 z-40">
               <ChatInlineBar placeholder="Tell Lumen what to do…" />
             </div>
-          </div>
+          </>
         )}
         {variant === "drawer" && (
           <>
@@ -214,6 +408,8 @@ export function VariantSwitcher() {
           </>
         )}
       </div>
+
+      <CodePanel open={showCode} onClose={() => setShowCode(false)} />
     </BetterAgentProvider>
   );
 }

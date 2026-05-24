@@ -6,6 +6,7 @@ export type Campaign = {
   cpm: number;
   engagement: number;
   status: "live" | "draft" | "paused";
+  budget: number;
 };
 
 export const CAMPAIGNS: Campaign[] = [
@@ -17,6 +18,7 @@ export const CAMPAIGNS: Campaign[] = [
     cpm: 6.57,
     engagement: 0.014,
     status: "live",
+    budget: 15_000,
   },
   {
     id: "cmp_2f1c",
@@ -26,6 +28,7 @@ export const CAMPAIGNS: Campaign[] = [
     cpm: 7.8,
     engagement: 0.021,
     status: "live",
+    budget: 8_000,
   },
   {
     id: "cmp_29d4",
@@ -35,5 +38,6 @@ export const CAMPAIGNS: Campaign[] = [
     cpm: 6.4,
     engagement: 0.009,
     status: "draft",
+    budget: 5_000,
   },
 ];
