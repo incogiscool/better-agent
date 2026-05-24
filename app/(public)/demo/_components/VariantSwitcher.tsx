@@ -10,12 +10,13 @@ import {
   ChatPopup,
   ChatCommandBar,
   ChatInlineBar,
+  ChatDrawer,
 } from "@/components/chat";
 import type { SuggestedPrompt } from "@/components/chat";
 import { CAMPAIGNS, type Campaign } from "../_data/campaigns";
 import { LumenShell } from "./LumenShell";
 
-const VARIANTS = ["sidebar", "popup", "command-bar", "inline-bar"] as const;
+const VARIANTS = ["sidebar", "popup", "command-bar", "inline-bar", "drawer"] as const;
 type Variant = (typeof VARIANTS)[number];
 
 const SUGGESTED: SuggestedPrompt[] = [
@@ -47,6 +48,10 @@ export function VariantSwitcher() {
   const searchParams = useSearchParams();
   const variant = (searchParams.get("variant") ?? "sidebar") as Variant;
   const [campaigns, setCampaigns] = React.useState<Campaign[]>([...CAMPAIGNS]);
+  const [isMac, setIsMac] = React.useState(true);
+  React.useEffect(() => {
+    setIsMac(/Mac|iPhone|iPad|iPod/.test(navigator.platform));
+  }, []);
 
   const actions = React.useMemo(
     () => ({
@@ -168,6 +173,25 @@ export function VariantSwitcher() {
               suggestedPrompts={SUGGESTED}
               footerLabel="powered by betteragent"
             />
+            <div className="pointer-events-none fixed bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 rounded-full border border-border bg-background/90 px-4 py-2 shadow-md backdrop-blur-sm font-mono text-xs text-muted-foreground">
+              Press
+              {isMac ? (
+                <kbd className="inline-flex items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-foreground">
+                  ⌘K
+                </kbd>
+              ) : (
+                <>
+                  <kbd className="inline-flex items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-foreground">
+                    Ctrl
+                  </kbd>
+                  +
+                  <kbd className="inline-flex items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-foreground">
+                    K
+                  </kbd>
+                </>
+              )}
+              to open the agent
+            </div>
           </>
         )}
         {variant === "inline-bar" && (
@@ -177,6 +201,17 @@ export function VariantSwitcher() {
               <ChatInlineBar placeholder="Tell Lumen what to do…" />
             </div>
           </div>
+        )}
+        {variant === "drawer" && (
+          <>
+            {shell()}
+            <ChatDrawer
+              title="Lumen agent"
+              greeting="Hey — I can run any of Lumen's actions for you. Search, draft, schedule, pause. Where should we start?"
+              suggestedPrompts={SUGGESTED}
+              defaultOpen
+            />
+          </>
         )}
       </div>
     </BetterAgentProvider>

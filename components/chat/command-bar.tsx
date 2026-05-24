@@ -1,23 +1,30 @@
 "use client";
 
 import * as React from "react";
-import { Dialog as DialogPrimitive } from "radix-ui";
 import { cn, useChatStream } from "@betteragent/react";
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   ChatMessages,
   ChatErrorBanner,
-  ChatSuggestedPrompts,
   type SuggestedPrompt,
 } from "./pieces";
 
 export interface ChatCommandBarProps {
   /** Visible placeholder in the input. */
   placeholder?: string;
-  /** Suggested prompts shown below the input. */
+  /** Suggested prompts shown as selectable items when no conversation is active. */
   suggestedPrompts?: readonly SuggestedPrompt[];
   /** Keyboard shortcut key (default "k" → ⌘K / Ctrl+K). Pass "" to disable. */
   shortcutKey?: string;
-  /** Footer attribution (default "powered by betteragent"). */
+  /** Footer attribution label. */
   footerLabel?: string;
   className?: string;
 }
@@ -53,82 +60,85 @@ export function ChatCommandBar({
     }
   }
 
-  function closeAndReset() {
-    setOpen(false);
-    setValue("");
-    reset();
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+    if (!next) {
+      setValue("");
+      reset();
+    }
   }
 
+  function handleSelect(prompt: string) {
+    void send(prompt);
+    setValue("");
+  }
+
+  const showSuggestions = messages.length === 0 && suggestedPrompts.length > 0;
+  const showMessages = messages.length > 0;
+
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/40 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
-        <DialogPrimitive.Content
-          onOpenAutoFocus={(e) => e.preventDefault()}
-          className={cn(
-            "fixed left-1/2 top-[20%] z-50 w-[min(640px,calc(100vw-2rem))] -translate-x-1/2 border border-[var(--ba-border)] bg-[var(--ba-panel-bg)] text-[var(--ba-fg)] shadow-2xl outline-none",
-            className,
-          )}
-          style={{ fontFamily: "var(--ba-font-sans)" }}
-        >
-          <DialogPrimitive.Title className="sr-only">Agent command bar</DialogPrimitive.Title>
-          <DialogPrimitive.Description className="sr-only">
-            Type a natural-language instruction or pick a suggestion.
-          </DialogPrimitive.Description>
+    <CommandDialog
+      open={open}
+      onOpenChange={handleOpenChange}
+      title="Agent command bar"
+      description="Type a natural-language instruction or pick a suggestion."
+      className={cn("sm:max-w-2xl", className)}
+    >
+      <Command shouldFilter={false}>
+        <CommandInput
+          value={value}
+          onValueChange={setValue}
+          onKeyDown={onKeyDown}
+          placeholder={placeholder}
+        />
 
-          <div className="flex items-center gap-2 border-b border-[var(--ba-border)] px-3 py-2">
-            <span aria-hidden className="font-[var(--ba-font-mono)] text-[var(--ba-muted-fg)]">
-              ›
-            </span>
-            <input
-              type="text"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              onKeyDown={onKeyDown}
-              placeholder={placeholder}
-              autoFocus
-              aria-label="Instruction"
-              className="flex-1 bg-transparent text-[14px] outline-none placeholder:text-[var(--ba-muted-fg)]"
+        {showSuggestions && (
+          <CommandList>
+            <CommandEmpty>No suggestions.</CommandEmpty>
+            <CommandGroup>
+              {suggestedPrompts.map((p) => (
+                <CommandItem
+                  key={p.label}
+                  onSelect={() => handleSelect(p.prompt)}
+                  className="gap-2"
+                >
+                  {p.icon}
+                  <span className="truncate">{p.label}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        )}
+
+        {showMessages && (
+          <ChatMessages messages={messages} className="max-h-[50vh] px-3 py-3" />
+        )}
+
+        {error && (
+          <div className="px-3 pb-2">
+            <ChatErrorBanner
+              error={error}
+              onRetry={() => {
+                setValue("");
+                reset();
+                setOpen(false);
+              }}
             />
-            <kbd className="border border-[var(--ba-border)] px-1.5 py-0.5 font-[var(--ba-font-mono)] text-[10px] text-[var(--ba-muted-fg)]">
-              esc
-            </kbd>
           </div>
+        )}
 
-          {messages.length === 0 && suggestedPrompts.length > 0 && (
-            <div className="pt-2">
-              <ChatSuggestedPrompts
-                prompts={suggestedPrompts}
-                onPick={(p) => send(p)}
-              />
-            </div>
-          )}
-
-          {messages.length > 0 && (
-            <div className="max-h-[50vh]">
-              <ChatMessages messages={messages} className="px-3 py-3" />
-            </div>
-          )}
-
-          {error && (
-            <div className="px-3 pb-2">
-              <ChatErrorBanner error={error} onRetry={closeAndReset} />
-            </div>
-          )}
-
-          <div className="flex items-center justify-between border-t border-[var(--ba-border)] bg-[var(--ba-muted)]/40 px-3 py-1.5 text-[10px] text-[var(--ba-muted-fg)]">
-            <div className="flex items-center gap-2 font-[var(--ba-font-mono)]">
-              <span>↑↓ run</span>
-              <span>⌘K open</span>
-              <span>esc close</span>
-              {isStreaming && (
-                <span className="text-[var(--ba-primary)]">streaming…</span>
-              )}
-            </div>
-            <span className="font-[var(--ba-font-mono)]">{footerLabel}</span>
+        <div className={cn(
+          "flex items-center justify-between border-t border-border bg-muted/40 px-3 py-1.5 font-mono text-[10px] text-muted-foreground",
+        )}>
+          <div className="flex items-center gap-3">
+            <span>↵ send</span>
+            <span>⌘K open</span>
+            <span>esc close</span>
+            {isStreaming && <span className="text-primary">streaming…</span>}
           </div>
-        </DialogPrimitive.Content>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+          <span>{footerLabel}</span>
+        </div>
+      </Command>
+    </CommandDialog>
   );
 }

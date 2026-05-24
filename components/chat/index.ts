@@ -6,4 +6,6 @@ export { ChatCommandBar } from "./command-bar";
 export type { ChatCommandBarProps } from "./command-bar";
 export { ChatInlineBar } from "./inline-bar";
 export type { ChatInlineBarProps } from "./inline-bar";
+export { ChatDrawer } from "./chat-drawer";
+export type { ChatDrawerProps } from "./chat-drawer";
 export type { SuggestedPrompt } from "./pieces";

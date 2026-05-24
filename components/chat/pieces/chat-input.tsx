@@ -22,12 +22,13 @@ export function ChatInput({
   const [value, setValue] = React.useState("");
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
-  // Auto-resize: grow up to ~6 lines, then scroll.
   React.useLayoutEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
+    const capped = el.scrollHeight > 160;
     el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+    el.style.overflowY = capped ? "auto" : "hidden";
   }, [value]);
 
   function commit() {
@@ -69,7 +70,7 @@ export function ChatInput({
         disabled={disabled}
         autoFocus={autoFocus}
         aria-label="Message"
-        className="flex-1 resize-none bg-transparent px-2 py-1.5 text-sm leading-snug text-[var(--ba-fg)] outline-none placeholder:text-[var(--ba-muted-fg)] disabled:opacity-60"
+        className="flex-1 resize-none overflow-y-hidden bg-transparent px-2 py-1.5 text-sm leading-snug text-[var(--ba-fg)] outline-none placeholder:text-[var(--ba-muted-fg)] disabled:opacity-60"
       />
       <button
         type="submit"
