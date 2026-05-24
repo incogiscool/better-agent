@@ -131,7 +131,7 @@ export const REGISTRY: RegistryComponent[] = [
     ],
   },
   {
-    name: "command-bar",
+    name: "cmd-k",
     description:
       "Centered ⌘K-style overlay for typing instructions. Best for power-user productivity surfaces.",
     type: "registry:component",
@@ -140,8 +140,8 @@ export const REGISTRY: RegistryComponent[] = [
     files: [
       ...PIECE_FILES,
       {
-        source: src("components/chat/command-bar.tsx"),
-        target: "components/chat/command-bar.tsx",
+        source: src("components/chat/chat-cmdk.tsx"),
+        target: "components/chat/chat-cmdk.tsx",
         type: "registry:component",
       },
     ],

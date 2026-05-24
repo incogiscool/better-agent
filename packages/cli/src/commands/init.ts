@@ -14,7 +14,7 @@ import { generateRoutesFile, generateServerActionsFile, generateActionsTemplate 
 const VARIANTS = [
   { title: "sidebar     — right-side panel, always visible",   value: "sidebar" },
   { title: "chat-popup  — floating bottom-right button",       value: "chat-popup" },
-  { title: "command-bar — ⌘K overlay for power users",        value: "command-bar" },
+  { title: "cmd-k       — ⌘K overlay for power users",        value: "cmd-k" },
   { title: "inline-bar  — embedded input bar in the page",    value: "inline-bar" },
 ] as const;
 

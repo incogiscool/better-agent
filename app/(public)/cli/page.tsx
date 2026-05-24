@@ -82,7 +82,7 @@ Using betteragent.config.json
     desc: "Install a BetterAgent chat component into your project from the registry.",
     usage: "betteragent add [NAME] [OPTIONS]",
     flags: [
-      { flag: "NAME",         desc: "Component: sidebar | chat-popup | command-bar | inline-bar. Omit for interactive picker." },
+      { flag: "NAME",         desc: "Component: sidebar | chat-popup | cmd-k | inline-bar. Omit for interactive picker." },
       { flag: "--cwd <dir>",  desc: "Working directory (default: current)." },
       { flag: "--overwrite",  desc: "Overwrite existing files without prompting." },
       { flag: "--dry-run",    desc: "Show what would be installed without writing." },
@@ -92,7 +92,7 @@ Using betteragent.config.json
 ? Which components do you want to install? (multiselect)
 ◉ sidebar        Right-side panel, always visible ✓
 ◯ chat-popup     Floating bottom-right button
-◯ command-bar    ⌘K overlay for power users
+◯ cmd-k          ⌘K overlay for power users
 ◯ inline-bar     Embedded input bar in the page
 
 → Installing sidebar...

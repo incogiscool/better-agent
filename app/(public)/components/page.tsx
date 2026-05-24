@@ -41,7 +41,7 @@ function GallerySection() {
       <div className={WRAP}>
         <div className={SECHEAD}>
           <Eyebrow>All components</Eyebrow>
-          <h2 className={H2}>Six layouts, one protocol.</h2>
+          <h2 className={H2}>Five layouts, one protocol.</h2>
           <p className={SUB}>Every container composes the same shared pieces — messages, input, header, suggested prompts. Install one and you get them all.</p>
         </div>
         <ComponentGallery />

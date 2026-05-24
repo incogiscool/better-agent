@@ -8,7 +8,7 @@ import { BetterAgentProvider } from "@betteragent/react";
 import {
   ChatSidebar,
   ChatPopup,
-  ChatCommandBar,
+  ChatCmdk,
   ChatInlineBar,
   ChatDrawer,
 } from "@/components/chat";
@@ -16,7 +16,7 @@ import type { SuggestedPrompt } from "@/components/chat";
 import { CAMPAIGNS, type Campaign } from "../_data/campaigns";
 import { LumenShell } from "./LumenShell";
 
-const VARIANTS = ["sidebar", "popup", "command-bar", "inline-bar", "drawer"] as const;
+const VARIANTS = ["sidebar", "popup", "cmdk", "inline-bar", "drawer"] as const;
 type Variant = (typeof VARIANTS)[number];
 
 const SUGGESTED: SuggestedPrompt[] = [
@@ -165,10 +165,10 @@ export function VariantSwitcher() {
             />
           </>
         )}
-        {variant === "command-bar" && (
+        {variant === "cmdk" && (
           <>
             {shell()}
-            <ChatCommandBar
+            <ChatCmdk
               placeholder="Type a command, ask, or give an instruction…"
               suggestedPrompts={SUGGESTED}
               footerLabel="powered by betteragent"

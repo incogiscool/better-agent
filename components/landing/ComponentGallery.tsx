@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight } from "@phosphor-icons/react";
+import { cn } from "@/lib/utils";
 import { defaultBtn } from "./primitives";
 
 export const COMPS = [
@@ -8,8 +9,7 @@ export const COMPS = [
   { id: "sidebar",  name: "chat-sidebar",   desc: "Persistent panel inside a split layout. Survives navigation.",                    cmd: "betteragent add sidebar"     },
   { id: "floating", name: "chat-floating",  desc: "Small bubble that expands into a full conversation. Great for marketing pages.",  cmd: "betteragent add chat-popup"  },
   { id: "inline",   name: "chat-inline",    desc: "Embedded in your page like a comment thread. No portal, no modal.",               cmd: "betteragent add inline-bar"  },
-  { id: "cmdk",     name: "chat-cmdk",      desc: "Command-bar interface. Press ⌘K, type a question, ship work.",                   cmd: "betteragent add command-bar" },
-  { id: "fullpage", name: "chat-full-page", desc: "Standalone page — like Anthropic's, but inside your product.",                    cmd: "betteragent add sidebar"     },
+  { id: "cmdk",     name: "chat-cmdk",      desc: "Command-bar interface. Press ⌘K, type a question, ship work.",                   cmd: "betteragent add cmd-k" },
 ] as const;
 
 // ── Mini preview building blocks ──────────────────────────────
@@ -119,15 +119,7 @@ export function CompPreview({ id }: { id: string }) {
       </div>
     </div>
   );
-  return (
-    <div className="absolute inset-0 bg-background flex flex-col p-3.5 gap-2">
-      <div className="flex items-center gap-1.5 text-muted-foreground font-mono text-[9px]">
-        <div className="w-2 h-2 rounded-[2px] bg-primary" />
-        <span>cohort / campaigns</span>
-      </div>
-      <MiniChat slim />
-    </div>
-  );
+  return null;
 }
 
 // ── Gallery grid ──────────────────────────────────────────────
@@ -135,9 +127,9 @@ export function CompPreview({ id }: { id: string }) {
 export function ComponentGallery({ showCta = false }: { showCta?: boolean }) {
   return (
     <>
-      <div className="grid grid-cols-3 gap-4">
-        {COMPS.map((c) => (
-          <div key={c.id} className="border border-border rounded-lg bg-card overflow-hidden flex flex-col">
+      <div className="grid grid-cols-6 gap-4">
+        {COMPS.map((c, i) => (
+          <div key={c.id} className={cn("border border-border rounded-lg bg-card overflow-hidden flex flex-col", i < 2 ? "col-span-3" : "col-span-2")}>
             <div className="h-[220px] bg-muted/50 border-b border-border relative overflow-hidden">
               <CompPreview id={c.id} />
             </div>

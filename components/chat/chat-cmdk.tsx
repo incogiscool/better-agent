@@ -17,7 +17,7 @@ import {
   type SuggestedPrompt,
 } from "./pieces";
 
-export interface ChatCommandBarProps {
+export interface ChatCmdkProps {
   /** Visible placeholder in the input. */
   placeholder?: string;
   /** Suggested prompts shown as selectable items when no conversation is active. */
@@ -29,13 +29,13 @@ export interface ChatCommandBarProps {
   className?: string;
 }
 
-export function ChatCommandBar({
+export function ChatCmdk({
   placeholder = "Type a command, ask, or give an instruction…",
   suggestedPrompts = [],
   shortcutKey = "k",
   footerLabel = "powered by betteragent",
   className,
-}: ChatCommandBarProps) {
+}: ChatCmdkProps) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
   const { messages, send, error, isStreaming, reset } = useChatStream();
