@@ -6,16 +6,11 @@ import { Button } from "@/components/ui/button";
 import {
   SectionHeader,
   JsonViewer,
-  StatusBadge,
-  DataTable,
-  type Column,
 } from "@/components/dashboard/common";
 import { ToolToggleForm } from "@/components/dashboard/tools/ToolToggleForm";
 import { ToolDescriptionEditor } from "@/components/dashboard/tools/ToolDescriptionEditor";
-import {
-  formatDuration,
-  formatRelativeTime,
-} from "@/lib/format";
+import { ExecutionsTableClient } from "@/components/dashboard/tools/ExecutionsTableClient";
+import { formatRelativeTime } from "@/lib/format";
 
 type PageProps = {
   params: Promise<{ id: string; toolId: string }>;
@@ -94,7 +89,7 @@ export default async function ToolDetailPage({ params }: PageProps) {
 
       <section className="space-y-2">
         <h2 className="text-sm font-medium">Recent executions</h2>
-        <ExecutionsTable
+        <ExecutionsTableClient
           projectId={id}
           rows={tool.executions.map((e) => ({
             id: e.id,
@@ -110,63 +105,3 @@ export default async function ToolDetailPage({ params }: PageProps) {
   );
 }
 
-function ExecutionsTable({
-  projectId,
-  rows,
-}: {
-  projectId: string;
-  rows: ExecutionRow[];
-}) {
-  const columns: Column<ExecutionRow>[] = [
-    {
-      key: "id",
-      header: "Execution",
-      width: "minmax(120px, 1fr)",
-      cell: (r) => <span className="text-foreground">exec_{r.id.slice(-6)}</span>,
-    },
-    {
-      key: "status",
-      header: "Status",
-      width: "minmax(110px, 1fr)",
-      cell: (r) => <StatusBadge status={r.status} />,
-    },
-    {
-      key: "duration",
-      header: "Duration",
-      width: "100px",
-      align: "right",
-      cell: (r) =>
-        r.durationMs == null
-          ? "—"
-          : formatDuration(r.durationMs),
-    },
-    {
-      key: "createdAt",
-      header: "When",
-      width: "minmax(100px, 1fr)",
-      align: "right",
-      cell: (r) => (
-        <span className="text-muted-foreground">
-          {formatRelativeTime(r.createdAt)}
-        </span>
-      ),
-    },
-  ];
-
-  return (
-    <DataTable
-      columns={columns}
-      rows={rows}
-      rowKey={(r) => r.id}
-      rowHref={(r) =>
-        `/dashboard/projects/${projectId}/runs/${r.conversationId}`
-      }
-      emptyState={
-        <div className="border border-border p-5 text-xs text-muted-foreground">
-          No executions yet. Once an agent calls this tool, runs will show up
-          here.
-        </div>
-      }
-    />
-  );
-}

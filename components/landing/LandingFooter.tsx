@@ -1,7 +1,7 @@
 import { WRAP } from "./primitives";
 
 const FOOTER_COLS = [
-  { h: "Product", links: [{ label: "Docs",        href: "#"           }, { label: "CLI reference", href: "/cli"        }, { label: "Components",  href: "/components"  }, { label: "Pricing",      href: "/pricing"     }] },
+  { h: "Product", links: [{ label: "Docs",        href: "#"           }, { label: "CLI reference", href: "/cli"        }, { label: "Components",  href: "/components"  }, { label: "Pricing",      href: "/pricing"     }, { label: "Demo",         href: "/demo"        }] },
   { h: "Build",   links: [{ label: "Quickstart",  href: "#"           }, { label: "Examples",     href: "#"           }, { label: "Templates",   href: "#"            }, { label: "Migrate",      href: "#"            }] },
   { h: "Company", links: [{ label: "About",       href: "#"           }, { label: "Blog",         href: "#"           }, { label: "Careers",     href: "#"            }, { label: "Contact",      href: "#"            }] },
   { h: "Connect", links: [{ label: "GitHub ↗",    href: "#"           }, { label: "Discord ↗",   href: "#"           }, { label: "Twitter ↗",   href: "#"            }, { label: "Status",       href: "#"            }] },
@@ -53,9 +53,14 @@ export function LandingFooter() {
         <div className="flex justify-between pt-10 mt-12 border-t border-border font-mono">
           <span>© 2026 BetterAgent</span>
           <span className="inline-flex items-center gap-3.5">
-            {["Privacy", "Terms", "Security", "DPA"].map((l) => (
-              <a key={l} href="#" className="text-muted-foreground no-underline">
-                {l}
+            {[
+              { label: "Privacy", href: "/privacy" },
+              { label: "Terms",   href: "/terms"   },
+              { label: "Security", href: "#"       },
+              { label: "DPA",     href: "#"        },
+            ].map(({ label, href }) => (
+              <a key={label} href={href} className="text-muted-foreground no-underline">
+                {label}
               </a>
             ))}
           </span>

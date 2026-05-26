@@ -31,7 +31,7 @@ export default function SignUpPage() {
         </div>
       }
     >
-      <SignupForm />
+      <SignupForm callbackURL="/dashboard/projects/new" />
     </AuthShell>
   );
 }

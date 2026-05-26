@@ -87,7 +87,7 @@ export function OnboardingWizard() {
       footer: (
         <>
           <Button asChild variant="ghost" size="sm">
-            <Link href="/dashboard">Cancel</Link>
+            <Link href="/dashboard?skip=1">Cancel</Link>
           </Button>
           <Button onClick={handleCreate} disabled={submitting} size="sm">
             {submitting ? "Creating…" : "Continue"}

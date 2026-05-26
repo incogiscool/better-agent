@@ -66,12 +66,12 @@ export function SignupForm({ callbackURL = "/dashboard" }: { callbackURL?: strin
             {
               onSuccess: () => {
                 router.push(
-                  `/auth/check-inbox?email=${encodeURIComponent(values.email)}`,
+                  `/auth/check-inbox?email=${encodeURIComponent(values.email)}&callbackURL=${encodeURIComponent(callbackURL)}`,
                 );
               },
               onError: () => {
                 router.push(
-                  `/auth/check-inbox?email=${encodeURIComponent(values.email)}`,
+                  `/auth/check-inbox?email=${encodeURIComponent(values.email)}&callbackURL=${encodeURIComponent(callbackURL)}`,
                 );
               },
             },

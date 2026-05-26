@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { loadProjectsForCurrentUser } from "@/lib/dashboard/context";
 import {
@@ -9,7 +10,12 @@ import {
 } from "@/components/dashboard/common";
 import { formatRelativeTime } from "@/lib/format";
 
-export default function DashboardPage() {
+type PageProps = {
+  searchParams: Promise<{ skip?: string }>;
+};
+
+export default async function DashboardPage({ searchParams }: PageProps) {
+  const { skip } = await searchParams;
   return (
     <main className="flex h-full flex-col">
       <SectionHeader
@@ -29,15 +35,19 @@ export default function DashboardPage() {
             </div>
           }
         >
-          <ProjectsList />
+          <ProjectsList skip={skip} />
         </Suspense>
       </div>
     </main>
   );
 }
 
-async function ProjectsList() {
+async function ProjectsList({ skip }: { skip?: string }) {
   const { projects } = await loadProjectsForCurrentUser();
+
+  if (projects.length === 0 && skip !== "1") {
+    redirect("/dashboard/projects/new");
+  }
 
   if (projects.length === 0) {
     return (
