@@ -7,7 +7,7 @@
   ],
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && bun run next:build && bun run react:build && next build",
     "start": "next start",
     "lint": "eslint",
     "db:pull": "bunx dotenv -e .env.local -- bunx prisma db pull",
