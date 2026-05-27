@@ -8,6 +8,22 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+// ============================================================================
+// TEMPORARY: this cron runs DAILY (see vercel.json "0 1 * * *"), NOT per-minute.
+//
+// We are currently capped at daily cron jobs on our plan, so this was downgraded
+// from "* * * * *". The ABANDON_AFTER_MS cutoff below is still 60s and remains
+// correct — but because the sweep only runs once a day, a dead run can sit in
+// the `pending`/`active` state for UP TO 24 HOURS before it gets marked
+// abandoned. That means the runs dashboard will show conversations as "active"
+// long after they're actually dead.
+//
+// REVERT THIS the moment we can run crons more frequently: restore the
+// "* * * * *" (or at least a few-minutes) schedule in vercel.json. Until then,
+// this latency is a known, accepted degradation — do not treat lingering
+// "active" runs as a bug.
+// ============================================================================
+
 const ABANDON_AFTER_MS = 60_000;
 
 export async function GET(req: NextRequest) {

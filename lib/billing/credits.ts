@@ -2,6 +2,10 @@ import { prisma } from "@/lib/db";
 import type { CreditEventType, ProjectPlan } from "@/lib/generated/prisma/enums";
 import { PLAN_CONFIGS } from "./plans";
 import { getCurrentBillingPeriod } from "./periods";
+import {
+  sendCreditWarningEmail,
+  sendCreditsExhaustedEmail,
+} from "@/lib/email/notifications";
 
 export type CreditEventInput = {
   type: CreditEventType;
@@ -72,16 +76,43 @@ export async function consumeCredits(
 ): Promise<ConsumeCreditsResult> {
   const [period, project] = await Promise.all([
     getCurrentBillingPeriod(projectId),
-    prisma.project.findUniqueOrThrow({ where: { id: projectId }, select: { plan: true } }),
+    prisma.project.findUniqueOrThrow({
+      where: { id: projectId },
+      select: {
+        plan: true,
+        name: true,
+        owner: { select: { email: true } },
+      },
+    }),
   ]);
 
   const config = PLAN_CONFIGS[project.plan as ProjectPlan];
 
   if (config.hardCap && period.includedCredits - period.creditsUsed < event.credits) {
+    if (!period.exhaustedEmailSentAt) {
+      sendCreditsExhaustedEmail(project.owner.email, project.name).catch(console.error);
+      prisma.billingPeriod
+        .update({ where: { id: period.id }, data: { exhaustedEmailSentAt: new Date() } })
+        .catch(console.error);
+    }
     return { ok: false, reason: "hard_cap_reached" };
   }
 
   await recordCreditEvent(projectId, period.id, event);
+
+  const newUsed = period.creditsUsed + event.credits;
+  const usageRatio = newUsed / period.includedCredits;
+  if (config.hardCap && usageRatio >= 0.8 && !period.warningEmailSentAt) {
+    sendCreditWarningEmail(
+      project.owner.email,
+      project.name,
+      newUsed,
+      period.includedCredits,
+    ).catch(console.error);
+    prisma.billingPeriod
+      .update({ where: { id: period.id }, data: { warningEmailSentAt: new Date() } })
+      .catch(console.error);
+  }
 
   return { ok: true };
 }

@@ -10,6 +10,8 @@ import {
   regenerateProjectCredentialsForOwner,
   updateProjectForOwner,
 } from "@/lib/projects/service";
+import { prisma } from "@/lib/db";
+import { sendWelcomeEmail } from "@/lib/email/notifications";
 import type {
   CreateProjectActionState,
   RegenerateKeysActionState,
@@ -67,6 +69,11 @@ export async function createProjectAction(
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/projects/new");
+
+  const projectCount = await prisma.project.count({ where: { ownerId: user.id } });
+  if (projectCount === 1) {
+    sendWelcomeEmail(user.email, user.name).catch(console.error);
+  }
 
   return {
     message:

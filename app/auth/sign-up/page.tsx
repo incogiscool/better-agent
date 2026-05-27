@@ -9,10 +9,10 @@ import {
 export default function SignUpPage() {
   return (
     <AuthShell
-      badges={[{ label: "provisioning", tone: "live" }, { label: "~ 1.4s" }]}
+      badges={[{ label: "creating...", tone: "live" }, { label: "~ 1.4s" }]}
       terminal={
         <AuthTerminal
-          title="provisioning.log"
+          title="creation.log"
           // rightLabel="agent · workspace.create"
           lines={SIGNUP_TERMINAL}
         />

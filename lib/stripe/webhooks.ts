@@ -14,8 +14,17 @@
 //     → Detect plan change via event.data.object.items, update Project.plan,
 //       and call createBillingPeriod() if includedCredits changed.
 //
+//   "invoice.payment_failed"
+//     → sendPaymentFailedEmail(ownerEmail, projectName, nextAttemptDate)
+//
 //   "customer.subscription.deleted"
 //     → Downgrade Project.plan to FREE, call createBillingPeriod() for FREE.
+//     → sendSubscriptionCanceledEmail(ownerEmail, projectName)
+
+import {
+  sendPaymentFailedEmail,
+  sendSubscriptionCanceledEmail,
+} from "@/lib/email/notifications";
 
 export async function handleStripeWebhook(
   _payload: string,
@@ -26,3 +35,6 @@ export async function handleStripeWebhook(
       "See lib/stripe/webhooks.ts for implementation instructions.",
   );
 }
+
+// Call these when the respective Stripe events are handled:
+export { sendPaymentFailedEmail, sendSubscriptionCanceledEmail };

@@ -2,44 +2,47 @@ import type { TerminalLine } from "./AuthTerminal";
 
 export const SIGNIN_TERMINAL: TerminalLine[] = [
   { tone: "comment", text: "# Waiting for credentials..." },
-  { tone: "prompt", text: "auth.session.create({" },
-  { tone: "code", text: '  email: "dax@cassio.dev",' },
-  { tone: "code", text: '  workspace: "cassio-prod"' },
+  { tone: "prompt", text: "auth.signIn({" },
+  { tone: "code", text: '  email: "you@example.com",' },
+  { tone: "code", text: '  password: "••••••••"' },
   { tone: "code", text: "})", pauseAfterMs: 400 },
-  { tone: "comment", text: "# Verifying scopes: agent:run, tools:read" },
-  { tone: "success", text: "mfa challenge sent to +1 ••• ••• 4419" },
-  { tone: "success", text: "session bound to device macbook-pro · sf" },
+  { tone: "comment", text: "# Verifying identity..." },
+  { tone: "success", text: "session created · expires in 7d" },
+  { tone: "success", text: "redirecting to dashboard" },
 ];
 
 export const SIGNUP_TERMINAL: TerminalLine[] = [
-  { tone: "comment", text: "# Provisioning workspace..." },
-  { tone: "prompt", text: "workspace.create({" },
-  { tone: "code", text: '  slug: "cassio",' },
-  { tone: "code", text: '  plan: "hobby"' },
+  { tone: "comment", text: "# Creating your account..." },
+  { tone: "prompt", text: "account.create({" },
+  { tone: "code", text: '  email: "you@example.com",' },
+  { tone: "code", text: '  plan: "free"' },
   { tone: "code", text: "})", pauseAfterMs: 400 },
-  { tone: "success", text: "workspace cassio reserved" },
-  { tone: "success", text: "seeded with 1 agent · 0 tools · 0 routes" },
-  { tone: "comment", text: "# Free tier — 10k agent calls/mo, no card required." },
+  { tone: "success", text: "account created" },
+  { tone: "success", text: "verification email dispatched" },
+  { tone: "comment", text: "# Free plan — 500 credits/mo, no card required." },
 ];
 
 export const FORGOT_TERMINAL: TerminalLine[] = [
   { tone: "comment", text: "# Looking up account..." },
-  { tone: "prompt", text: "auth.reset.request({" },
-  { tone: "code", text: '  email: "dax@cassio.dev"' },
+  { tone: "prompt", text: "auth.password.reset({" },
+  { tone: "code", text: '  email: "you@example.com"' },
   { tone: "code", text: "})", pauseAfterMs: 400 },
-  { tone: "success", text: "reset token signed (expires in 15m)" },
-  { tone: "success", text: "dispatch to mail.relay" },
-  { tone: "comment", text: "# If no email arrives, check spam or contact support." },
+  { tone: "success", text: "reset link signed (expires in 1h)" },
+  { tone: "success", text: "dispatched via resend" },
+  {
+    tone: "comment",
+    text: "# Check spam if it doesn't arrive within a minute.",
+  },
 ];
 
 export const VERIFY_TERMINAL: TerminalLine[] = [
-  { tone: "comment", text: "# Verification mail sent." },
-  { tone: "prompt", text: "mail.send({" },
-  { tone: "code", text: '  to: "dax@cassio.dev",' },
-  { tone: "code", text: '  template: "verify_email"' },
+  { tone: "comment", text: "# Sending verification OTP..." },
+  { tone: "prompt", text: "resend.emails.send({" },
+  { tone: "code", text: '  to: "you@example.com",' },
+  { tone: "code", text: '  template: "emailVerification"' },
   { tone: "code", text: "})", pauseAfterMs: 400 },
-  { tone: "success", text: "queued (smtp #a91f)" },
-  { tone: "success", text: "accepted by gmail-smtp-in.l.google.com" },
-  { tone: "comment", text: "# Waiting for OTP entry or click-through..." },
+  { tone: "success", text: "queued · message-id a91f3c" },
+  { tone: "success", text: "delivered to inbox" },
+  { tone: "comment", text: "# Enter the 6-digit code to verify your email." },
   { tone: "muted", text: "listening •••" },
 ];

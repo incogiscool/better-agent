@@ -67,7 +67,7 @@ export function SigninForm({
         </p>
         <h1 className="text-3xl font-semibold tracking-tight">Welcome back.</h1>
         <p className="text-xs text-muted-foreground">
-          Pick up the run you left on Tuesday.
+          Pick up where you left off.
         </p>
       </div>
 

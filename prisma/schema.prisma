@@ -246,12 +246,14 @@ model BillingPeriod {
   startsAt        DateTime
   endsAt          DateTime
   includedCredits Int
-  creditsUsed     Int         @default(0)
-  overageCredits  Int         @default(0)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  project         Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  creditEvents    CreditEvent[]
+  creditsUsed          Int         @default(0)
+  overageCredits       Int         @default(0)
+  warningEmailSentAt   DateTime?
+  exhaustedEmailSentAt DateTime?
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+  project              Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creditEvents         CreditEvent[]
 
   @@index([projectId, startsAt])
 }
