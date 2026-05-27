@@ -1,5 +1,6 @@
 import { sendEmail } from "./client";
 import { formatCount } from "@/lib/format";
+import { APP_URL } from "@/lib/site";
 
 export async function sendCreditWarningEmail(
   to: string,
@@ -17,7 +18,7 @@ Your BetterAgent project "${projectName}" has used ${formatCount(creditsUsed)} o
 
 Once you reach the limit, agent responses will pause until your period resets or you upgrade to Pro.
 
-View your usage: https://betteragent.dev/dashboard/projects
+View your usage: ${APP_URL}/dashboard/projects
 
 — BetterAgent`,
   });
@@ -36,7 +37,7 @@ Your BetterAgent project "${projectName}" has reached its credit limit for this 
 
 Agent responses are paused until your period resets or you upgrade to Pro.
 
-View your usage: https://betteragent.dev/dashboard/projects
+View your usage: ${APP_URL}/dashboard/projects
 
 — BetterAgent`,
   });
@@ -63,7 +64,7 @@ Your first project is live. Here's how to get your agent talking to your app in 
   3. Sync your tools
      npx betteragent sync
 
-Full CLI reference: https://betteragent.dev/cli
+Full CLI reference: ${APP_URL}/cli
 
 — BetterAgent`,
   });
@@ -83,7 +84,7 @@ We were unable to process your payment for the "${projectName}" Pro subscription
 
 We'll retry on ${nextAttemptDate}. Please update your payment method to avoid a downgrade to the Free plan.
 
-Update billing: https://betteragent.dev/dashboard/billing
+Update billing: ${APP_URL}/dashboard/billing
 
 — BetterAgent`,
   });
@@ -100,7 +101,7 @@ export async function sendSubscriptionCanceledEmail(
 
 Your Pro subscription for "${projectName}" has been canceled. Your project has been moved to the Free plan (500 credits/month).
 
-You can resubscribe at any time: https://betteragent.dev/dashboard/billing
+You can resubscribe at any time: ${APP_URL}/dashboard/billing
 
 — BetterAgent`,
   });

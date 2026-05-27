@@ -1,4 +1,5 @@
 import { REGISTRY } from "@/lib/registry/manifest";
+import { APP_URL } from "@/lib/site";
 
 export const dynamic = "force-static";
 
@@ -7,7 +8,7 @@ export async function GET() {
     {
       $schema: "https://ui.shadcn.com/schema/registry.json",
       name: "betteragent",
-      homepage: "https://betteragent.dev",
+      homepage: APP_URL,
       items: REGISTRY.map((c) => ({
         name: c.name,
         type: c.type,

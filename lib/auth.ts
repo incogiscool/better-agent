@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { FROM_EMAIL } from "@/lib/site";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { Resend } from "resend";
@@ -81,7 +82,7 @@ export const auth = betterAuth({
           "forget-password": "Reset your BetterAgent password",
         };
         await client.emails.send({
-          from: "BetterAgent <noreply@betteragent.dev>",
+          from: FROM_EMAIL,
           to: email,
           subject: subjects[type] ?? "Your BetterAgent code",
           text: `Your verification code is: ${otp}\n\nThis code expires in 10 minutes.`,

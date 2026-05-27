@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { FROM_EMAIL } from "@/lib/site";
 
 let _resend: Resend | null = null;
 
@@ -22,7 +23,7 @@ export async function sendEmail(params: SendEmailParams): Promise<void> {
     return;
   }
   await client.emails.send({
-    from: "BetterAgent <noreply@betteragent.dev>",
+    from: FROM_EMAIL,
     ...params,
   });
 }
