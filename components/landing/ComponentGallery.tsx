@@ -2,7 +2,8 @@
 
 import { ArrowRight } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
-import { defaultBtn } from "./primitives";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export const COMPS = [
   { id: "drawer",   name: "chat-drawer",    desc: "Right-side drawer + floating trigger. Drop it anywhere in your layout.",           cmd: "betteragent add sidebar"     },
@@ -143,9 +144,9 @@ export function ComponentGallery({ showCta = false }: { showCta?: boolean }) {
       </div>
       {showCta && (
         <div className="flex justify-center mt-7">
-          <a href="/components" className={defaultBtn}>
-            Browse the full registry <ArrowRight size={12} />
-          </a>
+          <Button asChild variant="outline">
+            <Link href="/components">Browse the full registry <ArrowRight size={12} /></Link>
+          </Button>
         </div>
       )}
     </>

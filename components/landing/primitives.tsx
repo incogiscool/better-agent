@@ -1,6 +1,5 @@
 import type React from "react";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
 
 export function GithubIcon({ size = 14 }: { size?: number }) {
   return (
@@ -35,14 +34,6 @@ export function Pill({ children, primary }: { children: React.ReactNode; primary
     </span>
   );
 }
-
-// ── Button class names ────────────────────────────────────────
-
-export const defaultBtn = buttonVariants({ variant: "outline" });
-export const primaryBtn = buttonVariants({ variant: "default" });
-export const ghostBtn = buttonVariants({ variant: "ghost" });
-export const lgBtn = buttonVariants({ variant: "outline", size: "lg" });
-export const lgPrimaryBtn = buttonVariants({ variant: "default", size: "lg" });
 
 // ── Layout class name constants ───────────────────────────────
 

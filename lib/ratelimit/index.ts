@@ -46,6 +46,11 @@ export const signupLimiter = makeLimit(5, 900);
  */
 export const authLimiter = makeLimit(20, 60);
 
+/**
+ * 5 submissions per 15 min per IP — covers the public contact form.
+ */
+export const contactLimiter = makeLimit(5, 900);
+
 export type RateLimitResult =
   | { limited: false }
   | { limited: true; reset: number };

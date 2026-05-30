@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
 import { ArrowRight } from "@phosphor-icons/react";
-import { GithubIcon, defaultBtn, primaryBtn, ghostBtn } from "./primitives";
+import { GithubIcon } from "./primitives";
+import { Button } from "@/components/ui/button";
 import { PUBLIC_NAVBAR_LINKS } from "@/lib/const/PUBLIC_NAVBAR_LINKS";
 
 export function LandingNav() {
@@ -41,16 +42,13 @@ export function LandingNav() {
 
       <span className="flex-1" />
 
-      <a href="#" className={ghostBtn}>
-        <GithubIcon size={14} /> 4.2k
-      </a>
-      <ModeToggle />
-      <a href="/auth/sign-in" className={defaultBtn}>
-        Sign in
-      </a>
-      <a href="/auth/sign-up" className={primaryBtn}>
-        Get started <ArrowRight size={12} />
-      </a>
+<ModeToggle />
+      <Button asChild variant="outline">
+        <a href="/auth/sign-in">Sign in</a>
+      </Button>
+      <Button asChild>
+        <a href="/auth/sign-up">Get started <ArrowRight size={12} /></a>
+      </Button>
     </header>
   );
 }

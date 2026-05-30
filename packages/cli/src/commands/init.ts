@@ -189,21 +189,28 @@ export const initCommand = defineCommand({
     log.plain(`
 ${pc.bold("  ✓ Done! Here's what to do next:")}
 
-  ${pc.dim("1.")} Wrap your app with ${pc.bold("<BetterAgentProvider>")} from ${pc.cyan("@betteragent/react")}:
+  ${pc.dim("1.")} Wrap your app with ${pc.bold("<BetterAgentProvider>")} from ${pc.cyan("@betteragent/react")}.
+     Import ${pc.yellow("serverActions")} from your tool file so server-action tools are dispatched:
 
        ${pc.dim("import")} { BetterAgentProvider } ${pc.dim("from")} ${pc.green('"@betteragent/react"')};
+       ${pc.dim("import")} { serverActions } ${pc.dim("from")} ${pc.green('"./server-actions.betteragent"')};
 
        ${pc.dim("<")}${pc.cyan("BetterAgentProvider")}
          clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
+         apiUrl={process.env.NEXT_PUBLIC_BETTERAGENT_API_URL}
          endUserId={currentUser.id}
-         actions={{ ${pc.dim("/* your client actions here */")} }}
+         serverActions={serverActions}
+         actions={{ ${pc.dim("/* your client action handlers here */")} }}
        ${pc.dim(">")}
          {children}
        ${pc.dim("</")}${pc.cyan("BetterAgentProvider")}${pc.dim(">")}
 
-  ${pc.dim("2.")} Fill in the ${pc.yellow("schema: z.object({})")} placeholders in your tool files.
+  ${pc.dim("2.")} Render the installed chat component somewhere in your layout.
+     The provider only supplies context — it renders no UI on its own.
 
-  ${pc.dim("3.")} Run ${pc.bold("betteragent sync")} to push your tools to the backend.
+  ${pc.dim("3.")} Fill in the ${pc.yellow("schema: z.object({})")} placeholders in your tool files.
+
+  ${pc.dim("4.")} Run ${pc.bold("betteragent sync")} to push your tools to the backend.
 `);
   },
 });

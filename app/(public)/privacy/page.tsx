@@ -176,8 +176,8 @@ export default function PrivacyPage() {
               your personal data, or to receive a portable copy of it. You can
               delete your account and its data directly from the dashboard. For
               other requests, email{" "}
-              <a href="mailto:privacy@betteragent.dev">
-                privacy@betteragent.dev
+              <a href="mailto:legal@betteragent.dev">
+                legal@betteragent.dev
               </a>
               . We will respond within 30 days.
             </p>
@@ -230,8 +230,8 @@ export default function PrivacyPage() {
             <H3>11. Contact</H3>
             <p>
               Questions or requests relating to privacy:{" "}
-              <a href="mailto:privacy@betteragent.dev">
-                privacy@betteragent.dev
+              <a href="mailto:legal@betteragent.dev">
+                legal@betteragent.dev
               </a>
             </p>
           </Prose>

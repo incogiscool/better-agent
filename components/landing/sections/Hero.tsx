@@ -4,16 +4,10 @@ import { useState } from "react";
 import { Lightning, Sparkle, Copy } from "@phosphor-icons/react";
 import { TerminalDemo } from "@/components/landing/TerminalDemo";
 import { ChatDemo } from "@/components/landing/ChatDemo";
-import {
-  Pill,
-  GithubIcon,
-  lgPrimaryBtn,
-  lgBtn,
-  WRAP,
-  DOT_BG,
-} from "@/components/landing/primitives";
+import { Pill, WRAP, DOT_BG } from "@/components/landing/primitives";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 function CopyableCommand({ cmd }: { cmd: string }) {
   const [copied, setCopied] = useState(false);
@@ -69,21 +63,21 @@ export function Hero() {
             already shipped.
           </p>
           <div className="flex items-center gap-2.5 mt-1 flex-wrap">
-            <a href="/auth/sign-up" className={lgPrimaryBtn}>
-              <Lightning size={14} /> Get started — free
-            </a>
-            <a href="#" className={lgBtn}>
-              <GithubIcon size={14} /> Star on GitHub{" "}
-              <span className="text-muted-foreground ml-1.5">4.2k</span>
-            </a>
+            <Link href="/auth/sign-up">
+              <Button>
+                <Lightning size={14} /> Get started — free
+              </Button>
+            </Link>
+
+            <CopyableCommand cmd="npx betteragent init" />
           </div>
-          <CopyableCommand cmd="npx betteragent init" />
+
           <div className="flex gap-4 flex-wrap font-mono text-xs text-muted-foreground">
             {[
               "5-minute setup",
               "500 free credits / mo",
               "shadcn-compatible",
-              "Next.js / Vue / Svelte",
+              "Next.js",
             ].map((t, i) => (
               <span key={t} className="inline-flex items-center gap-1.5">
                 {i > 0 && <span className="text-border">·</span>}

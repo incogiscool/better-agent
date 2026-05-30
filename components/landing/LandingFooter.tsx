@@ -1,17 +1,40 @@
 import { WRAP } from "./primitives";
 
 const FOOTER_COLS = [
-  { h: "Product", links: [{ label: "Docs",        href: "#"           }, { label: "CLI reference", href: "/cli"        }, { label: "Components",  href: "/components"  }, { label: "Pricing",      href: "/pricing"     }, { label: "Demo",         href: "/demo"        }] },
-  { h: "Build",   links: [{ label: "Quickstart",  href: "#"           }, { label: "Examples",     href: "#"           }, { label: "Templates",   href: "#"            }, { label: "Migrate",      href: "#"            }] },
-  { h: "Company", links: [{ label: "About",       href: "#"           }, { label: "Blog",         href: "#"           }, { label: "Careers",     href: "#"            }, { label: "Contact",      href: "#"            }] },
-  { h: "Connect", links: [{ label: "GitHub ↗",    href: "#"           }, { label: "Discord ↗",   href: "#"           }, { label: "Twitter ↗",   href: "#"            }, { label: "Status",       href: "#"            }] },
+  {
+    h: "Product",
+    links: [
+      { label: "Docs",          href: "/docs"        },
+      { label: "CLI reference", href: "/cli"         },
+      { label: "Components",    href: "/components"  },
+      { label: "Pricing",       href: "/pricing"     },
+      { label: "Demo",          href: "/demo"        },
+    ],
+  },
+  {
+    h: "Build",
+    links: [
+      { label: "Quickstart",  href: "/docs/quickstart" },
+      { label: "Tool files",  href: "/docs/tools"      },
+      { label: "AI setup",    href: "/docs/agent"      },
+      { label: "CLI",         href: "/cli"             },
+    ],
+  },
+  {
+    h: "Company",
+    links: [
+      { label: "Contact", href: "/contact" },
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms",   href: "/terms"   },
+    ],
+  },
 ];
 
 export function LandingFooter() {
   return (
     <footer className="border-t border-border pt-16 pb-10 text-xs text-muted-foreground">
       <div className={WRAP}>
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-6">
+        <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-6">
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-primary">
@@ -56,8 +79,6 @@ export function LandingFooter() {
             {[
               { label: "Privacy", href: "/privacy" },
               { label: "Terms",   href: "/terms"   },
-              { label: "Security", href: "#"       },
-              { label: "DPA",     href: "#"        },
             ].map(({ label, href }) => (
               <a key={label} href={href} className="text-muted-foreground no-underline">
                 {label}

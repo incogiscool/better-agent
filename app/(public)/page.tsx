@@ -12,7 +12,7 @@ export default function LandingPage() {
   return (
     <>
       <Hero />
-      <Logos />
+      {/* <Logos /> */}
       <ToolTypes />
       <Discover />
       <ComponentsSection />

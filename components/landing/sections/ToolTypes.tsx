@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { Check, ArrowUpRight } from "@phosphor-icons/react";
-import { Eyebrow, defaultBtn, WRAP, SEC, SECHEAD, H2, SUB } from "@/components/landing/primitives";
+import { Eyebrow, WRAP, SEC, SECHEAD, H2, SUB } from "@/components/landing/primitives";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 const TOOL_TYPES = [
@@ -151,9 +153,9 @@ export function ToolTypes() {
                   </div>
                 ))}
               </div>
-              <a href="#" className={cn(defaultBtn, "self-start mt-1")}>
-                Read the docs <ArrowUpRight size={11} />
-              </a>
+              <Button asChild variant="outline" className="self-start mt-1">
+                <Link href="/docs">Read the docs <ArrowUpRight size={11} /></Link>
+              </Button>
             </div>
           </div>
         </div>

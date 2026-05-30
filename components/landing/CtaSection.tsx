@@ -1,7 +1,9 @@
 "use client";
 
 import { Lightning, Sparkle, ArrowUpRight } from "@phosphor-icons/react";
-import { Pill, lgPrimaryBtn, lgBtn, DOT_BG } from "./primitives";
+import { Pill, DOT_BG } from "./primitives";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 export function CtaSection() {
@@ -22,12 +24,12 @@ export function CtaSection() {
             components, ship a real agent before lunch.
           </p>
           <div className="flex gap-2.5 mt-3 flex-wrap justify-center">
-            <a href="/auth/sign-up" className={lgPrimaryBtn}>
-              <Lightning size={14} /> Get started — free
-            </a>
-            <a href="#" className={lgBtn}>
-              Read the quickstart <ArrowUpRight size={12} />
-            </a>
+            <Button asChild size="lg">
+              <Link href="/auth/sign-up"><Lightning size={14} /> Get started — free</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link href="/docs/quickstart">Read the quickstart <ArrowUpRight size={12} /></Link>
+            </Button>
           </div>
           <div className="flex gap-4 flex-wrap justify-center font-mono text-xs text-muted-foreground mt-2">
             {["No credit card", "500 free credits", "Open source SDKs"].map((t, i) => (
