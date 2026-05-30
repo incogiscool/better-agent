@@ -11,7 +11,6 @@ const CREDIT_EVENTS = [
   { event: "Conversation start", credits: 2,  note: "once per new conversation" },
   { event: "Per message",         credits: 1,  note: "each user turn" },
   { event: "Per tool call",       credits: 3,  note: "routes + server/client actions" },
-  { event: "AI description gen",  credits: 5,  note: "CLI sync, cached by source hash" },
 ] as const;
 
 const FAQ_ITEMS = [
@@ -66,7 +65,7 @@ function CreditExplainer() {
         <div className={SECHEAD}>
           <Eyebrow>How credits work</Eyebrow>
           <h2 className={H2}>One credit ≈ one small agent action.</h2>
-          <p className={SUB}>Credits are consumed per event, not per token. Here's the full cost table:</p>
+          <p className={SUB}>Credits are consumed per event, not per token. Here{"’"}s the full cost table:</p>
         </div>
 
         <div className="grid grid-cols-2 gap-6 items-start">

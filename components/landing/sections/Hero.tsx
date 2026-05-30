@@ -70,7 +70,7 @@ export function Hero() {
 
           <div className="flex gap-4 flex-wrap font-mono text-xs text-muted-foreground">
             {[
-              "5-minute setup",
+              "CLI-driven setup",
               "500 free credits / mo",
               "shadcn-compatible",
               "Next.js",

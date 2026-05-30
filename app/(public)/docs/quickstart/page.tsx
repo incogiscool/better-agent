@@ -119,6 +119,13 @@ const STEPS = [
           correctly. <CodeChip>actions</CodeChip> is a map of client-side handlers. Both props are optional
           if you{"’"}re not using those tool types.
         </p>
+        <p className="font-sans text-[13px] text-muted-foreground leading-[1.55] m-0">
+          If your agent exposes <strong className="text-foreground font-medium">route tools</strong> that
+          read or write per-user data, pass <CodeChip>authToken</CodeChip> — a string or (async) getter
+          for the end user{"’"}s token. The chat engine forwards it to your routes as the{" "}
+          <CodeChip>Authorization</CodeChip> header so they run as the logged-in user. Without it, route
+          tools call your backend with no caller identity.
+        </p>
         <DarkCode language="tsx">
           {`import { BetterAgentProvider } from "@betteragent/react";
 import { serverActions } from "./server-actions.betteragent";
@@ -131,6 +138,7 @@ export default function RootLayout({ children }) {
           clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
           apiUrl={process.env.NEXT_PUBLIC_BETTERAGENT_API_URL}
           endUserId={currentUser.id}
+          authToken={() => getEndUserToken()} // forwarded to route tools
           serverActions={serverActions}
           actions={{
             openModal: ({ name }) => setOpenDialog(name),

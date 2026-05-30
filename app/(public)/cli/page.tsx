@@ -316,20 +316,21 @@ export const routes = [listProjects];`,
             },
             {
               title: "server-actions.betteragent.ts",
-              desc: "Next.js Server Actions the agent invokes through the framework.",
+              desc: "Next.js Server Actions the agent invokes through the framework. The handler must reference a real \"use server\" function — an inline handler runs client-side with no session.",
               code: `import { z } from "zod";
 import { defineServerAction } from "@betteragent/next";
+// Import a real Server Action — a function exported from a file
+// with "use server" at the top. Do NOT inline the handler here.
+import { createProject } from "@/app/actions/projects";
 
-export const createProject = defineServerAction({
+export const createProjectTool = defineServerAction({
   name: "createProject",
   description: "Create a project for the current user.",
   schema: z.object({ name: z.string().min(1) }),
-  async handler({ name }) {
-    // your normal server action body
-  },
+  handler: createProject,
 });
 
-export const serverActions = [createProject];`,
+export const serverActions = [createProjectTool];`,
             },
             {
               title: "actions.betteragent.ts",

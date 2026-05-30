@@ -32,6 +32,7 @@ export type {
   ChatError,
   ActionHandler,
   ActionRegistry,
+  AuthTokenInput,
   BetterAgentConfig,
   SendOptions,
 } from "./types";

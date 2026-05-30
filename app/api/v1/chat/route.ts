@@ -18,6 +18,8 @@ import { SSE_HEADERS } from "@/lib/chat/streaming";
 import { prisma } from "@/lib/db";
 import { ConversationStatus } from "@/lib/generated/prisma/enums";
 import { chatRequestSchema } from "@/lib/schemas/chat";
+import { chatLimiter, chatProjectLimiter, checkRateLimit } from "@/lib/ratelimit";
+import { createHash } from "node:crypto";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,6 +30,30 @@ function extractBearerToken(req: NextRequest): string | null {
   return auth.slice(7).trim() || null;
 }
 
+function rateLimitedResponse(reset: number): Response {
+  return Response.json(
+    { error: "Rate limit exceeded" },
+    {
+      status: 429,
+      headers: {
+        "Retry-After": String(Math.max(1, Math.ceil((reset - Date.now()) / 1000))),
+      },
+    },
+  );
+}
+
+/**
+ * Per-end-user rate-limit key. Prefer the forwarded end-user token (a caller
+ * can't forge another user's token), falling back to the client-asserted
+ * endUserId. Hashed so raw tokens never land in Redis keys.
+ */
+function endUserRateKey(clientKey: string, endUserToken: string | null, endUserId: string): string {
+  const subject = endUserToken
+    ? `tok:${createHash("sha256").update(endUserToken).digest("base64url").slice(0, 24)}`
+    : `uid:${endUserId}`;
+  return `chat:${clientKey}:${subject}`;
+}
+
 export async function POST(req: NextRequest) {
   const clientKey = extractBearerToken(req);
   if (!clientKey) {
@@ -36,6 +62,11 @@ export async function POST(req: NextRequest) {
       { status: 401 },
     );
   }
+
+  // Cheap project-wide ceiling first, before any DB work. Bounds total spend
+  // per project even across many (or spoofed) end users.
+  const projectRl = await checkRateLimit(chatProjectLimiter, `chat-proj:${clientKey}`);
+  if (projectRl.limited) return rateLimitedResponse(projectRl.reset);
 
   let body: unknown;
   try {
@@ -53,6 +84,15 @@ export async function POST(req: NextRequest) {
   }
 
   const { endUserId, conversationId: requestedConvId, message, idempotencyKey } = parsed.data;
+
+  // Per-end-user fairness limit so one user can't starve the project. Keyed by
+  // the forwarded end-user token when present (forge-resistant), else endUserId.
+  const endUserToken = req.headers.get("x-end-user-token");
+  const userRl = await checkRateLimit(
+    chatLimiter,
+    endUserRateKey(clientKey, endUserToken, endUserId),
+  );
+  if (userRl.limited) return rateLimitedResponse(userRl.reset);
 
   let project: { id: string; baseUrl: string | null; systemPrompt: string | null } | null;
   try {
@@ -111,6 +151,10 @@ export async function POST(req: NextRequest) {
     }
     conversationId = conv.id;
   } else {
+    // New conversation. endUserId is client-asserted (see chatRequestSchema):
+    // the project-wide ceiling above bounds abuse, and any per-user data the
+    // agent touches via route tools is gated by the forwarded end-user token,
+    // not this id.
     const created = await createConversation(project.id, endUserId);
     conversationId = created.id;
     const start = await consumeCredits(project.id, {
@@ -135,7 +179,7 @@ export async function POST(req: NextRequest) {
     project,
     conversationId,
     endUserId,
-    endUserToken: req.headers.get("x-end-user-token"),
+    endUserToken,
     history,
   });
 
