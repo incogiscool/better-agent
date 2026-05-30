@@ -15,14 +15,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useRequestPasswordReset } from "@/lib/auth/mutations";
+import { useSendVerificationOtp } from "@/lib/auth/mutations";
 import { forgotPasswordSchema } from "@/lib/schemas/auth";
 
 type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
 
 export function ForgotPasswordForm() {
   const router = useRouter();
-  const requestReset = useRequestPasswordReset();
+  const requestReset = useSendVerificationOtp();
 
   const form = useForm<ForgotPasswordValues>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -31,11 +31,11 @@ export function ForgotPasswordForm() {
 
   const onSubmit = (values: ForgotPasswordValues) => {
     requestReset.mutate(
-      { email: values.email, redirectTo: "/auth/reset-password" },
+      { email: values.email, type: "forget-password" },
       {
         onSuccess: () => {
           router.push(
-            `/auth/check-inbox?email=${encodeURIComponent(values.email)}`,
+            `/auth/reset-password?email=${encodeURIComponent(values.email)}`,
           );
         },
       },
@@ -52,7 +52,7 @@ export function ForgotPasswordForm() {
           Reset your password.
         </h1>
         <p className="text-xs text-muted-foreground">
-          Enter the email on your account. We&apos;ll send a one-time link.
+          Enter the email on your account. We&apos;ll send a 6-digit code.
         </p>
       </div>
 
@@ -88,7 +88,7 @@ export function ForgotPasswordForm() {
             className="w-full"
             disabled={requestReset.isPending}
           >
-            {requestReset.isPending ? "Sending..." : "Send reset link"}
+            {requestReset.isPending ? "Sending..." : "Send reset code"}
             <ArrowRight />
           </Button>
         </form>

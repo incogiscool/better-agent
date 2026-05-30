@@ -27,19 +27,17 @@ export default function TermsPage() {
 
       <section className={SEC}>
         <div className={cn(WRAP, "max-w-[760px]")}>
+          <ReviewBanner />
           <Prose>
             <p>
               These Terms of Service (&ldquo;Terms&rdquo;) govern your access to
               and use of BetterAgent (&ldquo;we&rdquo;, &ldquo;us&rdquo;,
               &ldquo;our&rdquo;) and the services available at betteragent.dev
-              (the &ldquo;Service&rdquo;). By creating an account or using the
-              Service you agree to these Terms. If you do not agree, do not use
-              the Service.
+              (the &ldquo;Service&rdquo;). BetterAgent is operated by an
+              individual (sole proprietor) based in Ontario, Canada. By creating
+              an account or using the Service you agree to these Terms. If you do
+              not agree, do not use the Service.
             </p>
-            <Placeholder>
-              Confirm the legal operating entity (sole proprietorship vs.
-              incorporated company) and insert its legal name here.
-            </Placeholder>
 
             <H3>1. Account Registration</H3>
             <p>
@@ -106,15 +104,12 @@ export default function TermsPage() {
               other agent operations. Free-plan accounts receive 500 credits per
               30-day period. Unused credits do not roll over.
             </p>
-            <Placeholder>
-              Paid plans and billing are not yet active. When they launch: Pro
-              accounts receive 10,000 credits per billing period, with
-              pay-as-you-go overage at $5 per 1,000 additional credits. Billing
-              is processed via Stripe; all fees are in USD and non-refundable
-              except where required by law. We may change pricing with 30
-              days&rsquo; notice. If a payment method fails, we will retry for up
-              to 7 days before downgrading the account to the Free plan.
-            </Placeholder>
+            <p>
+              We do not currently offer paid plans, charge fees, or process
+              payments. If and when paid plans launch, we will publish the
+              applicable pricing and billing terms and update these Terms before
+              charging any account.
+            </p>
 
             <H3>5. API Keys and Client Keys</H3>
             <p>
@@ -154,9 +149,6 @@ export default function TermsPage() {
               own terms and privacy policies. We are not responsible for the
               practices of third parties.
             </p>
-            <Placeholder>
-              Add Stripe (billing) to this list when paid plans launch.
-            </Placeholder>
 
             <H3>9. Disclaimers</H3>
             <p>
@@ -228,11 +220,12 @@ function H3({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Placeholder({ children }: { children: React.ReactNode }) {
+function ReviewBanner() {
   return (
-    <div className="my-4 rounded-md border border-dashed border-amber-500/60 bg-amber-500/10 px-3 py-2 font-mono text-[13px] leading-relaxed text-amber-700 dark:text-amber-400">
-      <span className="font-semibold">PLACEHOLDER · </span>
-      {children}
+    <div className="mb-8 rounded-md border border-amber-500/60 bg-amber-500/10 px-4 py-3 font-mono text-[13px] leading-relaxed text-amber-700 dark:text-amber-400">
+      <span className="font-semibold">⚠️ REVIEW BEFORE LAUNCH · </span>
+      This is a working draft, not legal advice. Have it reviewed by a qualified
+      lawyer before relying on it publicly.
     </div>
   );
 }

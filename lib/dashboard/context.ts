@@ -11,6 +11,7 @@ export type DashboardProject = {
   baseUrl: string | null;
   clientKey: string;
   systemPrompt: string | null;
+  allowedOrigins: string[];
   plan: ProjectPlan;
   stripeCustomerId: string | null;
   stripeSubscriptionId: string | null;
@@ -54,6 +55,7 @@ export const loadProjectContext = cache(
         baseUrl: true,
         clientKey: true,
         systemPrompt: true,
+        allowedOrigins: true,
         plan: true,
         stripeCustomerId: true,
         stripeSubscriptionId: true,

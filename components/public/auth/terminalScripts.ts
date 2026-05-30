@@ -24,15 +24,26 @@ export const SIGNUP_TERMINAL: TerminalLine[] = [
 
 export const FORGOT_TERMINAL: TerminalLine[] = [
   { tone: "comment", text: "# Looking up account..." },
-  { tone: "prompt", text: "auth.password.reset({" },
+  { tone: "prompt", text: "auth.password.requestReset({" },
   { tone: "code", text: '  email: "you@example.com"' },
   { tone: "code", text: "})", pauseAfterMs: 400 },
-  { tone: "success", text: "reset link signed (expires in 1h)" },
+  { tone: "success", text: "reset code generated (expires in 10m)" },
   { tone: "success", text: "dispatched via resend" },
   {
     tone: "comment",
     text: "# Check spam if it doesn't arrive within a minute.",
   },
+];
+
+export const RESET_TERMINAL: TerminalLine[] = [
+  { tone: "comment", text: "# Verifying reset code..." },
+  { tone: "prompt", text: "auth.password.reset({" },
+  { tone: "code", text: '  email: "you@example.com",' },
+  { tone: "code", text: '  code: "••••••",' },
+  { tone: "code", text: '  password: "••••••••"' },
+  { tone: "code", text: "})", pauseAfterMs: 400 },
+  { tone: "success", text: "password updated" },
+  { tone: "comment", text: "# Sign in with your new password." },
 ];
 
 export const VERIFY_TERMINAL: TerminalLine[] = [

@@ -19,6 +19,7 @@ import { prisma } from "@/lib/db";
 import { ConversationStatus } from "@/lib/generated/prisma/enums";
 import { chatRequestSchema } from "@/lib/schemas/chat";
 import { chatLimiter, chatProjectLimiter, checkRateLimit } from "@/lib/ratelimit";
+import { corsHeaders, isOriginAllowed } from "@/lib/projects/origins";
 import { createHash } from "node:crypto";
 
 export const runtime = "nodejs";
@@ -30,16 +31,12 @@ function extractBearerToken(req: NextRequest): string | null {
   return auth.slice(7).trim() || null;
 }
 
-function rateLimitedResponse(reset: number): Response {
-  return Response.json(
-    { error: "Rate limit exceeded" },
-    {
-      status: 429,
-      headers: {
-        "Retry-After": String(Math.max(1, Math.ceil((reset - Date.now()) / 1000))),
-      },
-    },
-  );
+/** CORS preflight. Auth/origin are enforced on the actual POST. */
+export async function OPTIONS(req: NextRequest) {
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders(req.headers.get("origin")),
+  });
 }
 
 /**
@@ -55,32 +52,37 @@ function endUserRateKey(clientKey: string, endUserToken: string | null, endUserI
 }
 
 export async function POST(req: NextRequest) {
+  const cors = corsHeaders(req.headers.get("origin"));
+  const json = (body: unknown, status: number, headers?: Record<string, string>) =>
+    Response.json(body, { status, headers: { ...cors, ...headers } });
+  const rateLimited = (reset: number) =>
+    json({ error: "Rate limit exceeded" }, 429, {
+      "Retry-After": String(Math.max(1, Math.ceil((reset - Date.now()) / 1000))),
+    });
+
   const clientKey = extractBearerToken(req);
   if (!clientKey) {
-    return Response.json(
+    return json(
       { error: "Missing Authorization header. Expected: Bearer <client_key>" },
-      { status: 401 },
+      401,
     );
   }
 
   // Cheap project-wide ceiling first, before any DB work. Bounds total spend
   // per project even across many (or spoofed) end users.
   const projectRl = await checkRateLimit(chatProjectLimiter, `chat-proj:${clientKey}`);
-  if (projectRl.limited) return rateLimitedResponse(projectRl.reset);
+  if (projectRl.limited) return rateLimited(projectRl.reset);
 
   let body: unknown;
   try {
     body = await req.json();
   } catch {
-    return Response.json({ error: "Invalid JSON body" }, { status: 400 });
+    return json({ error: "Invalid JSON body" }, 400);
   }
 
   const parsed = chatRequestSchema.safeParse(body);
   if (!parsed.success) {
-    return Response.json(
-      { error: "Invalid request body", issues: parsed.error.issues },
-      { status: 422 },
-    );
+    return json({ error: "Invalid request body", issues: parsed.error.issues }, 422);
   }
 
   const { endUserId, conversationId: requestedConvId, message, idempotencyKey } = parsed.data;
@@ -92,21 +94,28 @@ export async function POST(req: NextRequest) {
     chatLimiter,
     endUserRateKey(clientKey, endUserToken, endUserId),
   );
-  if (userRl.limited) return rateLimitedResponse(userRl.reset);
+  if (userRl.limited) return rateLimited(userRl.reset);
 
-  let project: { id: string; baseUrl: string | null; systemPrompt: string | null } | null;
+  let project:
+    | { id: string; baseUrl: string | null; systemPrompt: string | null; allowedOrigins: string[] }
+    | null;
   try {
     project = await prisma.project.findUnique({
       where: { clientKey },
-      select: { id: true, baseUrl: true, systemPrompt: true },
+      select: { id: true, baseUrl: true, systemPrompt: true, allowedOrigins: true },
     });
   } catch (err) {
     console.error("[chat] project lookup failed:", err);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    return json({ error: "Internal server error" }, 500);
   }
 
   if (!project) {
-    return Response.json({ error: "Invalid client key" }, { status: 401 });
+    return json({ error: "Invalid client key" }, 401);
+  }
+
+  // Browser origin allowlist. Empty list => allow all (project not locked down).
+  if (!isOriginAllowed(req.headers.get("origin"), project.allowedOrigins)) {
+    return json({ error: "Origin not allowed" }, 403);
   }
 
   let claim: IdempotencyClaim | null = null;
@@ -117,37 +126,31 @@ export async function POST(req: NextRequest) {
       endpoint: "chat",
     });
     if (claim.kind === "duplicate") {
-      return Response.json(
-        { idempotent: true, conversationId: claim.conversationId },
-        { status: 200 },
-      );
+      return json({ idempotent: true, conversationId: claim.conversationId }, 200);
     }
   }
 
   const hasCredits = await hasMinimumCredits(project.id, 1);
   if (!hasCredits) {
-    return Response.json({ error: "Credit limit reached" }, { status: 402 });
+    return json({ error: "Credit limit reached" }, 402);
   }
 
   let conversationId: string;
   if (requestedConvId) {
     const conv = await loadConversationForProject(project.id, requestedConvId);
     if (!conv) {
-      return Response.json({ error: "Conversation not found" }, { status: 404 });
+      return json({ error: "Conversation not found" }, 404);
     }
     if (conv.status !== ConversationStatus.active) {
-      return Response.json({ error: "Conversation is no longer active" }, { status: 409 });
+      return json({ error: "Conversation is no longer active" }, 409);
     }
     if (conv.endUserId !== endUserId) {
-      return Response.json({ error: "endUserId does not match conversation" }, { status: 403 });
+      return json({ error: "endUserId does not match conversation" }, 403);
     }
     const cap = await checkTokenCap(conv.id);
     if (cap.over) {
       await markConversationAbandoned(conv.id);
-      return Response.json(
-        { error: "conversation token cap reached", code: "token_cap" },
-        { status: 409 },
-      );
+      return json({ error: "conversation token cap reached", code: "token_cap" }, 409);
     }
     conversationId = conv.id;
   } else {
@@ -163,7 +166,7 @@ export async function POST(req: NextRequest) {
       conversationId,
     });
     if (!start.ok) {
-      return Response.json({ error: "Credit limit reached" }, { status: 402 });
+      return json({ error: "Credit limit reached" }, 402);
     }
   }
 
@@ -183,5 +186,5 @@ export async function POST(req: NextRequest) {
     history,
   });
 
-  return new Response(stream, { headers: SSE_HEADERS });
+  return new Response(stream, { headers: { ...cors, ...SSE_HEADERS } });
 }

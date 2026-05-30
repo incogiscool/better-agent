@@ -11,6 +11,7 @@ import {
   updateProjectForOwner,
 } from "@/lib/projects/service";
 import { prisma } from "@/lib/db";
+import { checkOutboundUrlSync } from "@/lib/net/ssrf";
 import { sendWelcomeEmail } from "@/lib/email/notifications";
 import type {
   CreateProjectActionState,
@@ -23,6 +24,37 @@ const projectSchema = z.object({
   baseUrl: z.url("Base URL must be a valid URL.").optional().or(z.literal("")),
   systemPrompt: z.string().trim().max(5000).optional().or(z.literal("")),
 });
+
+/**
+ * Parse the allowed-origins textarea (newline- or comma-separated) into a list
+ * of normalized `scheme://host[:port]` origins. Returns an error message for
+ * any entry that isn't a valid http(s) origin. An absent field (create flow)
+ * yields `undefined` so the column is left untouched.
+ */
+function parseAllowedOrigins(
+  raw: FormDataEntryValue | null,
+): { ok: true; origins: string[] | undefined } | { ok: false; error: string } {
+  if (raw === null) return { ok: true, origins: undefined };
+  const tokens = String(raw)
+    .split(/[\n,]/)
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+  const origins: string[] = [];
+  for (const token of tokens) {
+    let url: URL;
+    try {
+      url = new URL(token);
+    } catch {
+      return { ok: false, error: `"${token}" is not a valid URL.` };
+    }
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return { ok: false, error: `"${token}" must be an http(s) origin.` };
+    }
+    if (!origins.includes(url.origin)) origins.push(url.origin);
+  }
+  return { ok: true, origins };
+}
 
 function parseProjectFormData(formData: FormData) {
   const parsed = projectSchema.safeParse({
@@ -38,12 +70,31 @@ function parseProjectFormData(formData: FormData) {
     };
   }
 
+  if (parsed.data.baseUrl) {
+    const unsafe = checkOutboundUrlSync(parsed.data.baseUrl);
+    if (unsafe) {
+      return {
+        success: false as const,
+        errors: { baseUrl: [`Base URL ${unsafe}.`] },
+      };
+    }
+  }
+
+  const origins = parseAllowedOrigins(formData.get("allowedOrigins"));
+  if (!origins.ok) {
+    return {
+      success: false as const,
+      errors: { allowedOrigins: [origins.error] },
+    };
+  }
+
   return {
     success: true as const,
     data: {
       name: parsed.data.name,
       baseUrl: parsed.data.baseUrl || undefined,
       systemPrompt: parsed.data.systemPrompt || undefined,
+      allowedOrigins: origins.origins,
     },
   };
 }

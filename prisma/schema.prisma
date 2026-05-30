@@ -115,6 +115,7 @@ model Project {
   secretKeyHash      String
   secretKeyPrefix    String?         @unique
   systemPrompt       String?
+  allowedOrigins     String[]        @default([])
   plan               ProjectPlan     @default(FREE)
   stripeCustomerId   String?         @unique
   stripeSubscriptionId String?       @unique

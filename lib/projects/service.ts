@@ -14,6 +14,7 @@ type UpdateProjectInput = {
   name: string;
   baseUrl?: string;
   systemPrompt?: string;
+  allowedOrigins?: string[];
 };
 
 type ProjectKeyInput = {
@@ -49,6 +50,7 @@ export async function getProjectForOwner(projectId: string, ownerId: string) {
       baseUrl: true,
       clientKey: true,
       systemPrompt: true,
+      allowedOrigins: true,
       plan: true,
       createdAt: true,
       updatedAt: true,
@@ -98,6 +100,9 @@ export async function updateProjectForOwner(input: UpdateProjectInput) {
       name: input.name,
       baseUrl: input.baseUrl,
       systemPrompt: input.systemPrompt,
+      ...(input.allowedOrigins !== undefined
+        ? { allowedOrigins: input.allowedOrigins }
+        : {}),
     },
   });
 }

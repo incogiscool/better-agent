@@ -30,6 +30,7 @@ type ProjectSettingsFormProps = {
     baseUrl: string | null;
     systemPrompt: string | null;
     clientKey: string;
+    allowedOrigins: string[];
   };
 };
 
@@ -79,6 +80,30 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
             className="min-h-36 w-full rounded-none border border-input bg-transparent px-2.5 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
           />
           <FieldError errors={updateState.errors?.systemPrompt} />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="allowedOrigins" className="text-sm font-medium">
+            Allowed origins
+          </label>
+          <p className="text-xs text-muted-foreground">
+            One origin per line (e.g. https://app.example.com). Only these sites
+            may use this project&apos;s client key. localhost is always allowed.
+          </p>
+          <textarea
+            id="allowedOrigins"
+            name="allowedOrigins"
+            defaultValue={project.allowedOrigins.join("\n")}
+            placeholder="https://app.example.com"
+            className="min-h-24 w-full rounded-none border border-input bg-transparent px-2.5 py-2 font-mono text-xs outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
+          />
+          <FieldError errors={updateState.errors?.allowedOrigins} />
+          {project.allowedOrigins.length === 0 ? (
+            <p className="text-xs text-amber-600 dark:text-amber-500">
+              Any website can use this project&apos;s client key. Add your
+              domains to lock it down.
+            </p>
+          ) : null}
         </div>
 
         {updateState.message ? (
