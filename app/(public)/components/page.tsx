@@ -41,7 +41,7 @@ function GallerySection() {
       <div className={WRAP}>
         <div className={SECHEAD}>
           <Eyebrow>All components</Eyebrow>
-          <h2 className={H2}>Five layouts, one protocol.</h2>
+          <h2 className={H2}>Four layouts, one protocol.</h2>
           <p className={SUB}>Every container composes the same shared pieces — messages, input, header, suggested prompts. Install one and you get them all.</p>
         </div>
         <ComponentGallery />
@@ -133,7 +133,7 @@ function ThemingSection() {
       <div className={WRAP}>
         <div className={SECHEAD}>
           <Eyebrow>Theming</Eyebrow>
-          <h2 className={H2}>18 CSS variables. One import.</h2>
+          <h2 className={H2}>Theming through CSS variables.</h2>
           <p className={SUB}>Components inherit your shadcn tokens by default. Override any <CodeChip>--ba-*</CodeChip> variable in your own globals to retheme without touching component source.</p>
         </div>
         <div className="grid grid-cols-2 gap-6 items-start">

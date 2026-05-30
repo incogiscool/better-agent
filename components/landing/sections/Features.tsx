@@ -1,11 +1,10 @@
 "use client";
 
-import { Pulse, Sparkle, WebhooksLogo, Package, Check, Lock } from "@phosphor-icons/react";
+import { Pulse, Sparkle, WebhooksLogo, Check, Lock } from "@phosphor-icons/react";
 import {
   SSEViz,
   CapsGauge,
   ModelStack,
-  HostToggle,
   FxGrid,
   AuthFlow,
   IdempotencyViz,
@@ -50,7 +49,7 @@ const OBSERVABLE_METRICS: [string, string, boolean][] = [
 const BENTO_ITEMS = [
   {
     title: "Auth that's already there",
-    sub: "Runs as the signed-in user. No service accounts, no scope leaks.",
+    sub: "Forwards your end-user's bearer token to your APIs. No service accounts, no scope leaks.",
     icon: <Lock size={14} />,
     content: <AuthFlow />,
   },
@@ -62,7 +61,7 @@ const BENTO_ITEMS = [
   },
   {
     title: "Claude Sonnet 4.6",
-    sub: "Default model. Hosted with cache hits at 10%. BYOK on Enterprise.",
+    sub: "Default model. Hosted with cache hits at 10% of normal token cost.",
     icon: <Sparkle size={14} />,
     content: <ModelStack />,
   },
@@ -71,12 +70,6 @@ const BENTO_ITEMS = [
     sub: "Per-project credit limits shut off before they bill you.",
     icon: <WebhooksLogo size={14} />,
     content: <CapsGauge />,
-  },
-  {
-    title: "Hosted or self-hosted",
-    sub: "Same SDK, same protocol — swap the runtime without changing your code.",
-    icon: <Package size={14} />,
-    content: <HostToggle />,
   },
   {
     title: "Observable by default",
@@ -120,7 +113,7 @@ const BENTO_ITEMS = [
   },
   {
     title: "Rate limiting built in",
-    sub: "Per-user and per-IP limits enforced at the edge before they hit your tools.",
+    sub: "Per-project and per-IP limits enforced before requests hit your tools.",
     icon: <Lock size={14} />,
     content: <RateLimitViz />,
   },
@@ -138,7 +131,7 @@ export function Features() {
             unsexy stuff that decides whether your agent ships.
           </p>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-4 gap-3">
           {BENTO_ITEMS.map((item) => (
             <BentoTile
               key={item.title}

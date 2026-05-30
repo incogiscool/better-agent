@@ -276,7 +276,6 @@ function ConfigReference() {
                   <li>CLI flag (<CodeChip>--api-url</CodeChip>)</li>
                   <li>Env var (<CodeChip>BETTERAGENT_API_URL</CodeChip>)</li>
                   <li>betteragent.config.json <CodeChip>apiUrl</CodeChip></li>
-                  <li>Stored credentials</li>
                   <li>Production default (<CodeChip>https://api.betteragent.dev</CodeChip>)</li>
                 </ol>
               </div>

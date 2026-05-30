@@ -75,10 +75,10 @@ function WhatAreToolFilesSection() {
         <div className="flex flex-col gap-3 p-5 border border-border rounded-lg bg-muted/30">
           <div className="font-mono font-semibold text-[13px]">Discovery vs. manual authoring</div>
           <p className="font-sans text-[13px] text-muted-foreground leading-[1.55] m-0">
-            Run <CodeChip>betteragent discover</CodeChip> to generate all three files automatically by scanning
-            your codebase. You can then edit the files by hand to add descriptions, tighten schemas, or add
-            tools that discovery can{"’"}t detect (e.g. third-party API calls). Both approaches produce
-            the same file format — there{"’"}s no lock-in to either.
+            Run <CodeChip>betteragent discover</CodeChip> to scaffold the three files with one entry per
+            selected handler and empty Zod schemas. Fill in the descriptions and schemas by hand, or write
+            tools from scratch for things discovery can{"’"}t detect (e.g. third-party API calls). Both
+            approaches produce the same file format — there{"’"}s no lock-in to either.
           </p>
         </div>
       </div>

@@ -57,8 +57,8 @@ export function DashboardPreview() {
             <span className="text-muted-foreground">not a model.</span>
           </h2>
           <p className={SUB}>
-            Every conversation, every tool call, every token — in a real
-            dashboard. Replay a run. Override a description without redeploying.
+            Every conversation, every tool call, every token — recorded for
+            query and audit.
           </p>
         </div>
         <div className="border border-border rounded-[var(--radius-xl)] bg-card overflow-hidden shadow-md">

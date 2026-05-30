@@ -17,7 +17,6 @@ export const PLANS = [
       "500 credits / month",
       "1 project, 7-day history",
       "Hosted Sonnet 4.6",
-      '"Powered by BetterAgent"',
     ],
   },
   {
@@ -25,16 +24,14 @@ export const PLANS = [
     price: "$39",
     unit: "/mo",
     primary: true,
-    cta: "Start 14-day trial",
-    href: "/auth/sign-up",
+    cta: "Join waitlist",
+    href: "/contact",
     tagline:
-      "For production apps. Generous limits and pay-as-you-grow overage.",
+      "For production apps. Generous limits — launching soon.",
     features: [
       "10,000 credits / month",
-      "$5 per 1k additional credits",
       "Unlimited projects, full history",
-      "Remove watermark",
-      "Evals, replays, exports",
+      "Hosted Sonnet 4.6",
     ],
   },
   {
@@ -43,14 +40,9 @@ export const PLANS = [
     unit: "",
     primary: false,
     cta: "Talk to sales",
-    href: "#",
-    tagline: "BYOK, SSO, SLA, self-host for teams shipping at scale.",
-    features: [
-      "Bring your own LLM keys",
-      "SSO + SAML + audit log",
-      "Self-host runtime (Docker)",
-      "99.9% SLA + dedicated support",
-    ],
+    href: "/contact",
+    tagline: "Custom plans for teams shipping at scale.",
+    features: [],
   },
 ] as const;
 

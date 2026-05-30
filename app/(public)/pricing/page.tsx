@@ -15,11 +15,10 @@ const CREDIT_EVENTS = [
 ] as const;
 
 const FAQ_ITEMS = [
-  { q: "What happens when I hit the free limit?",  a: "Your project is hard-capped at 500 credits. The chat endpoint returns a clear error and no further billing occurs. Upgrade to Pro to continue, or wait for your next monthly reset." },
-  { q: "Can I upgrade mid-month?",                 a: "Yes. Credits top up immediately when you subscribe to Pro. Your overage meter starts fresh from your upgrade date." },
-  { q: "What does overage cost on Pro?",           a: "$5 per 1,000 additional credits beyond the 10,000 included. Overage is charged at the end of each billing period via your existing Stripe subscription." },
-  { q: "Do unused credits roll over?",             a: "No — credits reset at the start of each billing period. Pro subscribers get 10,000 fresh credits every month regardless of usage." },
-  { q: "Is BYOK (bring your own key) available?",  a: "BYOK is an Enterprise feature. On Free and Pro plans, token costs are included in the credit pricing and hosted on BetterAgent's Anthropic account." },
+  { q: "What happens when I hit the free limit?",  a: "Your project is hard-capped at 500 credits. The chat endpoint returns a clear error and no further billing occurs. Wait for your next monthly reset, or join the Pro waitlist." },
+  { q: "When does Pro launch?",                    a: "Pro is on the waitlist while we finish billing. Join from the pricing card above and we'll email you when it's ready." },
+  { q: "Do unused credits roll over?",             a: "No — credits reset at the start of each 30-day billing period." },
+  { q: "Are token costs hidden from me?",          a: "Yes. You pay a flat rate per event (conversation start, message, tool call). Token usage is included in the credit price on Free and Pro." },
 ];
 
 export default function PricingPage() {
@@ -43,7 +42,7 @@ function PricingHero() {
           <h1 className="font-mono font-medium text-[56px] leading-[1.04] tracking-[-0.03em] m-0">
             Free until your agent<br />earns its keep.
           </h1>
-          <p className={SUB}>500 credits a month on the house — roughly 25 conversations. Pro is $39/mo with 10,000 credits and pay-as-you-grow overage. No card required to start.</p>
+          <p className={SUB}>500 credits a month on the house — roughly 25 conversations. Pro ($39/mo with 10,000 credits) is launching soon — join the waitlist. No card required to start.</p>
         </div>
       </div>
     </section>
@@ -97,7 +96,6 @@ function CreditExplainer() {
             {[
               { plan: "Free · 500 credits",       eg: "~25 conversations with 2 tool calls each (2 + 1×turns + 3×tools)" },
               { plan: "Pro · 10,000 credits",      eg: "~500 conversations, or a mix of deeper multi-step agent runs" },
-              { plan: "Pro overage · $5 / 1k cred", eg: "$0.005 / credit · a 10-turn run with 5 tools costs ≈ 27 credits" },
             ].map((row) => (
               <div key={row.plan} className="p-4 border border-border rounded-[var(--radius-md)]">
                 <div className="font-mono font-semibold text-[13px] mb-1.5">{row.plan}</div>
@@ -106,7 +104,7 @@ function CreditExplainer() {
             ))}
 
             <p className="font-sans text-[13px] text-muted-foreground leading-[1.55] m-0">
-              Token costs are included in credit pricing — you pay a flat rate per event, not for individual tokens. Cache hits are charged at 10% of normal token cost on Pro.
+              Token costs are included in credit pricing — you pay a flat rate per event, not for individual tokens.
             </p>
           </div>
         </div>

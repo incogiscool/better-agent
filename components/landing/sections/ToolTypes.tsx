@@ -18,17 +18,20 @@ const TOOL_TYPES = [
       color: "oklch(0.50 0.16 49)",
     },
     blurb:
-      "Wrap an existing Next.js Server Action — the agent invokes it through the framework, with auth and revalidation.",
-    code: `<span style="color:oklch(0.769 0.188 70.08)">import</span> { exposeToAgent } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"@betteragent/next"</span>;
-<span style="color:oklch(0.769 0.188 70.08)">import</span> { createCampaign, scheduleSend } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"@/app/actions"</span>;
+      "Wrap an existing Next.js Server Action — the SDK dispatches the call so session and revalidation work as normal.",
+    code: `<span style="color:oklch(0.769 0.188 70.08)">import</span> { defineServerAction } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"@betteragent/next"</span>;
+<span style="color:oklch(0.769 0.188 70.08)">import</span> { createCampaign } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"@/app/actions"</span>;
 
 <span style="color:oklch(0.769 0.188 70.08)">export const</span> <span style="color:oklch(0.985 0 0)">serverActions</span> = [
-  exposeToAgent(createCampaign),
-  exposeToAgent(scheduleSend),
+  defineServerAction({
+    name: <span style="color:oklch(0.78 0.13 145)">"createCampaign"</span>,
+    description: <span style="color:oklch(0.78 0.13 145)">"Draft a re-engagement campaign."</span>,
+    schema: z.object({ audienceId: z.string() }),
+    handler: createCampaign,
+  }),
 ];`,
     checks: [
-      "Auth flows through; agent runs as the user.",
-      "Zod schemas inferred from TypeScript types.",
+      "Forwards your end-user bearer token to your APIs.",
       "Hard caps & observability included.",
     ],
   },
@@ -42,19 +45,21 @@ const TOOL_TYPES = [
       color: "oklch(0.55 0.17 230)",
     },
     blurb:
-      "Point at any HTTP endpoint — the agent makes a server-to-server call with the user's auth context.",
-    code: `<span style="color:oklch(0.769 0.188 70.08)">import</span> { exposeRoute } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"@betteragent/next"</span>;
-<span style="color:oklch(0.769 0.188 70.08)">import</span> { <span style="color:oklch(0.985 0 0)">GET</span> <span style="color:oklch(0.769 0.188 70.08)">as</span> listAudiences } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"@/app/api/audiences/route"</span>;
+      "Point at any HTTP endpoint — the agent makes a server-to-server call with your end-user's bearer token.",
+    code: `<span style="color:oklch(0.769 0.188 70.08)">import</span> { defineRoute } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"@betteragent/next"</span>;
 
-<span style="color:oklch(0.769 0.188 70.08)">export const</span> <span style="color:oklch(0.985 0 0)">routes</span> = [
-  exposeRoute(listAudiences, {
-    method: <span style="color:oklch(0.78 0.13 145)">"GET"</span>,
-    path: <span style="color:oklch(0.78 0.13 145)">"/api/audiences"</span>,
-  }),
-];`,
+<span style="color:oklch(0.769 0.188 70.08)">export const</span> <span style="color:oklch(0.985 0 0)">listAudiences</span> = defineRoute({
+  name: <span style="color:oklch(0.78 0.13 145)">"listAudiences"</span>,
+  method: <span style="color:oklch(0.78 0.13 145)">"GET"</span>,
+  path: <span style="color:oklch(0.78 0.13 145)">"/api/audiences"</span>,
+  description: <span style="color:oklch(0.78 0.13 145)">"List the current user's audiences."</span>,
+  schema: z.object({ q: z.string().optional() }),
+});
+
+<span style="color:oklch(0.769 0.188 70.08)">export const</span> <span style="color:oklch(0.985 0 0)">routes</span> = [listAudiences];`,
     checks: [
       "Server-to-server; agent hits your real API.",
-      "Auth forwarded via X-End-User-Token.",
+      "Auth forwarded via Authorization: Bearer.",
       "30s timeout, 8KB result truncation.",
     ],
   },

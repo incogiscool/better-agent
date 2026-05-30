@@ -36,9 +36,9 @@ export function Hero() {
     <section className={cn("py-[72px]", DOT_BG)}>
       <div className={WRAP}>
         <div className="flex flex-col gap-7 mb-12 max-w-[880px]">
-          <Pill primary>
+          {/* <Pill primary>
             <Sparkle size={11} /> Now in beta — ship your first agent today
-          </Pill>
+          </Pill> */}
           <h1 className="font-mono font-medium text-[clamp(36px,5vw,64px)] leading-[1.02] tracking-[-0.035em] m-0">
             The agent layer your{" "}
             <em

@@ -145,48 +145,11 @@ export function ModelStack() {
           <span className={cn("ml-auto text-[10px]", sel === m.id ? "text-primary" : "text-muted-foreground")}>{m.price}</span>
         </div>
       ))}
-      <div className="mt-0.5 text-[10.5px] text-muted-foreground">BYOK on Enterprise · cache hits at 10%</div>
+      <div className="mt-0.5 text-[10.5px] text-muted-foreground">Hosted · cache hits at 10%</div>
     </div>
   );
 }
 
-// ── Hosted / self-host toggle ─────────────────────────────────
-export function HostToggle() {
-  const [mode, setMode] = useState<"hosted" | "self">("hosted");
-  return (
-    <div className="w-full flex flex-col gap-2.5">
-      <div className="flex p-[3px] bg-muted border border-border rounded-full w-max">
-        {(["hosted", "self"] as const).map((m) => (
-          <button
-            key={m}
-            onClick={() => setMode(m)}
-            className={cn(
-              "px-3.5 py-[5px] rounded-full font-mono text-xs border-0 cursor-pointer flex items-center gap-[5px] transition-colors",
-              mode === m ? "bg-background text-foreground" : "bg-transparent text-muted-foreground",
-            )}
-          >
-            {m === "hosted" ? "✦ Hosted" : "⬡ Self-host"}
-          </button>
-        ))}
-      </div>
-      <div className="p-[10px_12px] rounded-[var(--radius-md)] bg-[oklch(0.145_0_0)] border border-[oklch(1_0_0/10%)] font-mono text-[11px] leading-[1.7] text-[oklch(0.985_0_0)]">
-        {mode === "hosted" ? (
-          <>
-            <span className="text-[oklch(0.55_0_0)]"># us-east-1 · 99.95% SLA</span><br />
-            <span className="text-[oklch(0.769_0.188_70.08)]">BETTERAGENT_KEY</span><span className="text-[oklch(0.55_0_0)]">=</span><span className="text-[oklch(0.78_0.13_145)]">"ba_live_••3F2A"</span><br />
-            <span className="text-[oklch(0.55_0_0)]"># tokens billed to your account.</span>
-          </>
-        ) : (
-          <>
-            <span className="text-[oklch(0.55_0_0)]"># pull, deploy, point SDK at it</span><br />
-            <span className="text-[oklch(0.985_0_0)]">$ docker run betteragent/runtime</span><br />
-            <span className="text-[oklch(0.769_0.188_70.08)]">BETTERAGENT_HOST</span><span className="text-[oklch(0.55_0_0)]">=</span><span className="text-[oklch(0.78_0.13_145)]">"https://agent.acme.dev"</span>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
 
 // ── Framework grid ────────────────────────────────────────────
 export function FxGrid() {

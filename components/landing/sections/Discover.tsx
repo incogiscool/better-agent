@@ -9,16 +9,11 @@ const DISCOVER_STEPS = [
   },
   {
     n: "02",
-    title: "Schemas from TypeScript",
-    body: "Parameter types compile to JSON Schema via ts-to-zod. The agent gets the same contract your IDE has.",
+    title: "Tool files scaffolded",
+    body: "We scaffold one entry per selected handler with an empty Zod schema you fill in. The agent gets the same contract your IDE has once you describe the arguments.",
   },
   {
     n: "03",
-    title: "Descriptions from Claude",
-    body: "Sonnet 4.6 reads your function source and writes a one-line description per tool. Cached by source hash — only regenerated when the code changes.",
-  },
-  {
-    n: "04",
     title: "betteragent sync",
     body: "Diff against the server, confirm, ship. Routes are static at runtime — the LLM only sees the names and schemas you approved.",
   },
@@ -38,9 +33,9 @@ export function Discover() {
             </span>
           </h2>
           <p className={SUB}>
-            Point the CLI at your codebase and we read your routes, server
-            actions, and TypeScript types. Descriptions are generated with
-            Claude — you review them before they ship.
+            Point the CLI at your codebase and we read your routes and server
+            actions. You pick which handlers the agent can call and write the
+            descriptions it uses to decide when.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-6 items-stretch">

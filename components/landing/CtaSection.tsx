@@ -32,7 +32,7 @@ export function CtaSection() {
             </Button>
           </div>
           <div className="flex gap-4 flex-wrap justify-center font-mono text-xs text-muted-foreground mt-2">
-            {["No credit card", "500 free credits", "Open source SDKs"].map((t, i) => (
+            {["No credit card", "500 free credits", "Works with Next.js"].map((t, i) => (
               <span key={t} className="inline-flex items-center gap-1.5">
                 {i > 0 && <span className="text-border">·</span>}
                 {t}

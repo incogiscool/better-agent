@@ -215,7 +215,7 @@ function QuickstartHero() {
           </h1>
           <p className={SUB}>
             Create a project, install the CLI, scaffold a chat component, define your tools, wire up the
-            provider, and render the UI. Takes about ten minutes on an existing Next.js app.
+            provider, and render the UI. Takes about five minutes on an existing Next.js app.
           </p>
         </div>
       </div>
