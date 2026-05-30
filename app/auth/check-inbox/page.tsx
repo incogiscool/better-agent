@@ -13,10 +13,7 @@ export default async function CheckInboxPage({
 
   return (
     <AuthShell
-      badges={[
-        { label: "listening", tone: "live" },
-        { label: "otp · 6 digits" },
-      ]}
+      badges={[{ label: "otp · 6 digits" }]}
       terminal={
         <AuthTerminal
           title="mail.log"

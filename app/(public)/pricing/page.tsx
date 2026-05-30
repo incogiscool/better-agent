@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus } from "@phosphor-icons/react";
-import { PricingCards, PLANS } from "@/components/landing/PricingCards";
+import { PricingCards } from "@/components/landing/PricingCards";
 import { CtaSection } from "@/components/landing/CtaSection";
 import { Eyebrow, WRAP, SEC, SECHEAD, H2, SUB } from "@/components/landing/primitives";
 import { cn } from "@/lib/utils";
@@ -94,8 +94,8 @@ function CreditExplainer() {
             <h3 className="font-mono font-medium text-lg m-0 tracking-[-0.01em]">What does that look like?</h3>
 
             {[
-              { plan: "Free · 500 credits",       eg: "~25 conversations with 2 tool calls each (2 + 1×turns + 3×tools)" },
-              { plan: "Pro · 10,000 credits",      eg: "~500 conversations, or a mix of deeper multi-step agent runs" },
+              { plan: "Free · 500 credits",       eg: "Roughly 25 short conversations with a couple of tool calls each." },
+              { plan: "Pro · 10,000 credits",      eg: "Roughly 500 short conversations, or fewer deeper multi-step runs." },
             ].map((row) => (
               <div key={row.plan} className="p-4 border border-border rounded-[var(--radius-md)]">
                 <div className="font-mono font-semibold text-[13px] mb-1.5">{row.plan}</div>

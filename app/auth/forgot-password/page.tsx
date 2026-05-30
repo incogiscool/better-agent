@@ -10,10 +10,6 @@ import {
 export default function ForgotPasswordPage() {
   return (
     <AuthShell
-      badges={[
-        { label: "dispatched", tone: "live" },
-        { label: "queued · 0s" },
-      ]}
       terminal={
         <AuthTerminal
           title="auth.log"

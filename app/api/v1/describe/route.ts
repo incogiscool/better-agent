@@ -1,6 +1,7 @@
 import { type NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { verifyProjectSecret } from "@/lib/projects/keys";
+import { checkRateLimit, describeLimiter } from "@/lib/ratelimit";
 import { describeRequestSchema } from "@/lib/schemas/describe";
 import { getOrGenerateDescription } from "@/lib/tools/describe";
 
@@ -52,6 +53,19 @@ export async function POST(req: NextRequest) {
 
   if (!project || !keyValid) {
     return Response.json({ error: "Invalid project ID or secret key" }, { status: 401 });
+  }
+
+  const rl = await checkRateLimit(describeLimiter, `describe:${project.id}`);
+  if (rl.limited) {
+    return Response.json(
+      { error: "Rate limit exceeded" },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.max(1, Math.ceil((rl.reset - Date.now()) / 1000))),
+        },
+      },
+    );
   }
 
   try {

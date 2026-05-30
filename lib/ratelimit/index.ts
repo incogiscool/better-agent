@@ -51,6 +51,12 @@ export const authLimiter = makeLimit(20, 60);
  */
 export const contactLimiter = makeLimit(5, 900);
 
+/**
+ * 30 req/min per project — covers POST /api/v1/describe. Caps Anthropic
+ * spend from a leaked secret key.
+ */
+export const describeLimiter = makeLimit(30, 60);
+
 export type RateLimitResult =
   | { limited: false }
   | { limited: true; reset: number };

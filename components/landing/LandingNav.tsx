@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
 import { ArrowRight } from "@phosphor-icons/react";
-import { GithubIcon } from "./primitives";
 import { Button } from "@/components/ui/button";
 import { PUBLIC_NAVBAR_LINKS } from "@/lib/const/PUBLIC_NAVBAR_LINKS";
 

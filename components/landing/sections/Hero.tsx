@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Lightning, Sparkle, Copy } from "@phosphor-icons/react";
+import { Lightning, Copy } from "@phosphor-icons/react";
 import { TerminalDemo } from "@/components/landing/TerminalDemo";
 import { ChatDemo } from "@/components/landing/ChatDemo";
-import { Pill, WRAP, DOT_BG } from "@/components/landing/primitives";
+import { WRAP, DOT_BG } from "@/components/landing/primitives";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -36,9 +36,6 @@ export function Hero() {
     <section className={cn("py-[72px]", DOT_BG)}>
       <div className={WRAP}>
         <div className="flex flex-col gap-7 mb-12 max-w-[880px]">
-          {/* <Pill primary>
-            <Sparkle size={11} /> Now in beta — ship your first agent today
-          </Pill> */}
           <h1 className="font-mono font-medium text-[clamp(36px,5vw,64px)] leading-[1.02] tracking-[-0.035em] m-0">
             The agent layer your{" "}
             <em
@@ -52,15 +49,14 @@ export function Hero() {
             </em>{" "}
             is missing.
             <br />
-            <span className="text-muted-foreground">
+            {/* <span className="text-muted-foreground">
               From zero to AI agent in five minutes.
-            </span>
+            </span> */}
           </h1>
           <p className="font-sans text-lg leading-[1.55] text-muted-foreground m-0 max-w-[660px]">
             Point BetterAgent at your codebase. It reads your routes and server
-            actions, generates the schemas, drops in the chat components — and
-            your users get an agent that does real work inside the product you
-            already shipped.
+            actions - and now your users get an agent that does real work inside
+            the product you already shipped.
           </p>
           <div className="flex items-center gap-2.5 mt-1 flex-wrap">
             <Link href="/auth/sign-up">

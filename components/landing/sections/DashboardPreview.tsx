@@ -1,12 +1,51 @@
-import { Eyebrow, WRAP, SEC, SECHEAD, H2, SUB } from "@/components/landing/primitives";
+import {
+  Eyebrow,
+  WRAP,
+  SEC,
+  SECHEAD,
+  H2,
+  SUB,
+} from "@/components/landing/primitives";
 import { cn } from "@/lib/utils";
 
 const RUNS = [
-  ["run_8a91f3", "running", "/api/agent/campaigns", "2", "612", "—", "just now"],
-  ["run_8a91f0", "done", "/api/agent/campaigns", "4", "1,284", "3.2s", "12s ago"],
+  [
+    "run_8a91f3",
+    "running",
+    "/api/agent/campaigns",
+    "2",
+    "612",
+    "—",
+    "just now",
+  ],
+  [
+    "run_8a91f0",
+    "done",
+    "/api/agent/campaigns",
+    "4",
+    "1,284",
+    "3.2s",
+    "12s ago",
+  ],
   ["run_8a91eb", "done", "/api/agent/audiences", "1", "412", "0.9s", "1m ago"],
-  ["run_8a91e8", "failed", "/api/agent/analytics", "2", "901", "30.0s", "4m ago"],
-  ["run_8a91e2", "done", "/api/agent/campaigns", "5", "2,140", "4.8s", "7m ago"],
+  [
+    "run_8a91e8",
+    "failed",
+    "/api/agent/analytics",
+    "2",
+    "901",
+    "30.0s",
+    "4m ago",
+  ],
+  [
+    "run_8a91e2",
+    "done",
+    "/api/agent/campaigns",
+    "5",
+    "2,140",
+    "4.8s",
+    "7m ago",
+  ],
 ];
 
 function RunStatus({ status }: { status: string }) {
@@ -43,7 +82,15 @@ const STAT_ROWS: [string, string, string, boolean][] = [
   ["Spend (mo)", "$148", "$0.0114 / run", false],
 ];
 
-const TABLE_HEADERS = ["id", "status", "route", "tools", "tokens", "latency", "started"];
+const TABLE_HEADERS = [
+  "id",
+  "status",
+  "route",
+  "tools",
+  "tokens",
+  "latency",
+  "started",
+];
 
 export function DashboardPreview() {
   return (
@@ -57,8 +104,8 @@ export function DashboardPreview() {
             <span className="text-muted-foreground">not a model.</span>
           </h2>
           <p className={SUB}>
-            Every conversation, every tool call, every token — recorded for
-            query and audit.
+            Every conversation, every tool call, every token, all recorded and
+            queryable.
           </p>
         </div>
         <div className="border border-border rounded-[var(--radius-xl)] bg-card overflow-hidden shadow-md">

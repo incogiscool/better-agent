@@ -10,6 +10,11 @@ import {
 } from "@/components/dashboard/common";
 import { formatRelativeTime } from "@/lib/format";
 
+function maskClientKey(key: string): string {
+  if (key.length <= 16) return key;
+  return `${key.slice(0, 12)}…${key.slice(-4)}`;
+}
+
 type PageProps = {
   searchParams: Promise<{ skip?: string }>;
 };
@@ -86,7 +91,9 @@ async function ProjectsList({ skip }: { skip?: string }) {
             <span className="border border-border px-1.5 py-0.5 font-mono">
               {project.plan}
             </span>
-            <span className="truncate font-mono">{project.clientKey}</span>
+            <span className="truncate font-mono">
+              {maskClientKey(project.clientKey)}
+            </span>
             <span className="ml-auto whitespace-nowrap">
               {formatRelativeTime(project.updatedAt)}
             </span>

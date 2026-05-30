@@ -9,7 +9,6 @@ import {
 export default function SignUpPage() {
   return (
     <AuthShell
-      badges={[{ label: "creating...", tone: "live" }, { label: "~ 1.4s" }]}
       terminal={
         <AuthTerminal
           title="creation.log"

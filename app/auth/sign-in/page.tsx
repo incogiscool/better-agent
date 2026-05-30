@@ -9,7 +9,6 @@ import {
 export default function SignInPage() {
   return (
     <AuthShell
-      badges={[{ label: "live", tone: "live" }, { label: "us-east-1 · 42ms" }]}
       terminal={
         <AuthTerminal
           title="betteragent.auth"
