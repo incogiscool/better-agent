@@ -105,12 +105,12 @@ export function CodePanel({
       <DrawerContent className="sm:max-w-[540px] flex flex-col">
         <DrawerHeader className="border-b border-border pb-3 shrink-0">
           <DrawerTitle className="font-mono text-sm">How it works</DrawerTitle>
-          <div className="flex items-center gap-1 mt-2">
+          <div className="flex flex-wrap items-center gap-1 mt-2">
             {TABS.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`font-mono text-[11px] px-2.5 py-1 border transition-colors ${
+                className={`font-mono text-[11px] px-2.5 py-1 border whitespace-nowrap shrink-0 transition-colors ${
                   tab === t.id
                     ? "border-foreground bg-foreground text-background"
                     : "border-border text-muted-foreground hover:border-foreground/40"
@@ -122,7 +122,7 @@ export function CodePanel({
             {tab !== "overview" && (
               <button
                 onClick={copy}
-                className="ml-auto font-mono text-[11px] px-2.5 py-1 border border-border text-muted-foreground hover:border-foreground/40 transition-colors"
+                className="ml-auto font-mono text-[11px] px-2.5 py-1 border border-border whitespace-nowrap shrink-0 text-muted-foreground hover:border-foreground/40 transition-colors"
               >
                 {copied ? "Copied!" : "Copy"}
               </button>
