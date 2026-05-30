@@ -36,8 +36,22 @@ if (githubClientId && githubClientSecret) {
   };
 }
 
+function buildTrustedOrigins(): string[] {
+  const origins: string[] = [];
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (appUrl) origins.push(appUrl);
+  // VERCEL_URL = current deployment URL (changes per preview); auto-set by Vercel.
+  const vercelUrl = process.env.VERCEL_URL;
+  if (vercelUrl) origins.push(`https://${vercelUrl}`);
+  // VERCEL_PROJECT_PRODUCTION_URL = stable production URL; auto-set by Vercel.
+  const vercelProdUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  if (vercelProdUrl) origins.push(`https://${vercelProdUrl}`);
+  return origins;
+}
+
 export const auth = betterAuth({
   appName: "BetterAgent",
+  trustedOrigins: buildTrustedOrigins(),
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
