@@ -45,14 +45,49 @@ export function defineRoute<TInput>(
 }
 
 /**
+ * True when `fn` is a real Next.js Server Action reference — i.e. a function
+ * imported from a `"use server"` module. React tags those with the
+ * `react.server.reference` symbol. Inline async functions are NOT tagged.
+ */
+function isServerReference(fn: unknown): boolean {
+  return (
+    typeof fn === "function" &&
+    (fn as { $$typeof?: symbol }).$$typeof === Symbol.for("react.server.reference")
+  );
+}
+
+/**
+ * Warn (in the browser, outside production) when a handler isn't a real Server
+ * Action reference. Such a handler runs client-side with no server session or
+ * auth — a silent footgun. We warn rather than throw to avoid false positives
+ * across bundler/runtime quirks.
+ */
+function warnIfClientSideHandler(name: string, handler: unknown): void {
+  // Only meaningful in the browser bundle. Read `window` off globalThis so this
+  // file doesn't depend on the DOM lib being in tsconfig.
+  const inBrowser = typeof (globalThis as { window?: unknown }).window !== "undefined";
+  if (!inBrowser) return;
+  if (typeof process !== "undefined" && process.env?.NODE_ENV === "production") return;
+  if (isServerReference(handler)) return;
+  console.warn(
+    `[betteragent] defineServerAction("${name}"): handler is not a Next.js Server ` +
+      `Action reference, so it will run in the browser with no server session or auth. ` +
+      `Import the handler from a file with "use server" at the top instead of defining it inline.`,
+  );
+}
+
+/**
  * Wrap a Next.js Server Action so the chat engine can dispatch it via the
- * client SDK. The returned function is callable like the original handler;
- * when the schema is a Zod schema, input is validated before the handler
- * runs.
+ * client SDK. The handler MUST be a reference to a function exported from a
+ * `"use server"` module — an inline handler will silently run client-side.
+ * The returned function is callable like the original handler; when the schema
+ * is a Zod schema, input is validated before the handler runs.
  */
 export function defineServerAction<TInput, TOutput>(
   opts: ServerActionOptions<TInput, TOutput>,
 ): ServerActionDefinition<TInput, TOutput> {
+  warnIfClientSideHandler(opts.name, opts.handler);
+
   const metadata = {
     kind: "server_action" as const,
     name: opts.name,

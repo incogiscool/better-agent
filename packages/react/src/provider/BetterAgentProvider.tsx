@@ -25,6 +25,7 @@ export function BetterAgentProvider({
   clientKey,
   apiUrl,
   endUserId,
+  authToken,
   actions,
   serverActions,
   onError,
@@ -34,6 +35,12 @@ export function BetterAgentProvider({
     () => new ChatClient({ clientKey, apiUrl, endUserId }),
     [clientKey, apiUrl, endUserId],
   );
+
+  // Keep the client's auth token current without recreating it when an inline
+  // authToken function changes identity. Updated out of render, in an effect.
+  React.useEffect(() => {
+    client.setAuthToken(authToken);
+  }, [client, authToken]);
 
   // Re-build the dispatcher whenever actions/serverActions change so handlers
   // are always current. Dispatcher is cheap to create.

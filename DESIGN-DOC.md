@@ -2,6 +2,37 @@
 
 ---
 
+## Part 0: Implementation Status (Reality Check)
+
+> This document is the **original design vision**. Several pieces below were
+> deliberately deferred or built more simply than described. Where this doc and
+> the shipped code disagree, **the code wins**. Known deviations as of this
+> revision:
+>
+> - **No `exposeToAgent` / `exposeRoute`.** `@betteragent/next` ships
+>   `defineRoute`, `defineServerAction`, and `defineAction` only. The
+>   "minimum viable tool definition" (Part 6) that infers everything from a bare
+>   function reference is **not implemented**.
+> - **No schema inference.** `betteragent discover` scaffolds one entry per
+>   selected handler with an **empty `z.object({})`** you fill in by hand. There
+>   is no TypeScript-compiler / `ts-to-zod` inference and no JSDoc extraction.
+> - **AI description generation is not wired up end-to-end.** A backend
+>   `/v1/describe` endpoint exists, but no CLI command calls it. There is no
+>   `betteragent generate`. Do not bill customers for it until the CLI ships it.
+> - **CLI commands that exist:** `login`, `logout`, `whoami`, `init`,
+>   `discover`, `sync`, `add`, `remove`. The designed `generate` and `list`
+>   commands are **not shipped**.
+> - **End-user auth.** The React SDK now accepts an `authToken` and forwards it
+>   as `x-end-user-token` to route tools. `endUserId` remains client-asserted
+>   and is not a trust anchor (see Part 6 + the chat route).
+> - **No dashboard model selector.** The chat engine is pinned to
+>   `claude-sonnet-4-6`.
+>
+> Treat Parts 6 and 9's "schema inference / AI descriptions / auto-discovery"
+> claims as **roadmap**, not current behavior.
+
+---
+
 ## Part 1: The Application
 
 ### What it is
@@ -142,9 +173,14 @@ Honor system. Hardcoded "Powered by BetterAgent" in default container components
 
 ### The minimum viable tool definition
 
-The shortest path to exposing a tool:
+> **Status: aspirational — not shipped.** The bare-reference form below was the
+> original vision. The shipped API requires an explicit `defineServerAction`
+> with a name, description, and schema (see the next section and `/docs/tools`).
+
+The originally-designed shortest path:
 
 ```typescript
+// NOT IMPLEMENTED — exposeToAgent does not exist in @betteragent/next.
 import { exposeToAgent } from "@betteragent/next";
 import { createProject, updateProject, deleteProject } from "@/app/actions";
 
@@ -155,7 +191,8 @@ export const serverActions = [
 ];
 ```
 
-That's the entire definition for three tools. The CLI infers everything else at sync time.
+The intent was: the CLI infers name/schema/description at sync time. That
+inference was never built — today you author those fields explicitly.
 
 ### What gets inferred
 
@@ -296,7 +333,7 @@ Diff vs server:
 ✓ Synced to BetterAgent
 ```
 
-**`betteragent generate <tool>`** — regenerate AI description for a specific tool:
+**`betteragent generate <tool>`** — _(not shipped)_ regenerate AI description for a specific tool:
 
 ```bash
 $ betteragent generate createProject
@@ -311,7 +348,7 @@ New: "Creates a new project with the given name. Initializes default settings, a
 ✓ Updated server-actions.betteragent.ts
 ```
 
-**`betteragent list`** — show currently synced tools:
+**`betteragent list`** — _(not shipped)_ show currently synced tools:
 
 ```bash
 $ betteragent list

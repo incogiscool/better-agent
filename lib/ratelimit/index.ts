@@ -25,10 +25,17 @@ function makeLimit(requests: number, windowSeconds: number): Ratelimit | null {
 }
 
 /**
- * 20 req/min keyed by project clientKey — covers POST /api/v1/chat
- * at the project level. Guards against runaway integrations.
+ * 20 req/min keyed by (project, end user) — the per-end-user fairness limit
+ * for POST /api/v1/chat. One noisy user can't starve the rest of the project.
  */
 export const chatLimiter = makeLimit(20, 60);
+
+/**
+ * 120 req/min keyed by project clientKey — a project-wide ceiling that bounds
+ * total spend even when many distinct end users (or spoofed endUserIds) are in
+ * play. Checked before the DB lookup as a cheap first gate.
+ */
+export const chatProjectLimiter = makeLimit(120, 60);
 
 /**
  * 60 req/min keyed by clientKey — covers POST /api/v1/execute-result.
