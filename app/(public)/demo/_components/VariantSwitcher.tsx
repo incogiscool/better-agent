@@ -313,7 +313,25 @@ export function VariantSwitcher() {
     >
       {/* Variant tabs */}
       <div className="fixed left-0 right-0 top-0 z-50 flex items-center gap-1 border-b border-border bg-background px-4 py-2 text-[11px]">
-        <span className="mr-2 font-mono text-muted-foreground">VARIANT</span>
+        <Link
+          href="/"
+          className="mr-3 inline-flex items-center gap-1.5 font-mono font-semibold text-foreground hover:text-primary transition-colors"
+          aria-label="Back to betteragent.dev"
+        >
+          <svg width="14" height="14" viewBox="0 0 32 32" fill="none" aria-hidden>
+            <path
+              d="M11 8 L20 16 L11 24"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          betteragent
+        </Link>
+        <span className="mr-2 hidden font-mono text-muted-foreground sm:inline">
+          VARIANT
+        </span>
         {VARIANTS.map((v) => (
           <Link
             key={v}
@@ -328,13 +346,15 @@ export function VariantSwitcher() {
           </Link>
         ))}
         <div className="ml-auto flex items-center gap-2">
+          <span className="hidden font-mono text-[10px] text-muted-foreground lg:inline">
+            New here?
+          </span>
           <button
             onClick={() => setShowCode((v) => !v)}
             className="font-mono text-[10px] text-muted-foreground hover:text-foreground border border-border px-2 py-1 transition-colors"
           >
-            &lt;/&gt; code
+            &lt;/&gt; How it&apos;s built
           </button>
-
         </div>
       </div>
 
