@@ -36,8 +36,19 @@ if (githubClientId && githubClientSecret) {
   };
 }
 
+function buildTrustedOrigins(): string[] {
+  const origins: string[] = [];
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (appUrl) origins.push(appUrl);
+  // Vercel preview deployments use a different origin per branch.
+  const vercelUrl = process.env.VERCEL_URL;
+  if (vercelUrl) origins.push(`https://${vercelUrl}`);
+  return origins;
+}
+
 export const auth = betterAuth({
   appName: "BetterAgent",
+  trustedOrigins: buildTrustedOrigins(),
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
