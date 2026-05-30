@@ -43,6 +43,25 @@ export const auth = betterAuth({
   }),
   user: {
     modelName: "user",
+    // Account deletion is exposed in dashboard settings and promised in the
+    // privacy policy. Email/password users are deleted immediately after
+    // re-entering their password; OAuth-only users get a confirmation email.
+    deleteUser: {
+      enabled: true,
+      sendDeleteAccountVerification: async ({ user, url }) => {
+        const client = getResend();
+        if (!client) {
+          console.log(`[auth] delete-account verification for ${user.email}: ${url}`);
+          return;
+        }
+        await client.emails.send({
+          from: FROM_EMAIL,
+          to: user.email,
+          subject: "Confirm your BetterAgent account deletion",
+          text: `You requested to delete your BetterAgent account.\n\nConfirm here: ${url}\n\nIf you didn't request this, you can safely ignore this email — no changes will be made.`,
+        });
+      },
+    },
   },
   session: {
     modelName: "session",
