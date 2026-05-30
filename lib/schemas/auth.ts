@@ -29,3 +29,11 @@ export const verifyCodeSchema = z.object({
     .length(6, "Enter the 6-digit code.")
     .regex(/^\d{6}$/, "Code must be 6 digits."),
 });
+
+export const resetPasswordSchema = z.object({
+  code: z
+    .string()
+    .length(6, "Enter the 6-digit code.")
+    .regex(/^\d{6}$/, "Code must be 6 digits."),
+  password: z.string().min(8, "Password must be at least 8 characters."),
+});

@@ -22,11 +22,6 @@ type SocialSignInInput = {
   callbackURL?: string;
 };
 
-type PasswordResetInput = {
-  email: string;
-  redirectTo?: string;
-};
-
 type SendVerificationOtpInput = {
   email: string;
   type: "email-verification" | "sign-in" | "forget-password";
@@ -65,10 +60,10 @@ export function useSocialSignIn() {
   });
 }
 
-export function useRequestPasswordReset() {
+export function useResetPasswordOtp() {
   return useMutation({
-    mutationFn: async (input: PasswordResetInput) =>
-      unwrap(await authClient.requestPasswordReset(input)),
+    mutationFn: async (input: { email: string; otp: string; password: string }) =>
+      unwrap(await authClient.emailOtp.resetPassword(input)),
   });
 }
 

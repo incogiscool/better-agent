@@ -1,5 +1,6 @@
 import { jsonSchema, tool, type ToolSet } from "ai";
 import { prisma } from "@/lib/db";
+import { assertSafeOutboundUrl } from "@/lib/net/ssrf";
 import type { ToolType } from "@/lib/generated/prisma/enums";
 import { ToolExecutionStatus } from "@/lib/generated/prisma/enums";
 import { MAX_TOOL_RESULT_BYTES } from "./caps";
@@ -43,6 +44,10 @@ async function executeRouteFetch(args: {
   }
 
   const url = new URL(args.path, args.baseUrl).toString();
+
+  // SSRF guard: reject internal/metadata targets before making the request.
+  await assertSafeOutboundUrl(url);
+
   const headers: Record<string, string> = { "content-type": "application/json" };
   if (args.endUserToken) headers["authorization"] = `Bearer ${args.endUserToken}`;
 

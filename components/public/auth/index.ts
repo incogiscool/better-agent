@@ -3,6 +3,7 @@ export { AuthTerminal } from "./AuthTerminal";
 export type { TerminalLine } from "./AuthTerminal";
 export { BrandMark } from "./BrandMark";
 export { ForgotPasswordForm } from "./ForgotPasswordForm";
+export { ResetPasswordForm } from "./ResetPasswordForm";
 export { OAuthButtons } from "./OAuthButtons";
 export { OrDivider } from "./OrDivider";
 export { SigninForm } from "./SigninForm";
@@ -12,5 +13,6 @@ export {
   SIGNIN_TERMINAL,
   SIGNUP_TERMINAL,
   FORGOT_TERMINAL,
+  RESET_TERMINAL,
   VERIFY_TERMINAL,
 } from "./terminalScripts";

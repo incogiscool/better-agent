@@ -27,18 +27,15 @@ export default function PrivacyPage() {
 
       <section className={SEC}>
         <div className={cn(WRAP, "max-w-[760px]")}>
+          <ReviewBanner />
           <Prose>
             <p>
               This Privacy Policy describes how BetterAgent (&ldquo;we&rdquo;,
               &ldquo;us&rdquo;, &ldquo;our&rdquo;) collects, uses, and shares
               information when you use betteragent.dev and related services
-              (the &ldquo;Service&rdquo;). BetterAgent is operated from Ontario,
-              Canada.
+              (the &ldquo;Service&rdquo;). BetterAgent is operated by an
+              individual (sole proprietor) based in Ontario, Canada.
             </p>
-            <Placeholder>
-              Confirm the legal operating entity (sole proprietorship vs.
-              incorporated company) and insert its legal name here.
-            </Placeholder>
 
             <H3>1. Information We Collect</H3>
             <p>
@@ -48,13 +45,9 @@ export default function PrivacyPage() {
               in with Google or GitHub, in which case we store an account
               identifier from that provider and the OAuth tokens needed to
               authenticate you. Authentication is handled by our self-hosted
-              auth layer (better-auth).
+              auth layer (better-auth). We do not currently offer paid plans, so
+              we do not collect or store payment information.
             </p>
-            <Placeholder>
-              Paid billing is not yet active. When it launches: payment
-              information will be collected by Stripe on our behalf, and we will
-              store only a Stripe customer ID and subscription status.
-            </Placeholder>
             <p>
               <strong>Usage data.</strong> We log API requests, credit
               consumption events, tool executions, and error traces associated
@@ -103,12 +96,10 @@ export default function PrivacyPage() {
                 Improve the Service through aggregated, anonymized usage
                 analytics.
               </li>
+              <li>
+                Send operational account emails, such as credit-limit warnings.
+              </li>
             </ul>
-            <Placeholder>
-              Not yet implemented: payment processing and billing-related
-              emails (credit warnings, payment receipts, security alerts). Add
-              these uses when the billing and notification systems ship.
-            </Placeholder>
             <p>
               We do not use conversation content to train AI models.
             </p>
@@ -136,9 +127,6 @@ export default function PrivacyPage() {
                 We will notify affected users beforehand.
               </li>
             </ul>
-            <Placeholder>
-              Add Stripe (billing) to this list when paid plans launch.
-            </Placeholder>
 
             <H3>4. Data Security</H3>
             <p>
@@ -156,17 +144,14 @@ export default function PrivacyPage() {
 
             <H3>5. Data Retention</H3>
             <p>
-              Account and configuration data is retained for as long as your
-              account is active. When you delete your account from the
-              dashboard, your data — including projects, tools, and conversation
-              history — is permanently deleted. We do not currently keep a
-              recovery copy after deletion.
+              Account, configuration, conversation, and usage data is retained
+              for as long as your account is active. We do not currently enforce
+              automated time-based deletion windows. When you delete your
+              account or a project from the dashboard, the associated data —
+              including projects, tools, conversation history, and usage logs —
+              is permanently deleted. We do not keep a recovery copy after
+              deletion.
             </p>
-            <Placeholder>
-              Automated retention schedules are not yet implemented. When they
-              are, document the default windows here (e.g., conversation
-              history and usage-log retention periods).
-            </Placeholder>
 
             <H3>6. Your Rights</H3>
             <p>
@@ -191,12 +176,9 @@ export default function PrivacyPage() {
               We use strictly-necessary cookies to maintain your session. We do
               not use third-party advertising cookies or cross-site tracking.
               You can control cookie preferences in your browser settings, though
-              disabling session cookies will prevent you from logging in.
+              disabling session cookies will prevent you from logging in. We do
+              not currently use any third-party web analytics.
             </p>
-            <Placeholder>
-              We do not currently use any web analytics. If self-hosted or
-              privacy-respecting analytics are added later, describe them here.
-            </Placeholder>
 
             <H3>8. Children&rsquo;s Privacy</H3>
             <p>
@@ -213,11 +195,6 @@ export default function PrivacyPage() {
               processed in Canada. By using the Service you consent to this
               transfer.
             </p>
-            <Placeholder>
-              If you serve EEA/UK users, confirm the cross-border transfer basis
-              here. Note Canada has a partial EU adequacy decision, which may
-              remove the need for Standard Contractual Clauses.
-            </Placeholder>
 
             <H3>10. Changes to This Policy</H3>
             <p>
@@ -249,11 +226,12 @@ function H3({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Placeholder({ children }: { children: React.ReactNode }) {
+function ReviewBanner() {
   return (
-    <div className="my-4 rounded-md border border-dashed border-amber-500/60 bg-amber-500/10 px-3 py-2 font-mono text-[13px] leading-relaxed text-amber-700 dark:text-amber-400">
-      <span className="font-semibold">PLACEHOLDER · </span>
-      {children}
+    <div className="mb-8 rounded-md border border-amber-500/60 bg-amber-500/10 px-4 py-3 font-mono text-[13px] leading-relaxed text-amber-700 dark:text-amber-400">
+      <span className="font-semibold">⚠️ REVIEW BEFORE LAUNCH · </span>
+      This is a working draft, not legal advice. Have it reviewed by a qualified
+      lawyer before relying on it publicly.
     </div>
   );
 }

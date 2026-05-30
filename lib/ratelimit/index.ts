@@ -15,6 +15,26 @@ function getRedis(): Redis | null {
 
 const redis = getRedis();
 
+/**
+ * In production we must never silently disable rate limiting. If Redis is not
+ * configured, `checkRateLimit` fails CLOSED (treats every request as limited)
+ * so a misconfigured deploy can't leave the API wide open. Locally / in preview
+ * we keep failing OPEN so the app boots without Redis.
+ */
+const IS_PRODUCTION =
+  process.env.VERCEL_ENV === "production" ||
+  (!process.env.VERCEL_ENV && process.env.NODE_ENV === "production");
+
+const REDIS_MISSING_IN_PROD = IS_PRODUCTION && !redis;
+
+if (REDIS_MISSING_IN_PROD) {
+  console.error(
+    "[ratelimit] UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are not set " +
+      "in production. Rate limiting will fail CLOSED (all requests rejected) " +
+      "until Redis is configured.",
+  );
+}
+
 function makeLimit(requests: number, windowSeconds: number): Ratelimit | null {
   if (!redis) return null;
   return new Ratelimit({
@@ -72,7 +92,12 @@ export async function checkRateLimit(
   limiter: Ratelimit | null,
   key: string,
 ): Promise<RateLimitResult> {
-  if (!limiter) return { limited: false };
+  if (!limiter) {
+    // Fail CLOSED in production (Redis missing => reject), fail OPEN in dev.
+    return REDIS_MISSING_IN_PROD
+      ? { limited: true, reset: Date.now() + 60_000 }
+      : { limited: false };
+  }
   const { success, reset } = await limiter.limit(key);
   if (success) return { limited: false };
   return { limited: true, reset };

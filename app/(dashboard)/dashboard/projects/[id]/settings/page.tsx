@@ -30,6 +30,7 @@ export default async function ProjectSettingsPage({
           baseUrl: project.baseUrl,
           systemPrompt: project.systemPrompt,
           clientKey: project.clientKey,
+          allowedOrigins: project.allowedOrigins,
         }}
       />
 

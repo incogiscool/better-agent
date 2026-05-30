@@ -15,6 +15,7 @@ import {
   ToolExecutionStatus,
 } from "@/lib/generated/prisma/enums";
 import { executeResultRequestSchema } from "@/lib/schemas/chat";
+import { corsHeaders, isOriginAllowed } from "@/lib/projects/origins";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,12 +26,24 @@ function extractBearerToken(req: NextRequest): string | null {
   return auth.slice(7).trim() || null;
 }
 
+/** CORS preflight. Auth/origin are enforced on the actual POST. */
+export async function OPTIONS(req: NextRequest) {
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders(req.headers.get("origin")),
+  });
+}
+
 export async function POST(req: NextRequest) {
+  const cors = corsHeaders(req.headers.get("origin"));
+  const json = (body: unknown, status: number) =>
+    Response.json(body, { status, headers: cors });
+
   const clientKey = extractBearerToken(req);
   if (!clientKey) {
-    return Response.json(
+    return json(
       { error: "Missing Authorization header. Expected: Bearer <client_key>" },
-      { status: 401 },
+      401,
     );
   }
 
@@ -38,40 +51,44 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return Response.json({ error: "Invalid JSON body" }, { status: 400 });
+    return json({ error: "Invalid JSON body" }, 400);
   }
 
   const parsed = executeResultRequestSchema.safeParse(body);
   if (!parsed.success) {
-    return Response.json(
-      { error: "Invalid request body", issues: parsed.error.issues },
-      { status: 422 },
-    );
+    return json({ error: "Invalid request body", issues: parsed.error.issues }, 422);
   }
 
   const { conversationId, toolCallId, output, error } = parsed.data;
 
-  let project: { id: string; baseUrl: string | null; systemPrompt: string | null } | null;
+  let project:
+    | { id: string; baseUrl: string | null; systemPrompt: string | null; allowedOrigins: string[] }
+    | null;
   try {
     project = await prisma.project.findUnique({
       where: { clientKey },
-      select: { id: true, baseUrl: true, systemPrompt: true },
+      select: { id: true, baseUrl: true, systemPrompt: true, allowedOrigins: true },
     });
   } catch (err) {
     console.error("[execute-result] project lookup failed:", err);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    return json({ error: "Internal server error" }, 500);
   }
 
   if (!project) {
-    return Response.json({ error: "Invalid client key" }, { status: 401 });
+    return json({ error: "Invalid client key" }, 401);
+  }
+
+  // Browser origin allowlist. Empty list => allow all (project not locked down).
+  if (!isOriginAllowed(req.headers.get("origin"), project.allowedOrigins)) {
+    return json({ error: "Origin not allowed" }, 403);
   }
 
   const conv = await loadConversationForProject(project.id, conversationId);
   if (!conv) {
-    return Response.json({ error: "Conversation not found" }, { status: 404 });
+    return json({ error: "Conversation not found" }, 404);
   }
   if (conv.status !== ConversationStatus.active) {
-    return Response.json({ error: "Conversation is no longer active" }, { status: 409 });
+    return json({ error: "Conversation is no longer active" }, 409);
   }
 
   const exec = await prisma.toolExecution.findFirst({
@@ -79,10 +96,10 @@ export async function POST(req: NextRequest) {
     select: { id: true, status: true, createdAt: true },
   });
   if (!exec) {
-    return Response.json({ error: "No matching tool execution" }, { status: 404 });
+    return json({ error: "No matching tool execution" }, 404);
   }
   if (exec.status !== ToolExecutionStatus.pending) {
-    return Response.json({ error: "Tool execution already resolved" }, { status: 409 });
+    return json({ error: "Tool execution already resolved" }, 409);
   }
 
   const isError = error !== undefined;
@@ -103,16 +120,13 @@ export async function POST(req: NextRequest) {
 
   const hasCredits = await hasMinimumCredits(project.id, 1);
   if (!hasCredits) {
-    return Response.json({ error: "Credit limit reached" }, { status: 402 });
+    return json({ error: "Credit limit reached" }, 402);
   }
 
   const cap = await checkTokenCap(conv.id);
   if (cap.over) {
     await markConversationAbandoned(conv.id);
-    return Response.json(
-      { error: "conversation token cap reached", code: "token_cap" },
-      { status: 409 },
-    );
+    return json({ error: "conversation token cap reached", code: "token_cap" }, 409);
   }
 
   const history = await loadHistory(conv.id);
@@ -125,5 +139,5 @@ export async function POST(req: NextRequest) {
     history,
   });
 
-  return new Response(stream, { headers: SSE_HEADERS });
+  return new Response(stream, { headers: { ...cors, ...SSE_HEADERS } });
 }

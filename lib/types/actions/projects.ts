@@ -2,6 +2,7 @@ export type ProjectActionErrors = {
   name?: string[];
   baseUrl?: string[];
   systemPrompt?: string[];
+  allowedOrigins?: string[];
 };
 
 export type CreateProjectActionState = {

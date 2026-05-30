@@ -60,8 +60,21 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 8,
     maxPasswordLength: 128,
+    // The supported reset flow is OTP-based (see emailOTP plugin + the
+    // /auth/reset-password page). This link-based handler is a fallback so the
+    // path is never silently dead if it is ever triggered.
     sendResetPassword: async ({ user, url }) => {
-      console.log(`[auth] password reset for ${user.email}: ${url}`);
+      const client = getResend();
+      if (!client) {
+        console.log(`[auth] password reset for ${user.email}: ${url}`);
+        return;
+      }
+      await client.emails.send({
+        from: FROM_EMAIL,
+        to: user.email,
+        subject: "Reset your BetterAgent password",
+        text: `We received a request to reset your BetterAgent password.\n\nReset it here: ${url}\n\nIf you didn't request this, you can safely ignore this email.`,
+      });
     },
   },
   socialProviders:
