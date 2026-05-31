@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "@betteragent/react";
-import type { ChatMessage } from "@betteragent/react";
+import { cn } from "betteragent-react";
+import type { ChatMessage } from "betteragent-react";
 import { ChatMessageBlock } from "./chat-message";
 
 interface ChatMessagesProps {

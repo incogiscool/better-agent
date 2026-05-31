@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "@betteragent/react";
+import { cn } from "betteragent-react";
 
 export type SuggestedPrompt = {
   label: string;

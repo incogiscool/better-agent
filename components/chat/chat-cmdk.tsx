@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { cn, useChatStream } from "@betteragent/react";
+import { cn, useChatStream } from "betteragent-react";
 import {
   Command,
   CommandDialog,

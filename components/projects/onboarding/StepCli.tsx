@@ -8,7 +8,7 @@ interface StepCliProps {
 }
 
 export function StepCli({ secretKey }: StepCliProps) {
-  const install = "npm i -D @betteragent/cli";
+  const install = "npm i -D betteragent-cli";
   const login = `npx betteragent login --key ${secretKey}`;
   const init = "npx betteragent init";
 

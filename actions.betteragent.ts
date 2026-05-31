@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { defineAction } from "@betteragent/next";
+import { defineAction } from "betteragent-next";
 
 export const searchCampaigns = defineAction({
   name: "searchCampaigns",

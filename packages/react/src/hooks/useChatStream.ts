@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { ChatClientError } from "../client/ChatClient";
-import { useBetterAgentContext } from "../provider/BetterAgentProvider";
+import { ChatClientError } from "../client/ChatClient.js";
+import { useBetterAgentContext } from "../provider/BetterAgentProvider.js";
 import type {
   ChatError,
   ChatEvent,
@@ -10,7 +10,7 @@ import type {
   SendOptions,
   ToolCallEntry,
   UserMessage,
-} from "../types";
+} from "../types.js";
 
 export type UseChatStreamOptions = {
   /**

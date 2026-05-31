@@ -19,7 +19,7 @@ const TOOL_TYPES = [
     },
     blurb:
       "Wrap an existing Next.js Server Action — the SDK dispatches the call so session and revalidation work as normal.",
-    code: `<span style="color:oklch(0.769 0.188 70.08)">import</span> { defineServerAction } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"@betteragent/next"</span>;
+    code: `<span style="color:oklch(0.769 0.188 70.08)">import</span> { defineServerAction } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"betteragent-next"</span>;
 <span style="color:oklch(0.769 0.188 70.08)">import</span> { createCampaign } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"@/app/actions"</span>;
 
 <span style="color:oklch(0.769 0.188 70.08)">export const</span> <span style="color:oklch(0.985 0 0)">serverActions</span> = [
@@ -46,7 +46,7 @@ const TOOL_TYPES = [
     },
     blurb:
       "Point at any HTTP endpoint — the agent makes a server-to-server call with your end-user's bearer token.",
-    code: `<span style="color:oklch(0.769 0.188 70.08)">import</span> { defineRoute } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"@betteragent/next"</span>;
+    code: `<span style="color:oklch(0.769 0.188 70.08)">import</span> { defineRoute } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"betteragent-next"</span>;
 
 <span style="color:oklch(0.769 0.188 70.08)">export const</span> <span style="color:oklch(0.985 0 0)">listAudiences</span> = defineRoute({
   name: <span style="color:oklch(0.78 0.13 145)">"listAudiences"</span>,
@@ -74,7 +74,7 @@ const TOOL_TYPES = [
     },
     blurb:
       "Side effects in the browser — open a drawer, navigate, refresh — without a server round-trip.",
-    code: `<span style="color:oklch(0.769 0.188 70.08)">import</span> { defineAction } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"@betteragent/next"</span>;
+    code: `<span style="color:oklch(0.769 0.188 70.08)">import</span> { defineAction } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"betteragent-next"</span>;
 
 <span style="color:oklch(0.769 0.188 70.08)">export const</span> <span style="color:oklch(0.985 0 0)">actions</span> = [
   defineAction({

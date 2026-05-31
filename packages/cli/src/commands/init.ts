@@ -189,10 +189,10 @@ export const initCommand = defineCommand({
     log.plain(`
 ${pc.bold("  ✓ Done! Here's what to do next:")}
 
-  ${pc.dim("1.")} Wrap your app with ${pc.bold("<BetterAgentProvider>")} from ${pc.cyan("@betteragent/react")}.
+  ${pc.dim("1.")} Wrap your app with ${pc.bold("<BetterAgentProvider>")} from ${pc.cyan("betteragent-react")}.
      Import ${pc.yellow("serverActions")} from your tool file so server-action tools are dispatched:
 
-       ${pc.dim("import")} { BetterAgentProvider } ${pc.dim("from")} ${pc.green('"@betteragent/react"')};
+       ${pc.dim("import")} { BetterAgentProvider } ${pc.dim("from")} ${pc.green('"betteragent-react"')};
        ${pc.dim("import")} { serverActions } ${pc.dim("from")} ${pc.green('"./server-actions.betteragent"')};
 
        ${pc.dim("<")}${pc.cyan("BetterAgentProvider")}

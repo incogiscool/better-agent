@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { ToolMetadata } from "@betteragent/next";
+import type { ToolMetadata } from "betteragent-next";
 
 const syncToolSchema = z
   .object({

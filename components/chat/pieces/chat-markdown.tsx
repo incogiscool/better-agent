@@ -1,7 +1,7 @@
 "use client";
 
 import { Streamdown } from "streamdown";
-import { cn } from "@betteragent/react";
+import { cn } from "betteragent-react";
 
 interface ChatMarkdownProps {
   children: string;

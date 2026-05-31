@@ -32,7 +32,7 @@ function src(rel: string): string {
   return `${REPO_ROOT}/${rel}`;
 }
 
-const COMMON_DEPS = ["@betteragent/react", "@phosphor-icons/react", "streamdown"];
+const COMMON_DEPS = ["betteragent-react", "@phosphor-icons/react", "streamdown"];
 
 const PIECE_FILES: RegistryFile[] = [
   {

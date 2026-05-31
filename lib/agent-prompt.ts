@@ -8,8 +8,8 @@ actions, and trigger client-side effects — no extra backend required.
 
 ## Step 1: Install packages
 
-npm install -D @betteragent/cli
-npm install @betteragent/react @betteragent/next
+npm install -D betteragent-cli
+npm install betteragent-react betteragent-next
 
 ## Step 2: Authenticate
 
@@ -52,7 +52,7 @@ The chat engine forwards it to your routes as the Authorization header
 so they run as the logged-in user. Without it, route tools call your
 backend with no caller identity.
 
-  import { BetterAgentProvider } from "@betteragent/react";
+  import { BetterAgentProvider } from "betteragent-react";
   import { serverActions } from "./server-actions.betteragent";
 
   export default function RootLayout({ children }) {
@@ -99,7 +99,7 @@ Tool files teach the agent what it can do. Three file types:
 
 ### routes.betteragent.ts — HTTP routes called server-to-server
 
-  import { defineRoute } from "@betteragent/next";
+  import { defineRoute } from "betteragent-next";
   import { z } from "zod";
 
   export const getUser = defineRoute({
@@ -115,7 +115,7 @@ Tool files teach the agent what it can do. Three file types:
 
 ### server-actions.betteragent.ts — Next.js Server Actions
 
-  import { defineServerAction } from "@betteragent/next";
+  import { defineServerAction } from "betteragent-next";
   import { z } from "zod";
   import { updateProfile } from "@/app/actions/profile";
 
@@ -134,7 +134,7 @@ Tool files teach the agent what it can do. Three file types:
 
 ### actions.betteragent.ts — Browser-side effects
 
-  import { defineAction } from "@betteragent/next";
+  import { defineAction } from "betteragent-next";
   import { z } from "zod";
 
   export const openModal = defineAction({

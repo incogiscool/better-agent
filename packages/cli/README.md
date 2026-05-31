@@ -1,7 +1,7 @@
-# @betteragent/cli
+# betteragent-cli
 
 ```bash
-npm i -D @betteragent/cli
+npm i -D betteragent-cli
 ```
 
 ## Commands

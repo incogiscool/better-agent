@@ -9,8 +9,8 @@ actions, and trigger client-side effects — no extra backend required.
 ## Step 1: Install packages
 
 ```bash
-npm install -D @betteragent/cli
-npm install @betteragent/react @betteragent/next
+npm install -D betteragent-cli
+npm install betteragent-react betteragent-next
 ```
 
 ## Step 2: Authenticate
@@ -57,7 +57,7 @@ In the root layout (e.g. `app/layout.tsx`), wrap children with
 user's real ID from your auth system.
 
 ```tsx
-import { BetterAgentProvider } from "@betteragent/react";
+import { BetterAgentProvider } from "betteragent-react";
 import { serverActions } from "./server-actions.betteragent";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -108,7 +108,7 @@ Tool files teach the agent what it can do. Three file types:
 ### `routes.betteragent.ts` — HTTP routes called server-to-server
 
 ```ts
-import { defineRoute } from "@betteragent/next";
+import { defineRoute } from "betteragent-next";
 import { z } from "zod";
 
 export const getUser = defineRoute({
@@ -125,7 +125,7 @@ export const routes = [getUser];
 ### `server-actions.betteragent.ts` — Next.js Server Actions
 
 ```ts
-import { defineServerAction } from "@betteragent/next";
+import { defineServerAction } from "betteragent-next";
 import { z } from "zod";
 import { updateProfile } from "@/app/actions/profile";
 
@@ -145,7 +145,7 @@ export const serverActions = [updateUserProfile];
 ### `actions.betteragent.ts` — Browser-side effects
 
 ```ts
-import { defineAction } from "@betteragent/next";
+import { defineAction } from "betteragent-next";
 import { z } from "zod";
 
 export const openModal = defineAction({

@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { ChatClient } from "../client/ChatClient";
-import { buildDispatcher, type Dispatcher } from "../client/dispatch";
+import { ChatClient } from "../client/ChatClient.js";
+import { buildDispatcher, type Dispatcher } from "../client/dispatch.js";
 import type {
   BetterAgentConfig,
   ChatError,
-} from "../types";
+} from "../types.js";
 
 type ContextValue = {
   client: ChatClient;

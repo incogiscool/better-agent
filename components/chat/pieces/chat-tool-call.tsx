@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@betteragent/react";
-import type { ToolCallEntry } from "@betteragent/react";
+import { cn } from "betteragent-react";
+import type { ToolCallEntry } from "betteragent-react";
 
 interface ChatToolCallProps {
   entry: ToolCallEntry;

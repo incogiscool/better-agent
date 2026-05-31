@@ -1,6 +1,6 @@
-import type { ChatEvent } from "../types";
-import { newIdempotencyKey } from "../utils/idempotency";
-import { parseSseStream } from "./sse";
+import type { ChatEvent } from "../types.js";
+import { newIdempotencyKey } from "../utils/idempotency.js";
+import { parseSseStream } from "./sse.js";
 
 /**
  * Resolves the end-user auth token. Either a static string or a (possibly

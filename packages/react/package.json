@@ -1,7 +1,13 @@
 {
-  "name": "@betteragent/react",
-  "version": "0.1.0",
+  "name": "betteragent-react",
+  "version": "0.1.1",
   "description": "React SDK for embedding BetterAgent chat in your app.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/incogiscool/better-agent.git",
+    "directory": "packages/react"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -21,6 +27,7 @@
     "types": "bunx tsc --noEmit"
   },
   "peerDependencies": {
+    "betteragent-next": "workspace:^",
     "react": "^18 || ^19",
     "react-dom": "^18 || ^19",
     "next": ">=14"
@@ -35,7 +42,7 @@
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
-    "@betteragent/next": "workspace:*",
+    "betteragent-next": "workspace:*",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "react": "19.2.4",

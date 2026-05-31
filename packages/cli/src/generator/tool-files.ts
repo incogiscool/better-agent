@@ -40,7 +40,7 @@ export function generateRoutesFile(
 ): string {
   if (selected.length === 0) {
     return [
-      `import { defineRoute } from "@betteragent/next";`,
+      `import { defineRoute } from "betteragent-next";`,
       ``,
       `// No routes selected. Run betteragent discover to add some.`,
       `export const routes = [];`,
@@ -49,7 +49,7 @@ export function generateRoutesFile(
 
   const lines: string[] = [
     `import { z } from "zod";`,
-    `import { defineRoute } from "@betteragent/next";`,
+    `import { defineRoute } from "betteragent-next";`,
     ``,
   ];
 
@@ -82,7 +82,7 @@ export function generateServerActionsFile(
 ): string {
   if (selected.length === 0) {
     return [
-      `import { defineServerAction } from "@betteragent/next";`,
+      `import { defineServerAction } from "betteragent-next";`,
       ``,
       `// No server actions selected. Run betteragent discover to add some.`,
       `export const serverActions = [];`,
@@ -98,7 +98,7 @@ export function generateServerActionsFile(
 
   if (plain.length > 0) {
     lines.push(`import { z } from "zod";`);
-    lines.push(`import { defineServerAction } from "@betteragent/next";`);
+    lines.push(`import { defineServerAction } from "betteragent-next";`);
   }
 
   // Imports for plain functions (group by file)
@@ -111,10 +111,10 @@ export function generateServerActionsFile(
   // Imports for already-wrapped (group by file)
   const wrappedByFile = groupByFile(wrapped);
   if (wrappedByFile.size > 0) {
-    if (lines.length > 0) lines.push(`import { defineServerAction } from "@betteragent/next";`);
+    if (lines.length > 0) lines.push(`import { defineServerAction } from "betteragent-next";`);
     // Remove duplicate import if already added
     const dedupedLines = lines.filter(
-      (l, i, arr) => l !== `import { defineServerAction } from "@betteragent/next";` || arr.indexOf(l) === i,
+      (l, i, arr) => l !== `import { defineServerAction } from "betteragent-next";` || arr.indexOf(l) === i,
     );
     lines.length = 0;
     lines.push(...dedupedLines);
@@ -154,7 +154,7 @@ export function generateServerActionsFile(
 export function generateActionsTemplate(): string {
   return [
     `import { z } from "zod";`,
-    `import { defineAction } from "@betteragent/next";`,
+    `import { defineAction } from "betteragent-next";`,
     ``,
     `// Client actions are browser-only effects (open modal, navigate, refresh UI).`,
     `// betteragent discover cannot find these automatically — declare them manually.`,

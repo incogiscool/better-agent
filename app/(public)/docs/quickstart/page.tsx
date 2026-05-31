@@ -34,7 +34,7 @@ const STEPS = [
           Install the CLI as a dev dependency alongside the React and Next.js SDKs.
         </p>
         <DarkCode language="bash">
-          {"npm install -D @betteragent/cli\nnpm install @betteragent/react @betteragent/next"}
+          {"npm install -D betteragent-cli\nnpm install betteragent-react betteragent-next"}
         </DarkCode>
       </>
     ),
@@ -127,7 +127,7 @@ const STEPS = [
           tools call your backend with no caller identity.
         </p>
         <DarkCode language="tsx">
-          {`import { BetterAgentProvider } from "@betteragent/react";
+          {`import { BetterAgentProvider } from "betteragent-react";
 import { serverActions } from "./server-actions.betteragent";
 
 export default function RootLayout({ children }) {

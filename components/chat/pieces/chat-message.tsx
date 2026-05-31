@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@betteragent/react";
-import type { ChatMessage } from "@betteragent/react";
+import { cn } from "betteragent-react";
+import type { ChatMessage } from "betteragent-react";
 import { ChatMarkdown } from "./chat-markdown";
 import { ChatToolCall } from "./chat-tool-call";
 import { ChatTyping } from "./chat-typing";

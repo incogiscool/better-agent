@@ -1,5 +1,5 @@
 /**
- * Public type surface for `@betteragent/react`.
+ * Public type surface for `betteragent-react`.
  *
  * `ChatEvent` mirrors the server's `SseEvent` from `lib/chat/streaming.ts`.
  * Keep them in sync.
@@ -96,7 +96,7 @@ export type BetterAgentConfig = {
    */
   actions?: ActionRegistry;
   /**
-   * Server actions wrapped by `defineServerAction` from `@betteragent/next`.
+   * Server actions wrapped by `defineServerAction` from `betteragent-next`.
    * Either array form (each callable carries metadata) or a name-keyed map.
    */
   serverActions?: readonly unknown[] | Record<string, ActionHandler>;

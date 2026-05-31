@@ -1,7 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { createJiti } from "jiti";
-import { TOOL_METADATA, type ToolMetadata } from "@betteragent/next";
+import { TOOL_METADATA, type ToolMetadata } from "betteragent-next";
 import type { ResolvedFiles } from "../config/project";
 
 export type LoadedToolFile = {
@@ -111,7 +111,7 @@ export async function loadTools(
       const md = extractMetadata(entry);
       if (!md) {
         throw new Error(
-          `${path.relative(cwd, filePath)}: \`${target.exportName}[${i}]\` is not a tool definition. Use defineRoute/defineServerAction/defineAction from @betteragent/next.`,
+          `${path.relative(cwd, filePath)}: \`${target.exportName}[${i}]\` is not a tool definition. Use defineRoute/defineServerAction/defineAction from betteragent-next.`,
         );
       }
       if (md.kind !== target.expectedKind) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@betteragent/react";
+import { cn } from "betteragent-react";
 
 interface ChatEmptyStateProps {
   greeting: string;

@@ -1,9 +1,9 @@
-# @betteragent/next
+# betteragent-next
 
 Define BetterAgent tools, server actions, and client actions from your Next.js app.
 
 ```bash
-npm i @betteragent/next zod
+npm i betteragent-next zod
 ```
 
 ## `defineRoute`
@@ -11,7 +11,7 @@ npm i @betteragent/next zod
 ```ts
 // routes.betteragent.ts
 import { z } from "zod";
-import { defineRoute } from "@betteragent/next";
+import { defineRoute } from "betteragent-next";
 
 export const listProjects = defineRoute({
   name: "listProjects",
@@ -31,7 +31,7 @@ export const routes = [listProjects];
 "use server";
 
 import { z } from "zod";
-import { defineServerAction } from "@betteragent/next";
+import { defineServerAction } from "betteragent-next";
 
 export const createProject = defineServerAction({
   name: "createProject",
@@ -53,7 +53,7 @@ Zod schema, input is validated before the handler runs.
 ```ts
 // actions.betteragent.ts
 import { z } from "zod";
-import { defineAction } from "@betteragent/next";
+import { defineAction } from "betteragent-next";
 
 export const openSettings = defineAction({
   name: "openSettings",

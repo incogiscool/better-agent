@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@betteragent/react";
-import type { ChatError } from "@betteragent/react";
+import { cn } from "betteragent-react";
+import type { ChatError } from "betteragent-react";
 
 interface ChatErrorProps {
   error: ChatError;

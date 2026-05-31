@@ -1,6 +1,6 @@
 "use client";
 
-import { useBetterAgentContext } from "../provider/BetterAgentProvider";
+import { useBetterAgentContext } from "../provider/BetterAgentProvider.js";
 
 export type UseBetterAgentReturn = {
   endUserId: string;

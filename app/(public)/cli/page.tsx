@@ -164,7 +164,7 @@ function CliHero() {
           </h1>
           <p className={SUB}>One CLI for auth, tool discovery, syncing, and component installation. Works with any Node ≥ 18 project.</p>
           <DarkCode language="bash">
-            {"npm i -D @betteragent/cli"}
+            {"npm i -D betteragent-cli"}
           </DarkCode>
         </div>
       </div>
@@ -302,7 +302,7 @@ function ToolFileReference() {
               title: "routes.betteragent.ts",
               desc: "HTTP endpoints the agent calls server-to-server.",
               code: `import { z } from "zod";
-import { defineRoute } from "@betteragent/next";
+import { defineRoute } from "betteragent-next";
 
 export const listProjects = defineRoute({
   name: "listProjects",
@@ -318,7 +318,7 @@ export const routes = [listProjects];`,
               title: "server-actions.betteragent.ts",
               desc: "Next.js Server Actions the agent invokes through the framework. The handler must reference a real \"use server\" function — an inline handler runs client-side with no session.",
               code: `import { z } from "zod";
-import { defineServerAction } from "@betteragent/next";
+import { defineServerAction } from "betteragent-next";
 // Import a real Server Action — a function exported from a file
 // with "use server" at the top. Do NOT inline the handler here.
 import { createProject } from "@/app/actions/projects";
@@ -336,7 +336,7 @@ export const serverActions = [createProjectTool];`,
               title: "actions.betteragent.ts",
               desc: "Browser-side effects — navigation, modals, UI state.",
               code: `import { z } from "zod";
-import { defineAction } from "@betteragent/next";
+import { defineAction } from "betteragent-next";
 
 export const openSettings = defineAction({
   name: "openSettings",

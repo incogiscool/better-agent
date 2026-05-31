@@ -55,7 +55,7 @@ export async function sendWelcomeEmail(
 Your first project is live. Here's how to get your agent talking to your app in three steps:
 
   1. Install the CLI
-     npm i -D @betteragent/cli
+     npm i -D betteragent-cli
 
   2. Log in and initialise
      npx betteragent login --key <your-secret-key>

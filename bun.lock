@@ -7,8 +7,6 @@
       "dependencies": {
         "@ai-sdk/anthropic": "^3.0.77",
         "@ai-sdk/react": "^3.0.179",
-        "@betteragent/next": "workspace:*",
-        "@betteragent/react": "workspace:*",
         "@hookform/resolvers": "^5.2.2",
         "@phosphor-icons/react": "^2.1.10",
         "@prisma/adapter-neon": "^7.8.0",
@@ -18,6 +16,8 @@
         "@upstash/redis": "^1.38.0",
         "ai": "^6.0.177",
         "better-auth": "^1.6.10",
+        "betteragent-next": "workspace:*",
+        "betteragent-react": "workspace:*",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "cmdk": "^1.1.1",
@@ -51,7 +51,7 @@
       },
     },
     "packages/cli": {
-      "name": "@betteragent/cli",
+      "name": "betteragent-cli",
       "version": "0.1.0",
       "bin": {
         "betteragent": "./dist/cli.js",
@@ -64,14 +64,14 @@
         "zod": "^4.4.3",
       },
       "devDependencies": {
-        "@betteragent/next": "workspace:*",
         "@types/node": "^20",
         "@types/prompts": "^2.4.9",
+        "betteragent-next": "workspace:*",
         "typescript": "^5",
       },
     },
     "packages/next": {
-      "name": "@betteragent/next",
+      "name": "betteragent-next",
       "version": "0.1.0",
       "devDependencies": {
         "next": "16.2.6",
@@ -84,21 +84,22 @@
       },
     },
     "packages/react": {
-      "name": "@betteragent/react",
+      "name": "betteragent-react",
       "version": "0.1.0",
       "dependencies": {
         "clsx": "^2.1.1",
         "tailwind-merge": "^3.6.0",
       },
       "devDependencies": {
-        "@betteragent/next": "workspace:*",
         "@types/react": "^19",
         "@types/react-dom": "^19",
+        "betteragent-next": "workspace:*",
         "react": "19.2.4",
         "react-dom": "19.2.4",
         "typescript": "^5",
       },
       "peerDependencies": {
+        "betteragent-next": "workspace:^",
         "next": ">=14",
         "react": "^18 || ^19",
         "react-dom": "^18 || ^19",
@@ -200,12 +201,6 @@
     "@better-auth/utils": ["@better-auth/utils@0.4.0", "", { "dependencies": { "@noble/hashes": "^2.0.1" } }, "sha512-RpMtLUIQAEWMgdPLNVbIF5ON2mm+CH0U3rCdUCU1VyeAUui4m38DyK7/aXMLZov2YDjG684pS1D0MBllrmgjQA=="],
 
     "@better-fetch/fetch": ["@better-fetch/fetch@1.1.21", "", {}, "sha512-/ImESw0sskqlVR94jB+5+Pxjf+xBwDZF/N5+y2/q4EqD7IARUTSpPfIo8uf39SYpCxyOCtbyYpUrZ3F/k0zT4A=="],
-
-    "@betteragent/cli": ["@betteragent/cli@workspace:packages/cli"],
-
-    "@betteragent/next": ["@betteragent/next@workspace:packages/next"],
-
-    "@betteragent/react": ["@betteragent/react@workspace:packages/react"],
 
     "@braintree/sanitize-url": ["@braintree/sanitize-url@7.1.2", "", {}, "sha512-jigsZK+sMF/cuiB7sERuo9V7N9jx+dhmHHnQyDSVdpZwVutaBu7WvNYqMDLSgFgfB30n452TP3vjDAvFC973mA=="],
 
@@ -832,6 +827,12 @@
     "better-call": ["better-call@1.3.5", "", { "dependencies": { "@better-auth/utils": "^0.4.0", "@better-fetch/fetch": "^1.1.21", "rou3": "^0.7.12", "set-cookie-parser": "^3.0.1" }, "peerDependencies": { "zod": "^4.0.0" }, "optionalPeers": ["zod"] }, "sha512-kOFJkBP7utAQLEYrobZm3vkTH8mXq5GNgvjc5/XEST1ilVHaxXUXfeDeFlqoETMtyqS4+3/h4ONX2i++ebZrvA=="],
 
     "better-result": ["better-result@2.9.2", "", {}, "sha512-WIFoBPCdnTOdk9inkE1ZRvCZ4P0CpSkAiLlchC65N7n9DcjZ3NhqkBOlafzpOVnO8ixyi37kicmSJ3ENhPZl7Q=="],
+
+    "betteragent-cli": ["betteragent-cli@workspace:packages/cli"],
+
+    "betteragent-next": ["betteragent-next@workspace:packages/next"],
+
+    "betteragent-react": ["betteragent-react@workspace:packages/react"],
 
     "body-parser": ["body-parser@2.2.2", "", { "dependencies": { "bytes": "^3.1.2", "content-type": "^1.0.5", "debug": "^4.4.3", "http-errors": "^2.0.0", "iconv-lite": "^0.7.0", "on-finished": "^2.4.1", "qs": "^6.14.1", "raw-body": "^3.0.1", "type-is": "^2.0.1" } }, "sha512-oP5VkATKlNwcgvxi0vM0p/D3n2C3EReYVX+DNYs5TjZFn/oQt2j+4sVJtSMr18pdRr8wjTcBl6LoV+FUwzPmNA=="],
 

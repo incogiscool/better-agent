@@ -1,6 +1,6 @@
-import { TOOL_METADATA } from "@betteragent/next";
-import type { ActionHandler, ActionRegistry } from "../types";
-import { ChatClient } from "./ChatClient";
+import { TOOL_METADATA } from "betteragent-next";
+import type { ActionHandler, ActionRegistry } from "../types.js";
+import { ChatClient } from "./ChatClient.js";
 
 export type Dispatcher = {
   resolve(toolName: string): ActionHandler | null;
@@ -10,7 +10,7 @@ export type Dispatcher = {
     toolName: string;
     input: unknown;
     signal?: AbortSignal;
-  }): Promise<AsyncIterable<import("../types").ChatEvent>>;
+  }): Promise<AsyncIterable<import("../types.js").ChatEvent>>;
 };
 
 export type DispatcherInputs = {
@@ -23,7 +23,7 @@ export type DispatcherInputs = {
  * Build a dispatcher that knows about both:
  * - `actions`: a name-keyed map of client-only handlers (modal toggles, etc.)
  * - `serverActions`: callables returned by `defineServerAction` from
- *   `@betteragent/next`. Each carries its metadata under the `TOOL_METADATA`
+ *   `betteragent-next`. Each carries its metadata under the `TOOL_METADATA`
  *   symbol so we can recover its `name` and call the function directly.
  *
  * Lookup order: client actions first, then server actions. This matches the

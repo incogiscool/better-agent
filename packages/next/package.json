@@ -1,7 +1,13 @@
 {
-  "name": "@betteragent/next",
+  "name": "betteragent-next",
   "version": "0.1.0",
   "description": "Define tools, server actions, and client actions for BetterAgent in Next.js.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/incogiscool/better-agent.git",
+    "directory": "packages/next"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",

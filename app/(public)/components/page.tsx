@@ -54,7 +54,7 @@ const INSTALL_STEPS = [
   {
     n: "01",
     title: "Install the packages",
-    code: "npm i @betteragent/react @betteragent/next @betteragent/cli",
+    code: "npm i betteragent-react betteragent-next betteragent-cli",
     language: "bash",
   },
   {
@@ -70,7 +70,7 @@ const INSTALL_STEPS = [
 @import "./components/chat/styles/betteragent.css";
 
 // app/layout.tsx
-import { BetterAgentProvider } from "@betteragent/react";
+import { BetterAgentProvider } from "betteragent-react";
 
 <BetterAgentProvider
   clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}

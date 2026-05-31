@@ -32,7 +32,7 @@ const CAPTIONS: Record<Exclude<TabId, "overview">, string> = {
 const CODE: Record<Exclude<TabId, "overview">, string> = {
   define: `// actions.betteragent.ts — your tool definitions
 import { z } from "zod";
-import { defineAction } from "@betteragent/next";
+import { defineAction } from "betteragent-next";
 
 export const pauseCampaign = defineAction({
   name: "pauseCampaign",
@@ -51,7 +51,7 @@ export const switchTab = defineAction({
 // …8 more in this demo. Then push to the backend:
 //   npx betteragent sync`,
 
-  provider: `import { BetterAgentProvider } from "@betteragent/react";
+  provider: `import { BetterAgentProvider } from "betteragent-react";
 
 <BetterAgentProvider
   clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY}

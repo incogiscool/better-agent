@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { MagnifyingGlass, ChartBar, PauseCircle } from "@phosphor-icons/react";
-import { BetterAgentProvider } from "@betteragent/react";
+import { BetterAgentProvider } from "betteragent-react";
 import {
   ChatSidebar,
   ChatPopup,

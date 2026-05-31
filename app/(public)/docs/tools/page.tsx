@@ -94,14 +94,14 @@ function RouteToolsSection() {
           <Eyebrow>routes.betteragent.ts</Eyebrow>
           <h2 className={H2}>HTTP routes as agent tools.</h2>
           <p className={SUB}>
-            Use <CodeChip>defineRoute</CodeChip> from <CodeChip>@betteragent/next</CodeChip> to expose any HTTP
+            Use <CodeChip>defineRoute</CodeChip> from <CodeChip>betteragent-next</CodeChip> to expose any HTTP
             endpoint as a tool. The chat engine performs a server-to-server request using the{" "}
             <CodeChip>baseUrl</CodeChip> you configured in your project settings.
           </p>
         </div>
         <div className="grid grid-cols-[1fr_320px] gap-8 items-start">
           <DarkCode language="typescript">
-            {`import { defineRoute } from "@betteragent/next";
+            {`import { defineRoute } from "betteragent-next";
 import { z } from "zod";
 
 // GET with optional query params
@@ -176,7 +176,7 @@ function ServerActionsSection() {
         <div className="grid grid-cols-[1fr_300px] gap-8 items-start">
           <DarkCode language="typescript">
             {`// server-actions.betteragent.ts
-import { defineServerAction } from "@betteragent/next";
+import { defineServerAction } from "betteragent-next";
 import { z } from "zod";
 
 // Preferred: pass a reference to a real server action.
@@ -265,7 +265,7 @@ function ClientActionsSection() {
           <div className="flex flex-col gap-6">
             <DarkCode language="typescript">
               {`// actions.betteragent.ts
-import { defineAction } from "@betteragent/next";
+import { defineAction } from "betteragent-next";
 import { z } from "zod";
 
 export const openModal = defineAction({

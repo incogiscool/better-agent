@@ -1,7 +1,13 @@
 {
-  "name": "@betteragent/cli",
+  "name": "betteragent-cli",
   "version": "0.1.0",
   "description": "Command-line tool for syncing BetterAgent tools from your codebase.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/incogiscool/better-agent.git",
+    "directory": "packages/cli"
+  },
   "type": "module",
   "bin": {
     "betteragent": "./dist/cli.js"
@@ -23,7 +29,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@betteragent/next": "workspace:*",
+    "betteragent-next": "workspace:*",
     "@types/node": "^20",
     "@types/prompts": "^2.4.9",
     "typescript": "^5"

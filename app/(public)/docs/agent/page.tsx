@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { AGENT_PROMPT } from "@/lib/agent-prompt";
 
 const WHAT_IT_DOES = [
-  "Installs @betteragent/cli, @betteragent/react, and @betteragent/next",
+  "Installs betteragent-cli, betteragent-react, and betteragent-next",
   "Prompts you for your secret key and authenticates the CLI",
   "Runs betteragent init to scaffold a chat component",
   "Runs betteragent discover to generate tool files from your codebase",

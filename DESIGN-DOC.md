@@ -9,7 +9,7 @@
 > the shipped code disagree, **the code wins**. Known deviations as of this
 > revision:
 >
-> - **No `exposeToAgent` / `exposeRoute`.** `@betteragent/next` ships
+> - **No `exposeToAgent` / `exposeRoute`.** `betteragent-next` ships
 >   `defineRoute`, `defineServerAction`, and `defineAction` only. The
 >   "minimum viable tool definition" (Part 6) that infers everything from a bare
 >   function reference is **not implemented**.
@@ -83,8 +83,8 @@ A normalized JSON-Schema-based contract for tool definitions and chat. SDKs and 
 | Email                     | Resend                                                                             |
 | CLI distribution          | npm                                                                                |
 | Component distribution    | Custom registry à la shadcn                                                        |
-| React SDK                 | `@betteragent/react` (hooks/types only, no rendering)                              |
-| Next.js SDK               | `@betteragent/next` (exposeToAgent, defineRoute, defineAction, defineServerAction) |
+| React SDK                 | `betteragent-react` (hooks/types only, no rendering)                              |
+| Next.js SDK               | `betteragent-next` (exposeToAgent, defineRoute, defineAction, defineServerAction) |
 | Schema inference          | TypeScript compiler API + ts-to-zod                                                |
 | AI description generation | LLM call at sync time (Sonnet via own API)                                         |
 
@@ -97,8 +97,8 @@ Six components:
 1. **Dashboard + marketing site** — Next.js app
 2. **Core API** — `/v1/sync`, `/v1/chat`, `/v1/execute-result`, dashboard endpoints
 3. **Chat Engine** — server-side wrapper around AI SDK
-4. **CLI** — `@betteragent/cli`, syncs tools, manages component registry, infers schemas
-5. **React SDK** — `@betteragent/react` package (hooks, types, protocol)
+4. **CLI** — `betteragent-cli`, syncs tools, manages component registry, infers schemas
+5. **React SDK** — `betteragent-react` package (hooks, types, protocol)
 6. **Component registry** — JSON manifest at `betteragent.dev/registry`
 
 Multi-tenant from day one. Every query filters by `projectId` or `ownerId`.
@@ -180,8 +180,8 @@ Honor system. Hardcoded "Powered by BetterAgent" in default container components
 The originally-designed shortest path:
 
 ```typescript
-// NOT IMPLEMENTED — exposeToAgent does not exist in @betteragent/next.
-import { exposeToAgent } from "@betteragent/next";
+// NOT IMPLEMENTED — exposeToAgent does not exist in betteragent-next.
+import { exposeToAgent } from "betteragent-next";
 import { createProject, updateProject, deleteProject } from "@/app/actions";
 
 export const serverActions = [
@@ -227,7 +227,7 @@ defineServerAction({
 **`routes.betteragent.ts`** — HTTP routes:
 
 ```typescript
-import { defineRoute, exposeRoute } from "@betteragent/next";
+import { defineRoute, exposeRoute } from "betteragent-next";
 
 // Minimal: from a route handler reference
 import { GET as getProjects } from "@/app/api/projects/route";
@@ -248,7 +248,7 @@ export const routes = [
 **`server-actions.betteragent.ts`** — Next.js Server Actions:
 
 ```typescript
-import { exposeToAgent } from "@betteragent/next";
+import { exposeToAgent } from "betteragent-next";
 import { createProject, deleteProject, archiveProject } from "@/app/actions";
 
 export const serverActions = [
@@ -261,7 +261,7 @@ export const serverActions = [
 **`actions.betteragent.ts`** — pure client actions (still need explicit declarations because they're behavior, not exported functions):
 
 ```typescript
-import { defineAction } from "@betteragent/next";
+import { defineAction } from "betteragent-next";
 
 export const actions = [
   defineAction({
@@ -441,7 +441,7 @@ shadcn-style registry. Components are not installed via npm — they're copied a
 
 ### Two-layer ownership
 
-| `@betteragent/react` (npm package)  | Components (customer's codebase)             |
+| `betteragent-react` (npm package)  | Components (customer's codebase)             |
 | ----------------------------------- | -------------------------------------------- |
 | `BetterAgentProvider`, hooks, types | All rendering, all styling                   |
 | Protocol implementation             | All structure                                |
@@ -532,7 +532,7 @@ CSS variables that inherit from shadcn tokens, exposed via Tailwind utility clas
 - [ ] JSON Schema validation on incoming definitions
 - [ ] Accept both `route` and `client_invocation` types
 
-**`@betteragent/next` package**
+**`betteragent-next` package**
 
 - [ ] `defineRoute()` helper
 - [ ] `defineAction()` helper (client actions)
@@ -576,7 +576,7 @@ CSS variables that inherit from shadcn tokens, exposed via Tailwind utility clas
 
 **CLI scaffold**
 
-- [ ] `@betteragent/cli` package set up
+- [ ] `betteragent-cli` package set up
 - [ ] `betteragent login` — paste-key flow for v1 (OAuth later)
 - [ ] `betteragent init` — interactive prompts:
   - [ ] Write `routes.betteragent.ts` template
@@ -702,7 +702,7 @@ CSS variables that inherit from shadcn tokens, exposed via Tailwind utility clas
 
 ### Phase 5: React SDK (Week 7)
 
-**Package: `@betteragent/react`**
+**Package: `betteragent-react`**
 
 - [ ] Set up package, build pipeline (tsup or similar)
 - [ ] Publish to npm (initially as `0.x` versions)

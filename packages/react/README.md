@@ -1,7 +1,7 @@
-# @betteragent/react
+# betteragent-react
 
 ```bash
-npm i @betteragent/react
+npm i betteragent-react
 ```
 
 ## Quick start
@@ -9,7 +9,7 @@ npm i @betteragent/react
 ```tsx
 "use client";
 
-import { BetterAgentProvider, useChatStream } from "@betteragent/react";
+import { BetterAgentProvider, useChatStream } from "betteragent-react";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -29,7 +29,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 ```tsx
 "use client";
 
-import { useChatStream } from "@betteragent/react";
+import { useChatStream } from "betteragent-react";
 
 export function Chat() {
   const { messages, send, isStreaming } = useChatStream();

@@ -1,4 +1,4 @@
-import type { ChatEvent } from "../types";
+import type { ChatEvent } from "../types.js";
 
 /**
  * Parses a server-sent-event ReadableStream into typed `ChatEvent`s.

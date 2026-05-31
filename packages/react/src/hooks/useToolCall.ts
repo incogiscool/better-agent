@@ -1,6 +1,6 @@
 "use client";
 
-import type { ToolCallEntry } from "../types";
+import type { ToolCallEntry } from "../types.js";
 
 /**
  * Reserved hook for custom tool renderers (v1.5+). Today it's a passthrough
