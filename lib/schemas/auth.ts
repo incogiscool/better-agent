@@ -8,15 +8,11 @@ export const signInSchema = z.object({
 export const signUpSchema = z.object({
   email: z.email("Enter a valid email address."),
   password: z.string().min(8, "Password must be at least 8 characters."),
-  workspaceSlug: z
+  name: z
     .string()
     .trim()
-    .min(2, "Workspace slug must be at least 2 characters.")
-    .max(40, "Workspace slug is too long.")
-    .regex(
-      /^[a-z0-9][a-z0-9-]*[a-z0-9]$/,
-      "Use lowercase letters, numbers, and dashes.",
-    ),
+    .min(1, "Name is required.")
+    .max(80, "Name is too long."),
 });
 
 export const forgotPasswordSchema = z.object({

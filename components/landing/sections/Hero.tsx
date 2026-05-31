@@ -1,19 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { Lightning, Copy } from "@phosphor-icons/react";
+import { Lightning, Copy, Check } from "@phosphor-icons/react";
 import { TerminalDemo } from "@/components/landing/TerminalDemo";
 import { ChatDemo } from "@/components/landing/ChatDemo";
 import { WRAP, DOT_BG } from "@/components/landing/primitives";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { AGENT_PROMPT } from "@/lib/agent-prompt";
 
-function CopyableCommand({ cmd }: { cmd: string }) {
+function CopyPromptButton() {
   const [copied, setCopied] = useState(false);
   async function copy() {
     try {
-      await navigator.clipboard.writeText(cmd);
+      await navigator.clipboard.writeText(AGENT_PROMPT);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
@@ -22,11 +23,8 @@ function CopyableCommand({ cmd }: { cmd: string }) {
   }
   return (
     <Button type="button" className="w-fit" onClick={copy} variant="outline">
-      <span className="text-muted-foreground">$</span>
-      <span>{cmd}</span>
-      <span className="ml-1 text-muted-foreground text-[11px]">
-        {copied ? "✓ copied" : <Copy size={12} />}
-      </span>
+      {copied ? <Check size={13} /> : <Copy size={13} />}
+      <span>{copied ? "Copied!" : "Copy AI setup prompt"}</span>
     </Button>
   );
 }
@@ -65,7 +63,7 @@ export function Hero() {
               </Button>
             </Link>
 
-            <CopyableCommand cmd="npx betteragent init" />
+            <CopyPromptButton />
           </div>
 
           <div className="flex gap-4 flex-wrap font-mono text-xs text-muted-foreground">

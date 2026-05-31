@@ -44,11 +44,10 @@ export function SignupForm({ callbackURL = "/dashboard" }: { callbackURL?: strin
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: { email: "", password: "", workspaceSlug: "cassio" },
+    defaultValues: { email: "", password: "", name: "" },
   });
 
   const password = form.watch("password");
-  const slug = form.watch("workspaceSlug");
   const strength = scorePassword(password);
 
   const onSubmit = (values: SignupFormValues) => {
@@ -56,7 +55,7 @@ export function SignupForm({ callbackURL = "/dashboard" }: { callbackURL?: strin
       {
         email: values.email,
         password: values.password,
-        name: values.workspaceSlug,
+        name: values.name,
         callbackURL,
       },
       {
@@ -165,22 +164,15 @@ export function SignupForm({ callbackURL = "/dashboard" }: { callbackURL?: strin
 
           <FormField
             control={form.control}
-            name="workspaceSlug"
+            name="name"
             render={({ field }) => (
               <FormItem>
-                <div className="flex items-center justify-between">
-                  <FormLabel>Workspace slug</FormLabel>
-                  <span className="text-[10px] text-muted-foreground">
-                    betteragent.dev/{slug || "your-slug"}
-                  </span>
-                </div>
+                <FormLabel>Name</FormLabel>
                 <FormControl>
                   <Input
-                    autoComplete="off"
+                    autoComplete="name"
+                    placeholder="Ada Lovelace"
                     {...field}
-                    onChange={(e) =>
-                      field.onChange(e.target.value.toLowerCase())
-                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -193,7 +185,7 @@ export function SignupForm({ callbackURL = "/dashboard" }: { callbackURL?: strin
           )}
 
           <Button type="submit" className="w-full" disabled={signUp.isPending}>
-            {signUp.isPending ? "Provisioning..." : "Create workspace"}
+            {signUp.isPending ? "Creating account..." : "Create account"}
           </Button>
         </form>
       </Form>
