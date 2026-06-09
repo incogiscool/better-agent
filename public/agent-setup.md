@@ -31,6 +31,9 @@ Sidebar is a good default for most apps.
 npx betteragent init
 ```
 
+This generates `components/betteragent-provider.tsx` (the `AgentProvider`
+wrapper) and scaffolds the tool files.
+
 ## Step 4: Discover tools
 
 Scan the project for existing Next.js routes and server actions:
@@ -52,26 +55,27 @@ npx betteragent sync
 
 ## Step 6: Add the provider
 
-In the root layout (e.g. `app/layout.tsx`), wrap children with
-`BetterAgentProvider`. Replace `endUserId` with the authenticated
-user's real ID from your auth system.
+In the root layout (e.g. `app/layout.tsx`), wrap children with the generated
+`AgentProvider`. Replace `endUserId` with the authenticated user's real ID
+from your auth system.
 
 ```tsx
-import { BetterAgentProvider } from "betteragent-react";
-import { serverActions } from "./server-actions.betteragent";
+// app/layout.tsx — Server Component
+import { AgentProvider } from "@/components/betteragent-provider";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const user = await requireUser();
+
   return (
     <html>
       <body>
-        <BetterAgentProvider
+        <AgentProvider
           clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
           apiUrl={process.env.NEXT_PUBLIC_BETTERAGENT_API_URL}
-          endUserId="user-id-here"
-          serverActions={serverActions}
+          endUserId={user.id}
         >
           {children}
-        </BetterAgentProvider>
+        </AgentProvider>
       </body>
     </html>
   );
@@ -125,10 +129,13 @@ export const routes = [getUser];
 ### `server-actions.betteragent.ts` — Next.js Server Actions
 
 ```ts
+"use server";
+
 import { defineServerAction } from "betteragent-next";
 import { z } from "zod";
-import { updateProfile } from "@/app/actions/profile";
+import { updateProfile as _updateProfile } from "@/app/actions/profile";
 
+// Export name doesn't matter — the agent uses the `name` field.
 export const updateUserProfile = defineServerAction({
   name: "updateUserProfile",
   description: "Update the user's display name and bio.",
@@ -136,11 +143,11 @@ export const updateUserProfile = defineServerAction({
     name: z.string().min(1).max(100),
     bio:  z.string().max(500).optional(),
   }),
-  handler: updateProfile,
+  handler: _updateProfile,
 });
-
-export const serverActions = [updateUserProfile];
 ```
+
+No array export — Next.js `"use server"` files must only export async functions.
 
 ### `actions.betteragent.ts` — Browser-side effects
 
@@ -162,7 +169,7 @@ export const actions = [openModal];
 Register client actions in the provider:
 
 ```tsx
-<BetterAgentProvider
+<AgentProvider
   clientKey={...}
   endUserId={...}
   actions={{

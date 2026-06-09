@@ -52,27 +52,32 @@ authToken={async () => ({ Authorization: `Bearer ${await getToken()}` })}
 
 ## Using `BetterAgentProvider` directly
 
-If you need manual control, import `BetterAgentProvider` from `betteragent-react`
-and wire things yourself. This is what the generated `AgentProvider` does internally:
+If you need manual control, wire the provider yourself. Because Next.js strips
+custom properties from server action references at the server/client boundary,
+you must call `buildServerActionMap` in a **Server Component** before passing
+actions to `BetterAgentProvider`:
 
 ```tsx
-"use client";
-
+// components/my-provider.tsx  — Server Component (no "use client")
+import { buildServerActionMap } from "betteragent-next";
 import { BetterAgentProvider } from "betteragent-react";
 import * as serverActions from "@/server-actions.betteragent";
 
-export function AgentProvider({ children, ...props }) {
+export function MyProvider({ children, ...props }) {
   return (
-    <BetterAgentProvider {...props} serverActions={serverActions}>
+    <BetterAgentProvider
+      {...props}
+      serverActions={buildServerActionMap(serverActions)}
+    >
       {children}
     </BetterAgentProvider>
   );
 }
 ```
 
-`serverActions` accepts a `Record<string, handler>` or an array of
-`defineServerAction` results. `import *` from the `"use server"` file gives you
-the record form directly.
+`buildServerActionMap` reads the `name` field from each `defineServerAction`
+result and returns a `{ [toolName]: handler }` map. This must happen server-side
+while the metadata symbols are still present.
 
 ## `useChatStream`
 

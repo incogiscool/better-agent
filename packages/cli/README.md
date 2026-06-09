@@ -58,20 +58,51 @@ files only export async functions — no arrays. Export each action individually
 ```ts
 "use server";
 
-import { defineServerAction } from "betteragent-next";
 import { z } from "zod";
-import { createProject } from "@/app/actions/projects";
+import { defineServerAction } from "betteragent-next";
+import { createProject as _createProject } from "@/app/actions/projects";
 
-export const createProjectTool = defineServerAction({
+export const createProject = defineServerAction({
   name: "createProject",
   description: "...",
   schema: z.object({ name: z.string() }),
-  handler: createProject,
+  handler: _createProject,
 });
 ```
 
-The generated `AgentProvider` in `components/betteragent-provider.tsx` imports
-this file with `import * as serverActions` — you never import it in your layout.
+**The export name doesn't matter.** The agent calls tools by the `name` field.
+The generated `AgentProvider` uses `buildServerActionMap` in a Server Component
+to build the `{ toolName → handler }` mapping before passing it to the client,
+so the mapping is always derived from `name`, not the export identifier.
+
+## Generated `components/betteragent-provider.tsx`
+
+`betteragent init` generates this file. It is a **Server Component** — there is
+no `"use client"` directive. It calls `buildServerActionMap` from `betteragent-next`
+to convert the `"use server"` namespace import into a tool-name-keyed map, then
+passes it to `BetterAgentProvider` (which is the actual Client Component):
+
+```tsx
+import { buildServerActionMap } from "betteragent-next";
+import { BetterAgentProvider } from "betteragent-react";
+import * as serverActions from "../server-actions.betteragent";
+
+export function AgentProvider({ children, clientKey, endUserId, ...props }) {
+  return (
+    <BetterAgentProvider
+      clientKey={clientKey}
+      endUserId={endUserId}
+      serverActions={buildServerActionMap(serverActions)}
+      {...props}
+    >
+      {children}
+    </BetterAgentProvider>
+  );
+}
+```
+
+You never need to import `server-actions.betteragent.ts` in your layout — the
+generated `AgentProvider` handles that.
 
 ## Optional `betteragent.config.json`
 
