@@ -99,10 +99,11 @@ export function generateServerActionsFile(
     lines.push(`import { defineServerAction } from "betteragent-next";`);
   }
 
-  // Imports for plain functions (group by file)
+  // Imports for plain functions (group by file) — alias each to avoid
+  // clashing with the export const of the same tool name below.
   const plainByFile = groupByFile(plain);
   for (const [filePath, candidates] of plainByFile) {
-    const names = candidates.map((c) => c.exportName).join(", ");
+    const names = candidates.map((c) => `${c.exportName} as _${c.exportName}`).join(", ");
     lines.push(`import { ${names} } from "${relImport(cwd, filePath)}";`);
   }
 
@@ -120,15 +121,17 @@ export function generateServerActionsFile(
 
   lines.push(``);
 
-  // Wrapped definitions for plain functions — each exported individually
+  // Wrapped definitions for plain functions.
+  // Export name matches tool name so the dispatch fallback (which keys by
+  // export name when symbols are stripped across the server/client boundary)
+  // can resolve tool calls correctly.
   for (const c of plain) {
-    const varName = c.exportName + "Action";
     lines.push(
-      `export const ${varName} = defineServerAction({`,
+      `export const ${c.exportName} = defineServerAction({`,
       `  name: "${c.exportName}",`,
       `  description: "",`,
       `  schema: z.object({}), // TODO: add parameters`,
-      `  handler: ${c.exportName},`,
+      `  handler: _${c.exportName},`,
       `});`,
       ``,
     );
