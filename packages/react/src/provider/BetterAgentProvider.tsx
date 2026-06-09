@@ -36,8 +36,6 @@ export function BetterAgentProvider({
     [clientKey, apiUrl, endUserId],
   );
 
-  // Keep the client's auth token current without recreating it when an inline
-  // authToken function changes identity. Updated out of render, in an effect.
   React.useEffect(() => {
     client.setAuthToken(authToken);
   }, [client, authToken]);

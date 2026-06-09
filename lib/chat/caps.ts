@@ -7,9 +7,17 @@ export const MAX_TOOL_RESULT_BYTES = 8192;
 export async function getRunningTokenTotal(conversationId: string): Promise<number> {
   const agg = await prisma.creditEvent.aggregate({
     where: { conversationId },
-    _sum: { tokensInput: true, tokensOutput: true },
+    _sum: { tokensInput: true, tokensOutput: true, tokensCached: true },
   });
-  return (agg._sum.tokensInput ?? 0) + (agg._sum.tokensOutput ?? 0);
+  const input = agg._sum.tokensInput ?? 0;
+  const output = agg._sum.tokensOutput ?? 0;
+  const cached = agg._sum.tokensCached ?? 0;
+  // tokensInput is the SDK's inputTokens.total, which INCLUDES cache-read
+  // tokens. The same cached prefix gets re-read (and re-counted) on every step
+  // and every turn, so counting cache reads at full weight trips this cap far
+  // too early — e.g. a retry loop that re-reads a cached system prompt. The cap
+  // is meant to bound real consumption, so exclude cache reads.
+  return Math.max(0, input - cached) + output;
 }
 
 export function isOverTokenCap(total: number): boolean {

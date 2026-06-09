@@ -170,20 +170,23 @@ function ServerActionsSection() {
             Use <CodeChip>defineServerAction</CodeChip> to expose a Next.js Server Action as a tool.
             The React SDK dispatches calls from the browser — the handler runs on the server via the normal
             server-action mechanism, so session context and auth are available as usual.
-            Pass the exported array as <CodeChip>serverActions</CodeChip> on the provider.
           </p>
         </div>
         <div className="grid grid-cols-[1fr_300px] gap-8 items-start">
           <DarkCode language="typescript">
-            {`// server-actions.betteragent.ts
+            {`"use server";
+// ^ Required. This file is a "use server" module — Next.js compiles
+// each exported async function as a callable server action.
+
 import { defineServerAction } from "betteragent-next";
 import { z } from "zod";
 
-// Preferred: pass a reference to a real server action.
-// The handler must be defined in a file with "use server"
-// at the top so Next.js compiles it as a server action.
+// Import handlers from your own "use server" files.
 import { updateProfile } from "@/app/actions/profile";
 import { sendInvoice }  from "@/app/actions/billing";
+
+// Export each action individually — no array export.
+// The generated AgentProvider imports this file automatically.
 
 export const updateDisplayName = defineServerAction({
   name: "updateDisplayName",
@@ -205,25 +208,29 @@ export const sendUserInvoice = defineServerAction({
     invoiceId: z.string(),
   }),
   handler: sendInvoice,
-});
-
-export const serverActions = [updateDisplayName, sendUserInvoice];`}
+});`}
           </DarkCode>
           <div className="flex flex-col gap-3">
             <div className="p-[12px_14px] border border-border rounded-lg">
-              <div className="font-mono text-[12px] text-primary mb-1">handler</div>
+              <div className="font-mono text-[12px] text-primary mb-1">{"\"use server\""} required</div>
               <p className="font-sans text-[12px] text-muted-foreground leading-[1.5] m-0">
-                A reference to a real Next.js server action — a function exported from a file
-                with <CodeChip>{"\"use server\""}</CodeChip> at the top. Input is Zod-validated
-                before the handler is called.
+                The file must start with <CodeChip>{"\"use server\""}</CodeChip>. This makes each exported
+                async function a real Next.js server action reference, callable from the browser.
               </p>
             </div>
             <div className="p-[12px_14px] border border-border rounded-lg">
-              <div className="font-mono text-[12px] text-primary mb-1">How it{"'"}s invoked</div>
+              <div className="font-mono text-[12px] text-primary mb-1">handler</div>
               <p className="font-sans text-[12px] text-muted-foreground leading-[1.5] m-0">
-                The React SDK dispatcher calls the handler from the browser. Next.js still routes
-                the call to the server via its server-action mechanism, so session cookies and
-                auth context are available as normal.
+                Must be imported from one of your own <CodeChip>{"\"use server\""}</CodeChip> files —
+                not defined inline. Input is Zod-validated before the handler is called.
+              </p>
+            </div>
+            <div className="p-[12px_14px] border border-border rounded-lg">
+              <div className="font-mono text-[12px] text-primary mb-1">No array export</div>
+              <p className="font-sans text-[12px] text-muted-foreground leading-[1.5] m-0">
+                Export each action individually. <CodeChip>{"\"use server\""}</CodeChip> files cannot
+                export arrays — the generated <CodeChip>AgentProvider</CodeChip> uses{" "}
+                <CodeChip>{"import *"}</CodeChip> to pick them all up automatically.
               </p>
             </div>
             <div className="p-[12px_14px] border border-border rounded-lg">
@@ -231,14 +238,6 @@ export const serverActions = [updateDisplayName, sendUserInvoice];`}
               <p className="font-sans text-[12px] text-muted-foreground leading-[1.5] m-0">
                 Whatever the handler returns is serialised and sent back to the agent as the tool
                 result. Keep it concise — the agent uses it to decide the next step.
-              </p>
-            </div>
-            <div className="p-[12px_14px] border border-border rounded-lg">
-              <div className="font-mono text-[12px] text-primary mb-1">Registration</div>
-              <p className="font-sans text-[12px] text-muted-foreground leading-[1.5] m-0">
-                Pass the exported <CodeChip>serverActions</CodeChip> array to{" "}
-                <CodeChip>{"<BetterAgentProvider serverActions={serverActions}>"}</CodeChip>.
-                Without this, server-action tool calls will error at runtime.
               </p>
             </div>
           </div>
@@ -293,21 +292,27 @@ export const actions = [openModal, navigate];`}
           </div>
           <div className="flex flex-col gap-6">
             <p className="font-sans text-[13px] text-muted-foreground leading-[1.55] m-0">
-              Register handlers in <CodeChip>BetterAgentProvider</CodeChip> — the{" "}
-              <CodeChip>actions</CodeChip> prop is a map from action name to handler function.
+              Register handlers by adding an <CodeChip>actions</CodeChip> prop to the generated{" "}
+              <CodeChip>AgentProvider</CodeChip> in{" "}
+              <CodeChip>components/betteragent-provider.tsx</CodeChip> — a map from action name to
+              handler function.
             </p>
             <DarkCode language="tsx">
-              {`import { useRouter } from "next/navigation";
-import { serverActions } from "./server-actions.betteragent";
+              {`// components/betteragent-provider.tsx
+"use client";
 
-export function Providers({ children }) {
+import { BetterAgentProvider } from "betteragent-react";
+import * as serverActions from "@/server-actions.betteragent";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+export function AgentProvider({ children, ...props }) {
   const router = useRouter();
   const [dialog, setDialog] = useState<string | null>(null);
 
   return (
     <BetterAgentProvider
-      clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
-      endUserId={currentUser.id}
+      {...props}
       serverActions={serverActions}
       actions={{
         openModal: ({ name }) => setDialog(name),

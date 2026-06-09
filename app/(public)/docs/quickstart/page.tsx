@@ -64,11 +64,13 @@ const STEPS = [
           your project for tools. Sidebar is a good default for most apps.
         </p>
         <DarkCode language="bash">
-          {"npx betteragent init\n\n? Which chat variant? › sidebar\n\n→ Installing sidebar...\n✓ components/chat/sidebar.tsx\n✓ components/chat/pieces/ (10 files)\n\n? Scan your project for tools? › yes\n→ Found 8 routes · 4 server actions\n\n✓ Done. Run betteragent sync to push."}
+          {"npx betteragent init\n\n? Which chat variant? › sidebar\n\n→ Installing sidebar...\n✓ components/chat/sidebar.tsx\n✓ components/chat/pieces/ (10 files)\n\n? Scan your project for tools? › yes\n→ Found 8 routes · 4 server actions\n\n✓ components/betteragent-provider.tsx (AgentProvider)\n✓ Done. Run betteragent sync to push."}
         </DarkCode>
         <p className="font-sans text-[13px] text-muted-foreground leading-[1.55] m-0 mt-3">
-          Available variants: <CodeChip>sidebar</CodeChip> · <CodeChip>chat-popup</CodeChip> ·{" "}
-          <CodeChip>cmd-k</CodeChip> · <CodeChip>inline-bar</CodeChip>. You can add more later with{" "}
+          Init also generates <CodeChip>components/betteragent-provider.tsx</CodeChip> — a ready-to-use{" "}
+          <CodeChip>{"<AgentProvider>"}</CodeChip> wrapper that handles wiring server actions to the provider
+          automatically. Available variants: <CodeChip>sidebar</CodeChip> · <CodeChip>chat-popup</CodeChip> ·{" "}
+          <CodeChip>cmd-k</CodeChip> · <CodeChip>inline-bar</CodeChip>. Add more later with{" "}
           <CodeChip>betteragent add</CodeChip>.
         </p>
       </>
@@ -114,40 +116,36 @@ const STEPS = [
     body: (
       <>
         <p className="font-sans text-[13px] text-muted-foreground leading-[1.55] m-0">
-          Wrap your root layout with <CodeChip>BetterAgentProvider</CodeChip>. Pass{" "}
-          <CodeChip>serverActions</CodeChip> from your tool file so server-action tools are dispatched
-          correctly. <CodeChip>actions</CodeChip> is a map of client-side handlers. Both props are optional
-          if you{"’"}re not using those tool types.
+          Import <CodeChip>AgentProvider</CodeChip> from the component that{" "}
+          <CodeChip>betteragent init</CodeChip> generated and wrap your dashboard or root layout with it.
+          It handles server action wiring internally — no extra imports needed.
         </p>
         <p className="font-sans text-[13px] text-muted-foreground leading-[1.55] m-0">
           If your agent exposes <strong className="text-foreground font-medium">route tools</strong> that
-          read or write per-user data, pass <CodeChip>authToken</CodeChip> — a string or (async) getter
-          for the end user{"’"}s token. The chat engine forwards it to your routes as the{" "}
-          <CodeChip>Authorization</CodeChip> header so they run as the logged-in user. Without it, route
-          tools call your backend with no caller identity.
+          read or write per-user data, pass <CodeChip>authToken</CodeChip> so the engine can authenticate
+          requests to your backend on behalf of the logged-in user:
         </p>
+        <ul className="font-sans text-[13px] text-muted-foreground leading-[1.55] m-0 pl-4 flex flex-col gap-1">
+          <li><strong className="text-foreground font-medium">String</strong> — forwarded as <CodeChip>Authorization: Bearer {"<token>"}</CodeChip></li>
+          <li><strong className="text-foreground font-medium">Object</strong> — forwarded verbatim, for custom header names or formats</li>
+        </ul>
         <DarkCode language="tsx">
-          {`import { BetterAgentProvider } from "betteragent-react";
-import { serverActions } from "./server-actions.betteragent";
+          {`import { cookies } from "next/headers";
+import { AgentProvider } from "@/components/betteragent-provider";
 
-export default function RootLayout({ children }) {
+export default async function Layout({ children }) {
+  const user = await requireUser();
+  const sessionToken = (await cookies()).get("session")?.value;
+
   return (
-    <html>
-      <body>
-        <BetterAgentProvider
-          clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
-          apiUrl={process.env.NEXT_PUBLIC_BETTERAGENT_API_URL}
-          endUserId={currentUser.id}
-          authToken={() => getEndUserToken()} // forwarded to route tools
-          serverActions={serverActions}
-          actions={{
-            openModal: ({ name }) => setOpenDialog(name),
-          }}
-        >
-          {children}
-        </BetterAgentProvider>
-      </body>
-    </html>
+    <AgentProvider
+      clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
+      apiUrl={process.env.NEXT_PUBLIC_BETTERAGENT_API_URL}
+      endUserId={user.id}
+      authToken={{ Authorization: \`Bearer \${sessionToken}\` }}
+    >
+      {children}
+    </AgentProvider>
   );
 }`}
         </DarkCode>
@@ -174,7 +172,7 @@ export default function RootLayout({ children }) {
   return (
     <html>
       <body>
-        <BetterAgentProvider ...>
+        <AgentProvider ...>
           <div className="flex h-screen">
             <main className="flex-1 overflow-y-auto">{children}</main>
             <ChatSidebar
@@ -185,7 +183,7 @@ export default function RootLayout({ children }) {
               ]}
             />
           </div>
-        </BetterAgentProvider>
+        </AgentProvider>
       </body>
     </html>
   );

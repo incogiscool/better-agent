@@ -12,7 +12,7 @@
  * not a complete anti-abuse solution.
  */
 
-const ALLOWED_HEADERS = "authorization, content-type, x-end-user-token, accept";
+const ALLOWED_HEADERS = "authorization, content-type, x-end-user-token, x-end-user-headers, accept";
 const ALLOWED_METHODS = "POST, OPTIONS";
 
 /** Reduce a URL/origin string to its `scheme://host[:port]` form, or null. */

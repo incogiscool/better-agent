@@ -82,10 +82,9 @@ export function generateServerActionsFile(
 ): string {
   if (selected.length === 0) {
     return [
-      `import { defineServerAction } from "betteragent-next";`,
+      `"use server";`,
       ``,
       `// No server actions selected. Run betteragent discover to add some.`,
-      `export const serverActions = [];`,
     ].join("\n");
   }
 
@@ -93,8 +92,7 @@ export function generateServerActionsFile(
   const wrapped = selected.filter((c) => c.alreadyWrapped);
   const plain = selected.filter((c) => !c.alreadyWrapped);
 
-  const lines: string[] = [];
-  const finalVarNames: string[] = [];
+  const lines: string[] = [`"use server";`, ``];
 
   if (plain.length > 0) {
     lines.push(`import { z } from "zod";`);
@@ -111,14 +109,9 @@ export function generateServerActionsFile(
   // Imports for already-wrapped (group by file)
   const wrappedByFile = groupByFile(wrapped);
   if (wrappedByFile.size > 0) {
-    if (lines.length > 0) lines.push(`import { defineServerAction } from "betteragent-next";`);
-    // Remove duplicate import if already added
-    const dedupedLines = lines.filter(
-      (l, i, arr) => l !== `import { defineServerAction } from "betteragent-next";` || arr.indexOf(l) === i,
-    );
-    lines.length = 0;
-    lines.push(...dedupedLines);
-
+    if (plain.length === 0) {
+      lines.push(`import { defineServerAction } from "betteragent-next";`);
+    }
     for (const [filePath, candidates] of wrappedByFile) {
       const names = candidates.map((c) => c.exportName).join(", ");
       lines.push(`import { ${names} } from "${relImport(cwd, filePath)}";`);
@@ -127,10 +120,9 @@ export function generateServerActionsFile(
 
   lines.push(``);
 
-  // Wrapped definitions for plain functions
+  // Wrapped definitions for plain functions — each exported individually
   for (const c of plain) {
     const varName = c.exportName + "Action";
-    finalVarNames.push(varName);
     lines.push(
       `export const ${varName} = defineServerAction({`,
       `  name: "${c.exportName}",`,
@@ -142,13 +134,63 @@ export function generateServerActionsFile(
     );
   }
 
-  // Already-wrapped are imported directly
-  for (const c of wrapped) {
-    finalVarNames.push(c.exportName);
+  // Already-wrapped are re-exported individually
+  if (wrapped.length > 0) {
+    const names = wrapped.map((c) => c.exportName).join(", ");
+    lines.push(`export { ${names} };`, ``);
   }
 
-  lines.push(`export const serverActions = [${finalVarNames.join(", ")}];`);
   return lines.join("\n");
+}
+
+/**
+ * Generate the AgentProvider wrapper component. It lives in a "use client"
+ * file and does `import *` from the "use server" actions file — this is the
+ * pattern that avoids all the Server→Client serialization boundary issues.
+ * Generated once during `betteragent init`; never needs updating when actions change.
+ */
+export function generateProviderComponent(
+  serverActionsFilePath: string,
+  providerFilePath: string,
+): string {
+  const rel = path.relative(path.dirname(providerFilePath), serverActionsFilePath)
+    .replace(/\.(tsx?)$/, "")
+    .replace(/\\/g, "/");
+  const importPath = rel.startsWith(".") ? rel : "./" + rel;
+
+  return [
+    `"use client";`,
+    ``,
+    `import { BetterAgentProvider } from "betteragent-react";`,
+    `import type { AuthToken } from "betteragent-react";`,
+    `import * as serverActions from "${importPath}";`,
+    ``,
+    `export function AgentProvider({`,
+    `  children,`,
+    `  clientKey,`,
+    `  apiUrl,`,
+    `  endUserId,`,
+    `  authToken,`,
+    `}: {`,
+    `  children: React.ReactNode;`,
+    `  clientKey: string;`,
+    `  apiUrl?: string;`,
+    `  endUserId: string;`,
+    `  authToken?: AuthToken;`,
+    `}) {`,
+    `  return (`,
+    `    <BetterAgentProvider`,
+    `      clientKey={clientKey}`,
+    `      apiUrl={apiUrl}`,
+    `      endUserId={endUserId}`,
+    `      authToken={authToken}`,
+    `      serverActions={serverActions}`,
+    `    >`,
+    `      {children}`,
+    `    </BetterAgentProvider>`,
+    `  );`,
+    `}`,
+  ].join("\n");
 }
 
 export function generateActionsTemplate(): string {

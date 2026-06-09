@@ -1,15 +1,16 @@
-import { spawnSync } from "node:child_process";
 import { promises as fs } from "node:fs";
-import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { defineCommand } from "citty";
 import pc from "picocolors";
 import prompts from "prompts";
 import { log, fail } from "../logger";
-import { readCredential } from "../config/credentials";
+import { readCredential, DEFAULT_API_URL } from "../config/credentials";
 import { readProjectConfig, DEFAULT_FILES } from "../config/project";
 import { runDiscovery } from "../discovery/run-discovery";
-import { generateRoutesFile, generateServerActionsFile, generateActionsTemplate } from "../generator/tool-files";
+import { generateRoutesFile, generateServerActionsFile, generateProviderComponent, generateActionsTemplate } from "../generator/tool-files";
+import { installOne } from "./add";
+import { makeRegistryClient } from "../registry/client";
+import { getInstalled } from "../registry/tracker";
 
 const VARIANTS = [
   { title: "sidebar     — right-side panel, always visible",   value: "sidebar" },
@@ -68,18 +69,14 @@ export const initCommand = defineCommand({
       component = res.component as string;
     }
 
-    // Run `betteragent add <component>` via the built CLI entry point so the
-    // full add flow (manifest fetch, file write, shadcn install) runs.
     log.plain("");
     log.step(`Installing ${pc.bold(component)} component…`);
 
-    const cliEntry = fileURLToPath(new URL("../cli.js", import.meta.url));
-    const addResult = spawnSync("node", [cliEntry, "add", component, "--cwd", cwd], {
-      stdio: "inherit",
-    });
-    if (addResult.status !== 0) {
-      log.warn("`betteragent add` exited with an error. Continuing…");
-    }
+    const { config } = await readProjectConfig(cwd);
+    const apiUrl = config.apiUrl ?? process.env.BETTERAGENT_API_URL ?? credential.apiUrl ?? DEFAULT_API_URL;
+    const registry = makeRegistryClient(apiUrl);
+    const installed = await getInstalled(cwd);
+    await installOne({ name: component, cwd, overwrite: false, dryRun: false, registry, installed });
 
     // ── Step 3: discover tools ────────────────────────────────────────────
     log.plain("");
@@ -96,15 +93,26 @@ export const initCommand = defineCommand({
       wantDiscover = res.want as boolean;
     }
 
+    // Always resolve provider path — generated whether or not discovery runs.
+    const providerPath = path.resolve(cwd, config.files?.provider ?? DEFAULT_FILES.provider);
+    const serverActionsPath = path.resolve(cwd, config.files?.serverActions ?? DEFAULT_FILES.serverActions);
+
     if (wantDiscover) {
       await runDiscovery({ cwd, yes });
+      // Generate provider after discovery (server actions file now exists).
+      const providerExists = await fs.access(providerPath).then(() => true).catch(() => false);
+      if (!providerExists) {
+        await fs.mkdir(path.dirname(providerPath), { recursive: true });
+        await fs.writeFile(providerPath, generateProviderComponent(serverActionsPath, providerPath), "utf-8");
+        log.success(`${path.relative(cwd, providerPath)} ${pc.dim("(AgentProvider)")}`);
+      }
     } else {
       // Write minimal empty tool files so sync has something to load.
-      const { config } = await readProjectConfig(cwd);
       const filePaths = {
         routes: path.resolve(cwd, config.files?.routes ?? DEFAULT_FILES.routes),
         serverActions: path.resolve(cwd, config.files?.serverActions ?? DEFAULT_FILES.serverActions),
         actions: path.resolve(cwd, config.files?.actions ?? DEFAULT_FILES.actions),
+        provider: path.resolve(cwd, config.files?.provider ?? DEFAULT_FILES.provider),
       };
       for (const [key, dest] of Object.entries(filePaths)) {
         const exists = await fs.access(dest).then(() => true).catch(() => false);
@@ -112,9 +120,11 @@ export const initCommand = defineCommand({
           let content = "";
           if (key === "routes") content = generateRoutesFile(cwd, []);
           else if (key === "serverActions") content = generateServerActionsFile(cwd, []);
+          else if (key === "provider") content = generateProviderComponent(filePaths.serverActions, dest);
           else content = generateActionsTemplate();
+          await fs.mkdir(path.dirname(dest), { recursive: true });
           await fs.writeFile(dest, content, "utf-8");
-          log.success(`${path.relative(cwd, dest)} ${pc.dim("(empty)")}`);
+          log.success(`${path.relative(cwd, dest)} ${pc.dim(key === "provider" ? "(AgentProvider)" : "(empty)")}`);
         }
       }
       log.hint("Run `betteragent discover` when you're ready to expose routes and server actions.");
@@ -177,6 +187,7 @@ export const initCommand = defineCommand({
           routes: `./${DEFAULT_FILES.routes}`,
           serverActions: `./${DEFAULT_FILES.serverActions}`,
           actions: `./${DEFAULT_FILES.actions}`,
+          provider: `./${DEFAULT_FILES.provider}`,
         },
       };
       await fs.writeFile(configPath, JSON.stringify(config, null, 2) + "\n", "utf-8");
@@ -189,21 +200,18 @@ export const initCommand = defineCommand({
     log.plain(`
 ${pc.bold("  ✓ Done! Here's what to do next:")}
 
-  ${pc.dim("1.")} Wrap your app with ${pc.bold("<BetterAgentProvider>")} from ${pc.cyan("betteragent-react")}.
-     Import ${pc.yellow("serverActions")} from your tool file so server-action tools are dispatched:
+  ${pc.dim("1.")} Wrap your app with ${pc.bold("<AgentProvider>")} from the generated provider component:
 
-       ${pc.dim("import")} { BetterAgentProvider } ${pc.dim("from")} ${pc.green('"betteragent-react"')};
-       ${pc.dim("import")} { serverActions } ${pc.dim("from")} ${pc.green('"./server-actions.betteragent"')};
+       ${pc.dim("import")} { ${pc.yellow("AgentProvider")} } ${pc.dim("from")} ${pc.green('"@/components/betteragent-provider"')};
 
-       ${pc.dim("<")}${pc.cyan("BetterAgentProvider")}
+       ${pc.dim("<")}${pc.cyan("AgentProvider")}
          clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
          apiUrl={process.env.NEXT_PUBLIC_BETTERAGENT_API_URL}
          endUserId={currentUser.id}
-         serverActions={serverActions}
-         actions={{ ${pc.dim("/* your client action handlers here */")} }}
+         authToken=${pc.dim("{/* string token or { Authorization: \`Bearer \${token}\` } */}")}
        ${pc.dim(">")}
          {children}
-       ${pc.dim("</")}${pc.cyan("BetterAgentProvider")}${pc.dim(">")}
+       ${pc.dim("</")}${pc.cyan("AgentProvider")}${pc.dim(">")}
 
   ${pc.dim("2.")} Render the installed chat component somewhere in your layout.
      The provider only supplies context — it renders no UI on its own.

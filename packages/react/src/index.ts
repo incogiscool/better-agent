@@ -32,7 +32,7 @@ export type {
   ChatError,
   ActionHandler,
   ActionRegistry,
-  AuthTokenInput,
+  AuthToken,
   BetterAgentConfig,
   SendOptions,
 } from "./types.js";

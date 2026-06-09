@@ -1,22 +1,12 @@
-import type { ChatEvent } from "../types.js";
+import type { AuthToken, ChatEvent } from "../types.js";
 import { newIdempotencyKey } from "../utils/idempotency.js";
 import { parseSseStream } from "./sse.js";
-
-/**
- * Resolves the end-user auth token. Either a static string or a (possibly
- * async) getter, so the host app can return a fresh token per request. The
- * token is forwarded verbatim to route tools as their `Authorization` header,
- * so it should be whatever your backend expects to authenticate the end user.
- */
-export type AuthTokenInput =
-  | string
-  | (() => string | null | undefined | Promise<string | null | undefined>);
 
 export type ChatClientOptions = {
   clientKey: string;
   apiUrl?: string;
   endUserId: string;
-  authToken?: AuthTokenInput;
+  authToken?: AuthToken;
   fetch?: typeof fetch;
 };
 
@@ -41,7 +31,7 @@ export type ExecuteResultOptions =
       signal?: AbortSignal;
     };
 
-const DEFAULT_API_URL = "https://api.betteragent.dev";
+const DEFAULT_API_URL = "https://www.betteragent.dev";
 
 export class ChatClientError extends Error {
   status: number;
@@ -69,7 +59,7 @@ export class ChatClient {
   readonly apiUrl: string;
   private readonly clientKey: string;
   private readonly endUserId: string;
-  private authToken?: AuthTokenInput;
+  private authToken?: AuthToken;
   private readonly fetcher: typeof fetch;
 
   constructor(options: ChatClientOptions) {
@@ -83,19 +73,14 @@ export class ChatClient {
     this.fetcher = options.fetch ?? fetch.bind(globalThis);
   }
 
-  /**
-   * Update the end-user auth token source. Lets a long-lived client pick up a
-   * new token (e.g. after sign-in) without being recreated.
-   */
-  setAuthToken(authToken?: AuthTokenInput): void {
+  setAuthToken(authToken?: AuthToken): void {
     this.authToken = authToken;
   }
 
-  private async resolveAuthToken(): Promise<string | null> {
+  private async resolveAuthToken(): Promise<string | Record<string, string> | null> {
     const source = this.authToken;
     if (!source) return null;
-    const value = typeof source === "function" ? await source() : source;
-    return value ? value : null;
+    return typeof source === "function" ? (await source()) ?? null : source;
   }
 
   async startChat(opts: StartChatOptions): Promise<AsyncIterable<ChatEvent>> {
@@ -146,11 +131,14 @@ export class ChatClient {
       "Content-Type": "application/json",
       Accept: "text/event-stream",
     };
-    // Forward the end-user's auth token so route tools can call the host
-    // backend as the logged-in user. Without it, route tools hit the host
-    // backend unauthenticated.
-    const endUserToken = await this.resolveAuthToken();
-    if (endUserToken) headers["x-end-user-token"] = endUserToken;
+
+    const resolved = await this.resolveAuthToken();
+    if (typeof resolved === "string") {
+      headers["x-end-user-token"] = resolved;
+    } else if (resolved && Object.keys(resolved).length > 0) {
+      headers["x-end-user-headers"] = JSON.stringify(resolved);
+    }
+
     return headers;
   }
 

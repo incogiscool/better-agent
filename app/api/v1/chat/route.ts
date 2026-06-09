@@ -90,6 +90,19 @@ export async function POST(req: NextRequest) {
   // Per-end-user fairness limit so one user can't starve the project. Keyed by
   // the forwarded end-user token when present (forge-resistant), else endUserId.
   const endUserToken = req.headers.get("x-end-user-token");
+  const endUserHeadersRaw = req.headers.get("x-end-user-headers");
+  let endUserHeaders: Record<string, string> | null = null;
+  if (endUserHeadersRaw) {
+    try {
+      const parsed = JSON.parse(endUserHeadersRaw);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        endUserHeaders = parsed as Record<string, string>;
+      }
+    } catch {
+      // malformed — ignore and fall through to endUserToken
+    }
+  }
+
   const userRl = await checkRateLimit(
     chatLimiter,
     endUserRateKey(clientKey, endUserToken, endUserId),
@@ -183,6 +196,7 @@ export async function POST(req: NextRequest) {
     conversationId,
     endUserId,
     endUserToken,
+    endUserHeaders,
     history,
   });
 

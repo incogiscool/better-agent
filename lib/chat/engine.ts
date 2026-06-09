@@ -6,6 +6,7 @@ import {
   insertPendingExecution,
   markConversationAbandoned,
   saveAssistantMessage,
+  saveToolResultMessage,
 } from "./conversations";
 import { makeSseController, type SseController } from "./streaming";
 import { assembleSystemPrompt } from "./systemPrompt";
@@ -22,6 +23,7 @@ export type ChatTurnContext = {
   conversationId: string;
   endUserId: string;
   endUserToken: string | null;
+  endUserHeaders: Record<string, string> | null;
   history: ModelMessage[];
 };
 
@@ -34,6 +36,11 @@ type CollectedToolCall = {
   toolCallId: string;
   toolName: string;
   input: unknown;
+};
+
+type CollectedToolResult = {
+  toolCallId: string;
+  output: unknown;
 };
 
 export function runChatTurn(ctx: ChatTurnContext): ChatTurnResult {
@@ -75,6 +82,7 @@ async function orchestrate(
     projectId: ctx.project.id,
     baseUrl: ctx.project.baseUrl,
     endUserToken: ctx.endUserToken,
+    endUserHeaders: ctx.endUserHeaders,
     conversationId: ctx.conversationId,
   });
 
@@ -85,6 +93,7 @@ async function orchestrate(
 
   let assistantText = "";
   const collectedToolCalls: CollectedToolCall[] = [];
+  const collectedToolResults: CollectedToolResult[] = [];
   let aborted = false;
 
   const result = streamText({
@@ -185,6 +194,10 @@ async function orchestrate(
         }
 
         case "tool-result":
+          collectedToolResults.push({
+            toolCallId: part.toolCallId,
+            output: part.output,
+          });
           sse.send({
             event: "tool_result",
             data: {
@@ -196,6 +209,10 @@ async function orchestrate(
           break;
 
         case "tool-error":
+          collectedToolResults.push({
+            toolCallId: part.toolCallId,
+            output: { error: String(part.error) },
+          });
           sse.send({
             event: "tool_result",
             data: {
@@ -222,9 +239,23 @@ async function orchestrate(
       );
     }
 
+    // Persist results for server-executed (route) tools so the next turn's
+    // history pairs each tool-call with its tool-result. Without this the SDK
+    // throws AI_MissingToolResultsError on replay. Saved after the assistant
+    // message so loadHistory (ordered by createdAt) keeps call-before-result
+    // order. client_invocation results are saved later via /v1/execute-result.
+    for (const r of collectedToolResults) {
+      await saveToolResultMessage(ctx.conversationId, r.toolCallId, r.output);
+    }
+
     sse.send({ event: "done", data: { conversationId: ctx.conversationId } });
   } catch (err) {
-    sse.send({ event: "error", data: { message: (err as Error).message } });
+    // When we break early for a client_invocation, the AI SDK throws
+    // AI_MissingToolResultsError because it sees an unresolved tool call.
+    // That's expected — don't surface it as an error to the client.
+    if (!aborted) {
+      sse.send({ event: "error", data: { message: (err as Error).message } });
+    }
   } finally {
     sse.close();
   }

@@ -131,11 +131,25 @@ export async function POST(req: NextRequest) {
 
   const history = await loadHistory(conv.id);
 
+  let endUserHeaders: Record<string, string> | null = null;
+  const endUserHeadersRaw = req.headers.get("x-end-user-headers");
+  if (endUserHeadersRaw) {
+    try {
+      const parsedHeaders = JSON.parse(endUserHeadersRaw);
+      if (parsedHeaders && typeof parsedHeaders === "object" && !Array.isArray(parsedHeaders)) {
+        endUserHeaders = parsedHeaders as Record<string, string>;
+      }
+    } catch {
+      // malformed — ignore and fall through to endUserToken
+    }
+  }
+
   const { stream } = runChatTurn({
     project,
     conversationId: conv.id,
     endUserId: conv.endUserId,
     endUserToken: req.headers.get("x-end-user-token"),
+    endUserHeaders,
     history,
   });
 

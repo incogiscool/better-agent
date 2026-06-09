@@ -22,6 +22,19 @@ export type BuiltTools = {
   meta: Map<string, ToolMeta>;
 };
 
+function resolveEndUserHeaders(
+  endUserHeaders: Record<string, string> | null,
+  endUserToken: string | null,
+): Record<string, string> {
+  if (endUserHeaders && Object.keys(endUserHeaders).length > 0) {
+    return endUserHeaders;
+  }
+  if (endUserToken) {
+    return { authorization: `Bearer ${endUserToken}` };
+  }
+  return {};
+}
+
 const TRUNCATION_SUFFIX = "\n[...truncated]";
 const ROUTE_TIMEOUT_MS = 30_000;
 
@@ -36,6 +49,7 @@ async function executeRouteFetch(args: {
   method: string;
   path: string;
   endUserToken: string | null;
+  endUserHeaders: Record<string, string> | null;
   input: unknown;
   signal: AbortSignal;
 }): Promise<{ ok: boolean; status: number | null; body: unknown; raw: string }> {
@@ -48,8 +62,10 @@ async function executeRouteFetch(args: {
   // SSRF guard: reject internal/metadata targets before making the request.
   await assertSafeOutboundUrl(url);
 
-  const headers: Record<string, string> = { "content-type": "application/json" };
-  if (args.endUserToken) headers["authorization"] = `Bearer ${args.endUserToken}`;
+  const headers: Record<string, string> = {
+    "content-type": "application/json",
+    ...resolveEndUserHeaders(args.endUserHeaders, args.endUserToken),
+  };
 
   const upperMethod = args.method.toUpperCase();
   const hasBody = upperMethod !== "GET" && upperMethod !== "HEAD";
@@ -78,6 +94,7 @@ export async function buildToolSet(args: {
   projectId: string;
   baseUrl: string | null;
   endUserToken: string | null;
+  endUserHeaders: Record<string, string> | null;
   conversationId: string;
 }): Promise<BuiltTools> {
   const dbTools = await prisma.tool.findMany({
@@ -145,6 +162,7 @@ export async function buildToolSet(args: {
               method,
               path,
               endUserToken: args.endUserToken,
+              endUserHeaders: args.endUserHeaders,
               input,
               signal: ctrl.signal,
             });

@@ -71,25 +71,27 @@ export type ActionHandler = (input: any) => Promise<unknown> | unknown;
 export type ActionRegistry = Record<string, ActionHandler>;
 
 /**
- * Resolves the end-user's auth token. Either a static string or a (possibly
- * async) getter so the host app can supply a fresh token per request.
+ * Auth forwarded to your route tools when the agent calls them.
+ *
+ * - Pass a **string** to forward it as `Authorization: Bearer <token>`.
+ * - Pass a **headers object** to forward it verbatim (any header name/format):
+ *     { Authorization: `Bearer ${token}` }
+ *     { "X-Api-Key": key }
+ *
+ * Both forms also accept a function (sync or async) for dynamic/refreshed
+ * values — but functions can only be used inside Client Components and cannot
+ * be passed as props from a Server Component.
  */
-export type AuthTokenInput =
+export type AuthToken =
   | string
-  | (() => string | null | undefined | Promise<string | null | undefined>);
+  | Record<string, string>
+  | (() => string | Record<string, string> | Promise<string | Record<string, string>>);
 
 export type BetterAgentConfig = {
   clientKey: string;
   apiUrl?: string;
   endUserId: string;
-  /**
-   * The end user's auth token, forwarded to route tools as their
-   * `Authorization` header so they call your backend as the logged-in user.
-   * Strongly recommended whenever your agent exposes route tools that read or
-   * mutate per-user data. Without it, route tools call your backend with no
-   * caller identity.
-   */
-  authToken?: AuthTokenInput;
+  authToken?: AuthToken;
   /**
    * Client actions: pure browser effects (open modal, navigate, refresh).
    * Keyed by tool name.

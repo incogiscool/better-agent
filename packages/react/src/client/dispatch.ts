@@ -84,18 +84,29 @@ function collectServerActions(
 ): Record<string, ActionHandler> {
   if (!input) return {};
 
-  if (Array.isArray(input)) {
-    const out: Record<string, ActionHandler> = {};
-    for (const entry of input) {
-      const meta = readMetadata(entry);
-      if (meta && typeof entry === "function") {
-        out[meta.name] = entry as ActionHandler;
-      }
+  // Both the array form and the namespace/record form (e.g.
+  // `import * as serverActions`) carry `defineServerAction` callables tagged
+  // with TOOL_METADATA. Key by the metadata `name` (the *tool* name) rather
+  // than the object key, because the export name usually differs from the tool
+  // name (e.g. `export const createTaskActionAction = defineServerAction({
+  // name: "createTaskAction" })`). Keying by export name would make
+  // resolve("createTaskAction") miss and post "No handler registered".
+  const entries = Array.isArray(input) ? input : Object.values(input);
+  const out: Record<string, ActionHandler> = {};
+  for (const entry of entries) {
+    const meta = readMetadata(entry);
+    if (meta && typeof entry === "function") {
+      out[meta.name] = entry as ActionHandler;
     }
-    return out;
   }
 
-  return input as Record<string, ActionHandler>;
+  // Fallback: a plain, manually-built name-keyed map (no metadata-tagged
+  // values) is a documented form — use it directly.
+  if (Object.keys(out).length === 0 && !Array.isArray(input)) {
+    return input as Record<string, ActionHandler>;
+  }
+
+  return out;
 }
 
 function readMetadata(value: unknown): { name: string } | null {

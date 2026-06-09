@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  outputFileTracingIncludes: {
+    "/registry/components/(.*)": ["./components/chat/**/*"],
+  },
 };
 
 export default nextConfig;

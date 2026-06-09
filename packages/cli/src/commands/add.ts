@@ -33,6 +33,10 @@ export const addCommand = defineCommand({
       type: "boolean",
       description: "Show what would be installed without writing files.",
     },
+    "api-url": {
+      type: "string",
+      description: "API URL override (or set BETTERAGENT_API_URL).",
+    },
   },
   async run({ args }) {
     const cwd = path.resolve((args.cwd as string | undefined) ?? process.cwd());
@@ -42,8 +46,9 @@ export const addCommand = defineCommand({
     const { config } = await readProjectConfig(cwd);
     const credential = await readCredential();
     const apiUrl =
-      config.apiUrl ??
+      (args["api-url"] as string | undefined) ??
       process.env.BETTERAGENT_API_URL ??
+      config.apiUrl ??
       credential?.apiUrl ??
       DEFAULT_API_URL;
 
@@ -96,7 +101,7 @@ export const addCommand = defineCommand({
   },
 });
 
-async function installOne({
+export async function installOne({
   name, cwd, overwrite, dryRun, registry, installed,
 }: {
   name: string;

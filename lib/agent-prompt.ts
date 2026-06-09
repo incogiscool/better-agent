@@ -25,6 +25,11 @@ Sidebar is a good default for most apps.
 
   npx betteragent init
 
+This generates:
+- Tool files (routes.betteragent.ts, server-actions.betteragent.ts, actions.betteragent.ts)
+- components/betteragent-provider.tsx — a ready-to-use <AgentProvider> wrapper
+- Adds NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY to .env.local
+
 ## Step 4: Discover tools
 
 Scan the project for existing Next.js routes and server actions:
@@ -42,43 +47,54 @@ Push the tool definitions to the BetterAgent backend:
 
 ## Step 6: Add the provider
 
-In the root layout (e.g. app/layout.tsx), wrap children with
-BetterAgentProvider. Replace endUserId with the authenticated user's
-real ID from your auth system.
+Import the generated AgentProvider (in components/betteragent-provider.tsx)
+and wrap children with it in the dashboard or root layout.
 
-If the agent exposes route tools that read or write per-user data,
-pass authToken — a string or (async) getter for the end user's token.
-The chat engine forwards it to your routes as the Authorization header
-so they run as the logged-in user. Without it, route tools call your
-backend with no caller identity.
+Replace endUserId with the authenticated user's real ID from your auth system.
 
-  import { BetterAgentProvider } from "betteragent-react";
-  import { serverActions } from "./server-actions.betteragent";
+If the agent exposes route tools that read or write per-user data, pass
+authToken so the engine can authenticate requests to your backend on behalf
+of the logged-in user:
 
-  export default function RootLayout({ children }) {
+  - String: forwarded as Authorization: Bearer <token>
+  - Object: forwarded verbatim — use this when your backend expects a
+    specific header format or non-Bearer scheme:
+      authToken={{ Authorization: \`Bearer \${sessionToken}\` }}
+      authToken={{ "X-Api-Key": apiKey }}
+  - Function (Client Component only): called per-request for refreshed tokens
+
+For session-cookie-based auth (e.g. iron-session, custom cookies), read
+the cookie server-side and pass it as an object:
+
+  import { cookies } from "next/headers";
+  const sessionToken = (await cookies()).get("session")?.value;
+
+  <AgentProvider
+    ...
+    authToken={{ Authorization: \`Bearer \${sessionToken}\` }}
+  >
+
+Your route handlers must accept this header to authenticate agent requests.
+Browser requests using cookies are unaffected — only agent calls use the header.
+
+Full layout example:
+
+  import { AgentProvider } from "@/components/betteragent-provider";
+
+  export default async function Layout({ children }) {
+    const user = await requireUser();
+    const sessionToken = (await cookies()).get("session")?.value;
     return (
-      <html>
-        <body>
-          <BetterAgentProvider
-            clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
-            apiUrl={process.env.NEXT_PUBLIC_BETTERAGENT_API_URL}
-            endUserId="user-id-here"
-            authToken={() => getEndUserToken()} // forwarded to route tools
-            serverActions={serverActions}
-          >
-            {children}
-          </BetterAgentProvider>
-        </body>
-      </html>
+      <AgentProvider
+        clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
+        apiUrl={process.env.NEXT_PUBLIC_BETTERAGENT_API_URL}
+        endUserId={user.id}
+        authToken={{ Authorization: \`Bearer \${sessionToken}\` }}
+      >
+        {children}
+      </AgentProvider>
     );
   }
-
-Add to .env.local:
-
-  NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY=ba_client_...
-
-The clientKey (ba_client_...) is safe to expose publicly.
-Never expose the secretKey (ba_secret_...) in client-side code.
 
 Also import and render the chat component that betteragent init installed.
 The provider supplies context but renders no UI on its own. For the sidebar
@@ -115,6 +131,13 @@ Tool files teach the agent what it can do. Three file types:
 
 ### server-actions.betteragent.ts — Next.js Server Actions
 
+This file has "use server" at the top. Handlers must be imported from your
+own "use server" files — do not define them inline. Export each action
+individually; do not export an array. The generated AgentProvider imports
+this file automatically.
+
+  "use server";
+
   import { defineServerAction } from "betteragent-next";
   import { z } from "zod";
   import { updateProfile } from "@/app/actions/profile";
@@ -129,8 +152,6 @@ Tool files teach the agent what it can do. Three file types:
     }),
     handler: updateProfile,
   });
-
-  export const serverActions = [updateUserProfile];
 
 ### actions.betteragent.ts — Browser-side effects
 
@@ -148,11 +169,11 @@ Tool files teach the agent what it can do. Three file types:
 
   export const actions = [openModal];
 
-Register client actions in BetterAgentProvider:
+Register client actions in AgentProvider via the actions prop (add it to
+the generated components/betteragent-provider.tsx):
 
   <BetterAgentProvider
-    clientKey={...}
-    endUserId={...}
+    ...
     actions={{
       openModal: ({ name }) => setOpenDialog(name),
     }}

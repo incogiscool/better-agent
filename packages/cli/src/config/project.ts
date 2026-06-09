@@ -10,6 +10,7 @@ const projectConfigSchema = z.object({
       routes: z.string().optional(),
       serverActions: z.string().optional(),
       actions: z.string().optional(),
+      provider: z.string().optional(),
     })
     .optional(),
 });
@@ -20,12 +21,14 @@ export const DEFAULT_FILES = {
   routes: "routes.betteragent.ts",
   serverActions: "server-actions.betteragent.ts",
   actions: "actions.betteragent.ts",
+  provider: "components/betteragent-provider.tsx",
 } as const;
 
 export type ResolvedFiles = {
   routes: string;
   serverActions: string;
   actions: string;
+  provider: string;
 };
 
 const CONFIG_FILENAME = "betteragent.config.json";
@@ -62,10 +65,8 @@ export function resolveFilePaths(
 ): ResolvedFiles {
   return {
     routes: path.resolve(cwd, files?.routes ?? DEFAULT_FILES.routes),
-    serverActions: path.resolve(
-      cwd,
-      files?.serverActions ?? DEFAULT_FILES.serverActions,
-    ),
+    serverActions: path.resolve(cwd, files?.serverActions ?? DEFAULT_FILES.serverActions),
     actions: path.resolve(cwd, files?.actions ?? DEFAULT_FILES.actions),
+    provider: path.resolve(cwd, files?.provider ?? DEFAULT_FILES.provider),
   };
 }
