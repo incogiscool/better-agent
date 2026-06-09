@@ -120,6 +120,39 @@ export function defineServerAction<TInput, TOutput>(
 }
 
 /**
+ * Build a `{ [toolName]: handler }` map from a "use server" namespace import.
+ * Call this in a Server Component so TOOL_METADATA symbols are still present —
+ * they are stripped when server action references cross to the client.
+ *
+ * ```ts
+ * // betteragent-provider.tsx  (Server Component — no "use client")
+ * import * as serverActions from "./server-actions.betteragent";
+ * const map = buildServerActionMap(serverActions);
+ * return <BetterAgentProvider serverActions={map} ...>
+ * ```
+ */
+export function buildServerActionMap(
+  mod: Record<string, unknown>,
+): Record<string, (...args: unknown[]) => Promise<unknown>> {
+  const out: Record<string, (...args: unknown[]) => Promise<unknown>> = {};
+  for (const value of Object.values(mod)) {
+    if (typeof value !== "function") continue;
+    const meta = (value as unknown as Record<symbol, unknown>)[TOOL_METADATA];
+    if (
+      meta &&
+      typeof meta === "object" &&
+      "name" in meta &&
+      typeof (meta as { name: unknown }).name === "string"
+    ) {
+      out[(meta as { name: string }).name] = value as (
+        ...args: unknown[]
+      ) => Promise<unknown>;
+    }
+  }
+  return out;
+}
+
+/**
  * Declare a client-side action — a pure browser effect like opening a modal,
  * navigating, or refreshing UI. The agent emits an `action_call` event and the
  * React SDK dispatches it locally.

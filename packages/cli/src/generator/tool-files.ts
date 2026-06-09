@@ -162,12 +162,13 @@ export function generateProviderComponent(
   const importPath = rel.startsWith(".") ? rel : "./" + rel;
 
   return [
-    `"use client";`,
-    ``,
+    `import { buildServerActionMap } from "betteragent-next";`,
     `import { BetterAgentProvider } from "betteragent-react";`,
     `import type { AuthToken } from "betteragent-react";`,
     `import * as serverActions from "${importPath}";`,
     ``,
+    `// Server Component — no "use client". buildServerActionMap reads tool`,
+    `// metadata here on the server before symbols are stripped at the boundary.`,
     `export function AgentProvider({`,
     `  children,`,
     `  clientKey,`,
@@ -187,7 +188,7 @@ export function generateProviderComponent(
     `      apiUrl={apiUrl}`,
     `      endUserId={endUserId}`,
     `      authToken={authToken}`,
-    `      serverActions={serverActions}`,
+    `      serverActions={buildServerActionMap(serverActions)}`,
     `    >`,
     `      {children}`,
     `    </BetterAgentProvider>`,

@@ -1,4 +1,4 @@
-export { defineRoute, defineServerAction, defineAction } from "./define";
+export { defineRoute, defineServerAction, defineAction, buildServerActionMap } from "./define";
 export { TOOL_METADATA } from "./symbols";
 export type {
   ToolMetadata,
