@@ -1,6 +1,6 @@
 {
   "name": "betteragent-next",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Define tools, server actions, and client actions for BetterAgent in Next.js.",
   "license": "MIT",
   "repository": {
