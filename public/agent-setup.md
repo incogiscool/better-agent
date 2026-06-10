@@ -45,16 +45,38 @@ npx betteragent discover
 Review the generated files and remove any routes the agent should not
 access (admin-only endpoints, internal APIs, etc.).
 
-## Step 5: Configure the Base URL (required for route tools)
+## Step 5: Configure project settings (Base URL & Allowed Origins)
+
+Both fields live in the dashboard under **Project Settings**.
+
+### Base URL (required for route tools)
 
 If `routes.betteragent.ts` exports any routes, the BetterAgent backend calls
-them server-to-server against the project's **Base URL**. Set this in the
-dashboard under **Project Settings → Base URL** (e.g. your deployed URL, or
-`http://localhost:3000` for local dev).
+them server-to-server against the project's **Base URL**. Set this to your
+deployed URL, or `http://localhost:3000` for local dev.
 
 If this is left empty, every `defineRoute` tool call fails at runtime with
 `"project baseUrl is not configured"` — even if the code and sync are correct.
-Skip this step only if `routes.betteragent.ts` has no exports.
+Skip this field only if `routes.betteragent.ts` has no exports.
+
+### Allowed Origins (CORS / client key lockdown)
+
+The chat widget authenticates with the project's **client key**, which is
+embedded in your frontend and therefore public. **Allowed Origins** is the
+allowlist of sites permitted to use that key.
+
+- **Default is empty**, which means *any* site can use the client key — fine
+  for local development, but the dashboard will show a warning until you lock
+  it down.
+- **`localhost` and `127.0.0.1` are always allowed**, at any port, even after
+  you add origins — no need to add them yourself.
+- Before shipping to production, add your production domain(s) (e.g.
+  `https://app.example.com`), one per line. Once any origin is listed, only
+  those origins (plus localhost) can use the client key.
+
+This doesn't block local dev either way — it's a production hardening step,
+not something that needs to be done before `npx betteragent sync` or testing
+locally.
 
 ## Step 6: Sync
 
