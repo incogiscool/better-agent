@@ -88,7 +88,8 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
           </label>
           <p className="text-xs text-muted-foreground">
             One origin per line (e.g. https://app.example.com). Only these sites
-            may use this project&apos;s client key. localhost is always allowed.
+            may use this project&apos;s client key. localhost is always allowed,
+            on any port.
           </p>
           <textarea
             id="allowedOrigins"
