@@ -45,7 +45,18 @@ npx betteragent discover
 Review the generated files and remove any routes the agent should not
 access (admin-only endpoints, internal APIs, etc.).
 
-## Step 5: Sync
+## Step 5: Configure the Base URL (required for route tools)
+
+If `routes.betteragent.ts` exports any routes, the BetterAgent backend calls
+them server-to-server against the project's **Base URL**. Set this in the
+dashboard under **Project Settings → Base URL** (e.g. your deployed URL, or
+`http://localhost:3000` for local dev).
+
+If this is left empty, every `defineRoute` tool call fails at runtime with
+`"project baseUrl is not configured"` — even if the code and sync are correct.
+Skip this step only if `routes.betteragent.ts` has no exports.
+
+## Step 6: Sync
 
 Push the tool definitions to the BetterAgent backend:
 
@@ -53,7 +64,7 @@ Push the tool definitions to the BetterAgent backend:
 npx betteragent sync
 ```
 
-## Step 6: Add the provider
+## Step 7: Add the provider
 
 In the root layout (e.g. `app/layout.tsx`), wrap children with the generated
 `AgentProvider`. Replace `endUserId` with the authenticated user's real ID
@@ -61,10 +72,12 @@ from your auth system.
 
 ```tsx
 // app/layout.tsx — Server Component
+import { cookies } from "next/headers";
 import { AgentProvider } from "@/components/betteragent-provider";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
+  const sessionToken = (await cookies()).get("session")?.value;
 
   return (
     <html>
@@ -73,6 +86,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
           apiUrl={process.env.NEXT_PUBLIC_BETTERAGENT_API_URL}
           endUserId={user.id}
+          authToken={{ Authorization: `Bearer ${sessionToken}` }}
         >
           {children}
         </AgentProvider>
@@ -81,6 +95,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   );
 }
 ```
+
+`authToken` is forwarded as headers on every `defineRoute` call, so route
+tools that check the caller's session/auth will work. Adjust the cookie/header
+names to match your auth setup. Omit it only if none of your route tools
+require authentication.
 
 Add the client key to `.env.local`:
 
