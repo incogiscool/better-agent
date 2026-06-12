@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, Eye, EyeSlash } from "@phosphor-icons/react";
+import posthog from "posthog-js";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,8 +53,13 @@ export function SigninForm({
       },
       {
         onSuccess: () => {
+          posthog.identify(values.email, { email: values.email });
+          posthog.capture("sign_in_completed", { method: "email" });
           router.push(callbackURL);
           router.refresh();
+        },
+        onError: (err) => {
+          posthog.captureException(err);
         },
       },
     );

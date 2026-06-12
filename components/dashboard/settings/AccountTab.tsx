@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import posthog from "posthog-js";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -228,6 +229,8 @@ export function AccountTab({ user }: { user: User }) {
               onClick={() =>
                 signOut.mutate(undefined, {
                   onSuccess: () => {
+                    posthog.capture("sign_out");
+                    posthog.reset();
                     router.push("/auth/sign-in");
                     router.refresh();
                   },

@@ -1,4 +1,5 @@
 import { type NextRequest } from "next/server";
+import { getPostHogClient } from "@/lib/posthog-server";
 import { consumeCredits, CREDIT_WEIGHTS, hasMinimumCredits } from "@/lib/billing";
 import { checkTokenCap } from "@/lib/chat/caps";
 import {
@@ -145,6 +146,11 @@ export async function POST(req: NextRequest) {
 
   const hasCredits = await hasMinimumCredits(project.id, 1);
   if (!hasCredits) {
+    getPostHogClient().capture({
+      distinctId: project.id,
+      event: "chat_credit_limit_reached",
+      properties: { project_id: project.id, end_user_id: endUserId },
+    });
     return json({ error: "Credit limit reached" }, 402);
   }
 
@@ -179,8 +185,18 @@ export async function POST(req: NextRequest) {
       conversationId,
     });
     if (!start.ok) {
+      getPostHogClient().capture({
+        distinctId: project.id,
+        event: "chat_credit_limit_reached",
+        properties: { project_id: project.id, end_user_id: endUserId },
+      });
       return json({ error: "Credit limit reached" }, 402);
     }
+    getPostHogClient().capture({
+      distinctId: project.id,
+      event: "chat_conversation_started",
+      properties: { project_id: project.id, conversation_id: conversationId, end_user_id: endUserId },
+    });
   }
 
   if (claim?.kind === "fresh") {

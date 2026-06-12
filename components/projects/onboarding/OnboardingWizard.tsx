@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { createProjectAction } from "@/lib/actions";
+import posthog from "posthog-js";
 import { WizardShell, type Step } from "./WizardShell";
 import { StepBasics, type BasicsValue, type BasicsErrors } from "./StepBasics";
 import { StepKeys } from "./StepKeys";
@@ -73,6 +74,8 @@ export function OnboardingWizard() {
         clientKey: result.project.clientKey,
         secretKey: result.project.secretKey,
       });
+      posthog.capture("project_created", { project_id: result.project.id });
+      posthog.capture("onboarding_step_advanced", { step: "basics", next_step: "keys" });
       setStep(1);
     } finally {
       setSubmitting(false);
@@ -112,7 +115,10 @@ export function OnboardingWizard() {
             Step 2 of 4
           </span>
           <Button
-            onClick={() => setStep(2)}
+            onClick={() => {
+              posthog.capture("onboarding_step_advanced", { step: "keys", next_step: "cli" });
+              setStep(2);
+            }}
             disabled={!acknowledged}
             size="sm"
           >
@@ -138,7 +144,13 @@ export function OnboardingWizard() {
           <Button onClick={() => setStep(1)} variant="ghost" size="sm">
             Back
           </Button>
-          <Button onClick={() => setStep(3)} size="sm">
+          <Button
+            onClick={() => {
+              posthog.capture("onboarding_step_advanced", { step: "cli", next_step: "waiting" });
+              setStep(3);
+            }}
+            size="sm"
+          >
             I&apos;ve installed it
           </Button>
         </>

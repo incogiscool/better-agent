@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { Check } from "@phosphor-icons/react";
 import Link from "next/link";
 import { Button } from "../ui/button";
+import posthog from "posthog-js";
 
 export const PLANS = [
   {
@@ -25,8 +26,7 @@ export const PLANS = [
     tagline: "3x the runway, for less than a pack of gum.",
     features: [
       "1,500 credits / month",
-      "Hard-capped — no surprise charges",
-      "See your credits' dollar value",
+      "Hard-capped, no surprise charges",
       "Hosted Sonnet 4.6",
     ],
   },
@@ -35,7 +35,7 @@ export const PLANS = [
     price: "$14.99",
     unit: "/mo",
     primary: false,
-    cta: "Join waitlist",
+    cta: "Get started",
     href: "/contact",
     tagline: "For agents that need a little more room.",
     features: [
@@ -105,7 +105,11 @@ export function PricingCards() {
             ))}
           </ul>
 
-          <Link href={p.href} className={"mt-auto w-full"}>
+          <Link
+            href={p.href}
+            className={"mt-auto w-full"}
+            onClick={() => posthog.capture("pricing_plan_cta_clicked", { plan: p.name, cta: p.cta })}
+          >
             <Button
               variant={p.primary ? "default" : "outline"}
               className="mt-auto w-full"

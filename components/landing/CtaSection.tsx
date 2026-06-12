@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { DOCS_URL } from "@/lib/const/DOCS_URL";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import posthog from "posthog-js";
 
 export function CtaSection() {
   return (
@@ -26,7 +27,12 @@ export function CtaSection() {
           </p>
           <div className="flex gap-2.5 mt-3 flex-wrap justify-center">
             <Button asChild size="lg">
-              <Link href="/auth/sign-up"><Lightning size={14} /> Get started — free</Link>
+              <Link
+                href="/auth/sign-up"
+                onClick={() => posthog.capture("landing_cta_clicked", { label: "Get started — free" })}
+              >
+                <Lightning size={14} /> Get started — free
+              </Link>
             </Button>
             <Button asChild variant="outline" size="lg">
               <Link href={`${DOCS_URL}/quickstart`}>Read the quickstart <ArrowUpRight size={12} /></Link>

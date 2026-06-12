@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus } from "@phosphor-icons/react";
+import posthog from "posthog-js";
 import { PricingCards } from "@/components/landing/PricingCards";
 import { CtaSection } from "@/components/landing/CtaSection";
 import {
@@ -48,6 +49,10 @@ const FAQ_ITEMS = [
 ];
 
 export default function PricingPage() {
+  useEffect(() => {
+    posthog.capture("pricing_page_viewed");
+  }, []);
+
   return (
     <>
       <PricingHero />

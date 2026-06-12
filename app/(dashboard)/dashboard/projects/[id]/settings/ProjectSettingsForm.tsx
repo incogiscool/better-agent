@@ -5,6 +5,7 @@ import {
   regenerateProjectKeysAction,
   updateProjectSettingsAction,
 } from "@/lib/actions";
+import posthog from "posthog-js";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type {
@@ -47,7 +48,11 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
 
   return (
     <div className="space-y-8">
-      <form action={updateFormAction} className="space-y-6 border border-border p-4">
+      <form
+        action={updateFormAction}
+        className="space-y-6 border border-border p-4"
+        onSubmit={() => posthog.capture("project_settings_saved", { project_id: project.id })}
+      >
         <div className="space-y-2">
           <label htmlFor="name" className="text-sm font-medium">
             Project name
@@ -146,7 +151,10 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
           </p>
         ) : null}
 
-        <form action={regenerateFormAction}>
+        <form
+          action={regenerateFormAction}
+          onSubmit={() => posthog.capture("project_keys_regenerated", { project_id: project.id })}
+        >
           <Button
             type="submit"
             variant="outline"

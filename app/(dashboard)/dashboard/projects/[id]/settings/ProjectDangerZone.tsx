@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { deleteProjectAction } from "@/lib/actions";
+import posthog from "posthog-js";
 
 interface ProjectDangerZoneProps {
   projectId: string;
@@ -48,6 +49,7 @@ export function ProjectDangerZone({
         disabled={!armed || pending}
         onClick={() => {
           startTransition(async () => {
+            posthog.capture("project_deleted", { project_id: projectId });
             await action();
           });
         }}

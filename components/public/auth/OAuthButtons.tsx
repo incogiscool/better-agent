@@ -3,6 +3,7 @@
 import { GithubLogo, GoogleLogo } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { useSocialSignIn } from "@/lib/auth/mutations";
+import posthog from "posthog-js";
 
 interface OAuthButtonsProps {
   callbackURL?: string;
@@ -18,7 +19,10 @@ export function OAuthButtons({
       <Button
         type="button"
         variant="outline"
-        onClick={() => mutate({ provider: "github", callbackURL })}
+        onClick={() => {
+          posthog.capture("oauth_sign_in_started", { provider: "github" });
+          mutate({ provider: "github", callbackURL });
+        }}
         disabled={isPending}
       >
         <GithubLogo weight="fill" />
@@ -29,7 +33,10 @@ export function OAuthButtons({
       <Button
         type="button"
         variant="outline"
-        onClick={() => mutate({ provider: "google", callbackURL })}
+        onClick={() => {
+          posthog.capture("oauth_sign_in_started", { provider: "google" });
+          mutate({ provider: "google", callbackURL });
+        }}
         disabled={isPending}
       >
         <GoogleLogo weight="fill" />
