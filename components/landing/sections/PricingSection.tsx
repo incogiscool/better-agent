@@ -10,7 +10,7 @@ export function PricingSection() {
           <h2 className={H2}>Free until your agent earns its keep.</h2>
           <p className={SUB}>
             500 credits a month on the house — ~25 conversations to prototype.
-            Pro is $39/mo with 10,000 credits. No card required.
+            Starter is $0.99/mo for 1,500 credits. No card required.
           </p>
         </div>
         <PricingCards />

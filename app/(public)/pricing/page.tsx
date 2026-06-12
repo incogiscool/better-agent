@@ -4,20 +4,47 @@ import { useState } from "react";
 import { Plus } from "@phosphor-icons/react";
 import { PricingCards } from "@/components/landing/PricingCards";
 import { CtaSection } from "@/components/landing/CtaSection";
-import { Eyebrow, WRAP, SEC, SECHEAD, H2, SUB } from "@/components/landing/primitives";
+import {
+  Eyebrow,
+  WRAP,
+  SEC,
+  SECHEAD,
+  H2,
+  SUB,
+} from "@/components/landing/primitives";
 import { cn } from "@/lib/utils";
 
 const CREDIT_EVENTS = [
-  { event: "Conversation start", credits: 2,  note: "once per new conversation" },
-  { event: "Per message",         credits: 1,  note: "each user turn" },
-  { event: "Per tool call",       credits: 3,  note: "routes + server/client actions" },
+  {
+    event: "Conversation start",
+    credits: 2,
+    note: "once per new conversation",
+  },
+  { event: "Per message", credits: 1, note: "each user turn" },
+  {
+    event: "Per tool call",
+    credits: 3,
+    note: "routes + server/client actions",
+  },
 ] as const;
 
 const FAQ_ITEMS = [
-  { q: "What happens when I hit the free limit?",  a: "Your project is hard-capped at 500 credits. The chat endpoint returns a clear error and no further billing occurs. Wait for your next monthly reset, or join the Pro waitlist." },
-  { q: "When does Pro launch?",                    a: "Pro is on the waitlist while we finish billing. Join from the pricing card above and we'll email you when it's ready." },
-  { q: "Do unused credits roll over?",             a: "No — credits reset at the start of each 30-day billing period." },
-  { q: "Are token costs hidden from me?",          a: "Yes. You pay a flat rate per event (conversation start, message, tool call). Token usage is included in the credit price on Free and Pro." },
+  {
+    q: "What happens when I hit the free limit?",
+    a: "Your project is hard-capped at 500 credits. The chat endpoint returns a clear error and no further billing occurs. Wait for your next monthly reset, or upgrade to Starter.",
+  },
+  {
+    q: "When does Plus launch?",
+    a: "Plus is on the waitlist while we finish billing. Join from the pricing card above and we'll email you when it's ready.",
+  },
+  {
+    q: "Do unused credits roll over?",
+    a: "No — credits reset at the start of each 30-day billing period.",
+  },
+  {
+    q: "Are token costs hidden from me?",
+    a: "Yes. You pay a flat rate per event (conversation start, message, tool call). Token usage is included in the credit price on Free and Starter.",
+  },
 ];
 
 export default function PricingPage() {
@@ -39,9 +66,16 @@ function PricingHero() {
         <div className="flex flex-col gap-5">
           <Eyebrow>Pricing</Eyebrow>
           <h1 className="font-mono font-medium text-[56px] leading-[1.04] tracking-[-0.03em] m-0">
-            Free until your agent<br />earns its keep.
+            Free until your agent
+            <br />
+            earns its keep.
           </h1>
-          <p className={SUB}>500 credits a month on the house — roughly 25 conversations. Pro ($39/mo with 10,000 credits) is launching soon — join the waitlist. No card required to start.</p>
+          <p className={SUB}>
+            500 credits a month on the house — roughly 25 conversations. Need
+            more? Starter is $0.99/mo for 1,500 credits. Plus ($14.99/mo, 4,000
+            credits + pay-as-you-go overage) is launching soon. No card required
+            to start.
+          </p>
         </div>
       </div>
     </section>
@@ -65,7 +99,10 @@ function CreditExplainer() {
         <div className={SECHEAD}>
           <Eyebrow>How credits work</Eyebrow>
           <h2 className={H2}>One credit ≈ one small agent action.</h2>
-          <p className={SUB}>Credits are consumed per event, not per token. Here{"’"}s the full cost table:</p>
+          <p className={SUB}>
+            Credits are consumed per event, not per token. Here{"’"}s the full
+            cost table:
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-6 items-start">
@@ -79,31 +116,58 @@ function CreditExplainer() {
             {CREDIT_EVENTS.map((row, i) => (
               <div
                 key={row.event}
-                className={cn("grid grid-cols-[1fr_80px_1fr] px-[18px] py-3 font-mono text-[13px] items-center", i < CREDIT_EVENTS.length - 1 && "border-b border-border")}
+                className={cn(
+                  "grid grid-cols-[1fr_80px_1fr] px-[18px] py-3 font-mono text-[13px] items-center",
+                  i < CREDIT_EVENTS.length - 1 && "border-b border-border",
+                )}
               >
                 <span>{row.event}</span>
-                <span className="text-center font-semibold text-primary">{row.credits}</span>
-                <span className="text-muted-foreground text-xs">{row.note}</span>
+                <span className="text-center font-semibold text-primary">
+                  {row.credits}
+                </span>
+                <span className="text-muted-foreground text-xs">
+                  {row.note}
+                </span>
               </div>
             ))}
           </div>
 
           {/* Math examples */}
           <div className="flex flex-col gap-4">
-            <h3 className="font-mono font-medium text-lg m-0 tracking-[-0.01em]">What does that look like?</h3>
+            <h3 className="font-mono font-medium text-lg m-0 tracking-[-0.01em]">
+              What does that look like?
+            </h3>
 
             {[
-              { plan: "Free · 500 credits",       eg: "Roughly 25 short conversations with a couple of tool calls each." },
-              { plan: "Pro · 10,000 credits",      eg: "Roughly 500 short conversations, or fewer deeper multi-step runs." },
+              {
+                plan: "Free · 500 credits",
+                eg: "Roughly 25 short conversations with a couple of tool calls each.",
+              },
+              {
+                plan: "Starter · 1,500 credits",
+                eg: "Roughly 75 short conversations. 3x the Free runway.",
+              },
+              {
+                plan: "Plus · 4,000 credits",
+                eg: "Roughly 200 short conversations, then $10 per 1,000 more, no hard cap.",
+              },
             ].map((row) => (
-              <div key={row.plan} className="p-4 border border-border rounded-[var(--radius-md)]">
-                <div className="font-mono font-semibold text-[13px] mb-1.5">{row.plan}</div>
-                <div className="font-sans text-[13px] text-muted-foreground leading-relaxed">{row.eg}</div>
+              <div
+                key={row.plan}
+                className="p-4 border border-border rounded-[var(--radius-md)]"
+              >
+                <div className="font-mono font-semibold text-[13px] mb-1.5">
+                  {row.plan}
+                </div>
+                <div className="font-sans text-[13px] text-muted-foreground leading-relaxed">
+                  {row.eg}
+                </div>
               </div>
             ))}
 
             <p className="font-sans text-[13px] text-muted-foreground leading-[1.55] m-0">
-              Token costs are included in credit pricing — you pay a flat rate per event, not for individual tokens.
+              Token costs are included in credit pricing — you pay a flat rate
+              per event, not for individual tokens.
             </p>
           </div>
         </div>
@@ -123,7 +187,12 @@ function FaqSection() {
         </div>
         <div className="flex flex-col border border-border rounded-lg overflow-hidden">
           {FAQ_ITEMS.map((item, i) => (
-            <div key={i} className={i < FAQ_ITEMS.length - 1 ? "border-b border-border" : undefined}>
+            <div
+              key={i}
+              className={
+                i < FAQ_ITEMS.length - 1 ? "border-b border-border" : undefined
+              }
+            >
               <button
                 type="button"
                 onClick={() => setOpen(open === i ? null : i)}
@@ -132,7 +201,9 @@ function FaqSection() {
                 {item.q}
                 <span
                   className="shrink-0 text-muted-foreground transition-transform duration-200"
-                  style={{ transform: open === i ? "rotate(45deg)" : "rotate(0deg)" }}
+                  style={{
+                    transform: open === i ? "rotate(45deg)" : "rotate(0deg)",
+                  }}
                 >
                   <Plus size={16} />
                 </span>

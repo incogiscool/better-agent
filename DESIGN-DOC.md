@@ -129,25 +129,34 @@ Multi-tenant from day one. Every query filters by `projectId` or `ownerId`.
 
 ## Part 5: Pricing
 
+Plans are per-project (`Project.plan`), not account-wide — each project has its own `BillingPeriod` and credit pool, and shows its plan as a badge in the dashboard project list.
+
 **Free**
 
 - 500 credits/month _(~25 conversations)_ — on us
-- 1 project, 7-day history, watermarked
+- 1 project
 - Hard cap, no overage
 - Hosted tokens (Sonnet 4.6)
 
-**Pro — $39/month**
+**Starter — $0.99/month**
 
-- 10,000 credits/month _(~500 conversations)_
-- $5 per 1,000 additional credits _(~50 conversations)_
-- Unlimited projects, no watermark, full history
+- 1,500 credits/month _(~75 conversations, 3x Free)_
+- Hard cap, no overage
+- Dashboard badge showing remaining credits' dollar value (at the $5/1k overage rate, ~$7.50 included)
 - Hosted tokens
+
+**Plus — $14.99/month**
+
+- 4,000 credits/month _(~200 conversations)_
+- $10 per 1,000 additional credits, no hard cap
+- Hosted tokens
+- BYOK available (see below) — alternative to overage for unlimited usage
 
 **Enterprise — Custom**
 
-- BYOK
 - Custom credit allotments
 - SSO, SLA, self-host
+- BYOK included
 
 ### Credit weights
 
@@ -163,9 +172,16 @@ Multi-tenant from day one. Every query filters by `projectId` or `ownerId`.
 - Per-project monthly token budget (hard limit)
 - Per-end-user rate limit: 20 messages/minute
 
-### Watermark
+### BYOK (Bring Your Own Key)
 
-Honor system. Hardcoded "Powered by BetterAgent" in default container components. Pro/Enterprise customers delete the line. No server enforcement.
+A per-project toggle, available on Plus (included by default on Enterprise) — not tied to overage specifically, but positioned as Plus's alternative to metered overage for unlimited usage. When enabled:
+
+- `Project.anthropicApiKeyEncrypted` (AES-256-GCM, server-side `KEY_ENCRYPTION_SECRET`) stores the customer's Anthropic key. Never returned to the client; UI shows a masked `sk-ant-...xxxx`.
+- The chat route (`app/api/v1/chat/route.ts`) constructs the Anthropic client with the project's key instead of the platform key when set.
+- On save, validate the key with a cheap call (e.g. `models.list()` or a 1-token request) before accepting it.
+- `message`-type credit events (the only ones with real LLM cost) are recorded for visibility (`tokensInput/Output/Cached`, `costUsd`, `model`) but **not deducted from the credit pool** and don't count toward overage — the customer is billed by Anthropic directly.
+- `tool_call` / `conversation_start` overhead credits still apply normally (covers platform compute, not LLM cost).
+- Pitch: _"Want zero limits, ever? Add your own Anthropic API key."_
 
 ---
 
@@ -618,11 +634,11 @@ CSS variables that inherit from shadcn tokens, exposed via Tailwind utility clas
 
 **Stripe integration**
 
-- [ ] Stripe products: Pro subscription, metered overage item
+- [ ] Stripe products: Starter ($0.99 flat), Plus ($14.99 flat + $10/1k metered overage via Billing Meter)
 - [ ] `/dashboard/billing` page with Stripe Checkout
 - [ ] Customer portal link for subscription management
 - [ ] Webhook handler: `/api/webhooks/stripe`
-  - [ ] `checkout.session.completed` — upgrade to Pro
+  - [ ] `checkout.session.completed` — upgrade to Starter/Plus
   - [ ] `customer.subscription.updated` — plan changes
   - [ ] `customer.subscription.deleted` — downgrade to free
   - [ ] `invoice.paid` — close period, create new one
@@ -633,6 +649,14 @@ CSS variables that inherit from shadcn tokens, exposed via Tailwind utility clas
 - [ ] On `invoice.paid` webhook: close BillingPeriod, create new one with fresh credits
 - [ ] Lazy-create fallback if webhook delayed
 - [ ] Idempotent
+
+**BYOK (fast-follow, after Starter/Plus launch)**
+
+- [ ] `Project.anthropicApiKeyEncrypted` column + AES-256-GCM encrypt/decrypt helpers (`KEY_ENCRYPTION_SECRET` env var)
+- [ ] Settings UI: add/rotate/remove key, masked display, validation call on save
+- [ ] Chat route: use project key when set, fall back to platform key otherwise
+- [ ] Skip credit deduction/overage for `message` events when BYOK active; still record tokens/costUsd for visibility
+- [ ] `tool_call`/`conversation_start` credits still apply
 
 ### Phase 4: Chat Engine (Weeks 5–6)
 
@@ -890,10 +914,10 @@ These are locked in. Don't relitigate without strong reason:
 | LLM SDK                | Vercel AI SDK                                                 |
 | Hosting                | Vercel                                                        |
 | Multi-tenant           | Yes, from day one                                             |
-| Free plan              | 500 credits, hosted tokens, watermark                         |
-| Paid plan              | $39/mo Pro, 10k credits, $5/1k overage                        |
-| BYOK                   | Enterprise tier only                                          |
-| Watermark enforcement  | Honor system                                                  |
+| Free plan              | 500 credits, hosted tokens, per-project                       |
+| Starter plan           | $0.99/mo, 1,500 credits, hard cap, credit-value badge         |
+| Plus plan              | $14.99/mo, 4,000 credits, $10/1k overage, no hard cap         |
+| BYOK                   | Per-project toggle, Plus+ (included on Enterprise)            |
 | Source of truth        | Code (sync), with dashboard overrides separate                |
 | Action protocol        | Stream-then-resume                                            |
 | Component distribution | shadcn-style registry                                         |

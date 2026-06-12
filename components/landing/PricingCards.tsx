@@ -12,25 +12,36 @@ export const PLANS = [
     primary: false,
     cta: "Start free",
     href: "/auth/sign-up",
-    tagline: "For prototyping. Hard-capped — never bills you by surprise.",
+    tagline: "For prototyping and small projects.",
+    features: ["500 credits / month", "1 project", "Hosted Sonnet 4.6"],
+  },
+  {
+    name: "Starter",
+    price: "$0.99",
+    unit: "/mo",
+    primary: true,
+    cta: "Get started",
+    href: "/contact",
+    tagline: "3x the runway, for less than a pack of gum.",
     features: [
-      "500 credits / month",
-      "1 project, 7-day history",
+      "1,500 credits / month",
+      "Hard-capped — no surprise charges",
+      "See your credits' dollar value",
       "Hosted Sonnet 4.6",
     ],
   },
   {
-    name: "Pro",
-    price: "$39",
+    name: "Plus",
+    price: "$14.99",
     unit: "/mo",
-    primary: true,
+    primary: false,
     cta: "Join waitlist",
     href: "/contact",
-    tagline:
-      "For production apps. Generous limits — launching soon.",
+    tagline: "For agents that need a little more room.",
     features: [
-      "10,000 credits / month",
-      "Unlimited projects, full history",
+      "4,000 credits / month",
+      "$10 per 1,000 additional credits",
+      "Bring your own API key for unlimited usage",
       "Hosted Sonnet 4.6",
     ],
   },
@@ -48,7 +59,7 @@ export const PLANS = [
 
 export function PricingCards() {
   return (
-    <div className="grid grid-cols-3 gap-3.5">
+    <div className="grid grid-cols-4 gap-3.5">
       {PLANS.map((p) => (
         <div
           key={p.name}
