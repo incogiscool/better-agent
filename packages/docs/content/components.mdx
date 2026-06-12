@@ -1,0 +1,149 @@
+---
+title: Components
+description: A shadcn-style registry of agent UI — sidebar, chat-popup, cmd-k, inline-bar. Install one, own the code, and theme it with CSS variables.
+---
+
+import { Callout, Steps, Tabs } from 'nextra/components'
+
+# Component registry
+
+Pick a layout, run `betteragent add`, and you own the code. Theming inherits from
+your shadcn tokens — restyle anything without forking a package.
+
+## Available components
+
+Every container composes the same shared pieces — messages, input, header,
+suggested prompts. Install one and you get them all.
+
+| Component | Layout |
+| --- | --- |
+| `sidebar` | Right-side panel, always visible alongside your app. |
+| `chat-popup` | Floating bottom-right button that opens a chat panel. |
+| `cmd-k` | ⌘K command-palette overlay for power users. |
+| `inline-bar` | Embedded input bar that sits inside the page. |
+
+```bash
+# Install one (or pass no name for an interactive picker)
+npx betteragent add sidebar
+```
+
+## Getting started
+
+<Steps>
+
+### Install the packages
+
+```bash
+npm i betteragent-react betteragent-next betteragent-cli
+```
+
+### Add a chat component
+
+```bash
+npx betteragent add sidebar
+```
+
+### Import theming + wrap your app
+
+```tsx
+// globals.css
+@import "./components/chat/styles/betteragent.css";
+
+// app/layout.tsx
+import { BetterAgentProvider } from "betteragent-react";
+
+<BetterAgentProvider
+  clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
+  endUserId={currentUser.id}
+  actions={{ openSettings: ({ tab }) => router.push(`/settings?tab=${tab}`) }}
+>
+  {children}
+</BetterAgentProvider>
+```
+
+### Drop in the component
+
+```tsx
+import { ChatSidebar } from "@/components/chat/sidebar";
+
+// Inside your layout:
+<div className="flex h-screen">
+  <MainContent />
+  <ChatSidebar
+    title="Your agent"
+    greeting="Hi — how can I help?"
+    suggestedPrompts={[
+      { label: "Show me recent activity", prompt: "What happened in the last 7 days?" },
+    ]}
+  />
+</div>
+```
+
+</Steps>
+
+## Theming through CSS variables
+
+Components inherit your shadcn tokens by default. Override any `--ba-*` variable
+in your own globals to retheme without touching component source.
+
+<Tabs items={['Defaults (shadcn fallbacks)', 'Custom override (no shadcn)']}>
+<Tabs.Tab>
+
+```css
+:root {
+  /* Surfaces */
+  --ba-bg:          var(--background);
+  --ba-fg:          var(--foreground);
+  --ba-panel-bg:    var(--card);
+  --ba-muted:       var(--muted);
+  --ba-muted-fg:    var(--muted-foreground);
+  --ba-border:      var(--border);
+
+  /* Brand */
+  --ba-primary:     var(--primary);
+  --ba-primary-fg:  var(--primary-foreground);
+
+  /* Messages */
+  --ba-msg-user-bg:  var(--ba-primary);
+  --ba-msg-user-fg:  var(--ba-primary-fg);
+  --ba-msg-agent-bg: var(--ba-muted);
+  --ba-msg-agent-fg: var(--ba-fg);
+
+  /* Shape */
+  --ba-radius:      0;
+  --ba-radius-msg:  0.5rem;
+  --ba-font-sans:   var(--font-sans);
+  --ba-font-mono:   var(--font-mono);
+}
+```
+
+</Tabs.Tab>
+<Tabs.Tab>
+
+```css
+/* globals.css — works without shadcn */
+@import "./components/chat/styles/betteragent.css";
+
+:root {
+  --ba-primary:    #f97316;     /* your brand orange */
+  --ba-primary-fg: #ffffff;
+  --ba-radius-msg: 1rem;        /* rounder bubbles */
+  --ba-font-sans:  "Inter", sans-serif;
+}
+
+/* Dark mode */
+.dark {
+  --ba-bg:      #0a0a0a;
+  --ba-fg:      #fafafa;
+  --ba-panel-bg: #111111;
+  --ba-border:  rgba(255,255,255,0.08);
+}
+```
+
+</Tabs.Tab>
+</Tabs>
+
+<Callout type="info">
+  The CSS file is copied into your project by `betteragent add` — you own it and
+  can edit it directly.
+</Callout>

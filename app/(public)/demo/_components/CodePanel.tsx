@@ -10,6 +10,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { CodeChip } from "@/components/landing/primitives";
+import { DOCS_URL } from "@/lib/const/DOCS_URL";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -213,13 +214,13 @@ function DocsFooter() {
   return (
     <div className="shrink-0 border-t border-border px-4 py-3 flex items-center gap-4 font-mono text-[11px]">
       <Link
-        href="/docs/quickstart"
+        href={`${DOCS_URL}/quickstart`}
         className="inline-flex items-center gap-1 text-foreground hover:text-primary transition-colors"
       >
         Full setup — 8 steps <ArrowUpRight size={11} />
       </Link>
       <Link
-        href="/docs/tools"
+        href={`${DOCS_URL}/tools`}
         className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
       >
         Tool file reference <ArrowUpRight size={11} />

@@ -1,13 +1,15 @@
+import { DOCS_URL } from "./DOCS_URL";
+
 export const PUBLIC_NAVBAR_LINKS = [
   {
     name: "Docs",
     id: "docs",
-    link: "/docs",
+    link: DOCS_URL,
   },
   {
     name: "Components",
     id: "components",
-    link: "/components",
+    link: `${DOCS_URL}/components`,
   },
   {
     name: "Pricing",

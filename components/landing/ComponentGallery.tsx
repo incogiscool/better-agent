@@ -3,6 +3,7 @@
 import { ArrowRight } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { DOCS_URL } from "@/lib/const/DOCS_URL";
 import Link from "next/link";
 
 export const COMPS = [
@@ -135,7 +136,7 @@ export function ComponentGallery({ showCta = false }: { showCta?: boolean }) {
       {showCta && (
         <div className="flex justify-center mt-7">
           <Button asChild variant="outline">
-            <Link href="/components">Browse the full registry <ArrowRight size={12} /></Link>
+            <Link href={`${DOCS_URL}/components`}>Browse the full registry <ArrowRight size={12} /></Link>
           </Button>
         </div>
       )}

@@ -1,4 +1,44 @@
-export const AGENT_PROMPT = `# BetterAgent Setup Prompt
+---
+title: AI Setup
+description: Copy one prompt into Claude Code, Cursor, or any AI coding assistant and it sets up BetterAgent automatically — packages, auth, tool discovery, and provider wiring.
+---
+
+import { Callout, Steps } from 'nextra/components'
+
+# Set up BetterAgent with your AI IDE
+
+Copy the prompt below and paste it into Claude Code, Cursor, or any AI coding
+assistant. Your agent will handle the full setup — packages, auth, tool
+discovery, and provider wiring.
+
+## How to use
+
+<Steps>
+
+### Copy the prompt
+
+Use the copy button in the top-right of the prompt block below.
+
+### Paste into your AI IDE
+
+Open a new session in **Claude Code**, **Cursor**, or any AI coding assistant
+with access to your project. Paste the prompt and send it.
+
+### Your agent handles the rest
+
+The AI will walk through each step, ask for your secret key, and complete the
+full setup. You'll have a working agent UI in your app within minutes.
+
+</Steps>
+
+## The prompt
+
+The raw version is also available at
+[`betteragent.dev/agent-setup.md`](https://betteragent.dev/agent-setup.md) if
+you want to fetch it directly.
+
+```md
+# BetterAgent Setup Prompt
 
 You are helping a developer add BetterAgent to their Next.js project.
 BetterAgent gives the app an AI assistant that can call routes, server
@@ -59,7 +99,7 @@ of the logged-in user:
   - String: forwarded as Authorization: Bearer <token>
   - Object: forwarded verbatim — use this when your backend expects a
     specific header format or non-Bearer scheme:
-      authToken={{ Authorization: \`Bearer \${sessionToken}\` }}
+      authToken={{ Authorization: `Bearer ${sessionToken}` }}
       authToken={{ "X-Api-Key": apiKey }}
   - Function (Client Component only): called per-request for refreshed tokens
 
@@ -71,7 +111,7 @@ the cookie server-side and pass it as an object:
 
   <AgentProvider
     ...
-    authToken={{ Authorization: \`Bearer \${sessionToken}\` }}
+    authToken={{ Authorization: `Bearer ${sessionToken}` }}
   >
 
 Your route handlers must accept this header to authenticate agent requests.
@@ -89,7 +129,7 @@ Full layout example:
         clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
         apiUrl={process.env.NEXT_PUBLIC_BETTERAGENT_API_URL}
         endUserId={user.id}
-        authToken={{ Authorization: \`Bearer \${sessionToken}\` }}
+        authToken={{ Authorization: `Bearer ${sessionToken}` }}
       >
         {children}
       </AgentProvider>
@@ -190,4 +230,21 @@ the generated components/betteragent-provider.tsx):
   Describe *when* to use a tool, not just *what* it does
 - Docs:          https://docs.betteragent.dev
 - CLI reference: https://docs.betteragent.dev/cli
-- Tool files:    https://docs.betteragent.dev/tools`;
+- Tool files:    https://docs.betteragent.dev/tools
+```
+
+## What the agent will do
+
+- Installs `betteragent-cli`, `betteragent-react`, and `betteragent-next`
+- Prompts you for your secret key and authenticates the CLI
+- Runs `betteragent init` to scaffold a chat component
+- Runs `betteragent discover` to generate tool files from your codebase
+- Runs `betteragent sync` to push tool definitions to the backend
+- Wraps your root layout with `BetterAgentProvider` and registers your server actions
+- Renders the chat component the wizard installed
+- Adds `NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY` to `.env.local`
+
+<Callout type="info">
+  Prefer to do it by hand? Follow the [step-by-step quickstart](/quickstart)
+  instead.
+</Callout>

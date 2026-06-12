@@ -1,0 +1,251 @@
+---
+title: CLI Reference
+description: One CLI for auth, tool discovery, syncing, and component installation. Eight commands covering the full lifecycle.
+---
+
+import { Callout } from 'nextra/components'
+
+# CLI Reference
+
+One CLI for auth, tool discovery, syncing, and component installation. Works with
+any Node ≥ 18 project.
+
+```bash
+npm i -D betteragent-cli
+```
+
+## `betteragent login`
+
+Authenticate the CLI with a project secret key.
+
+```bash
+betteragent login [OPTIONS]
+```
+
+| Option | Description |
+| --- | --- |
+| `--key <secret>` | Secret key (`ba_secret_…`). Prompted if omitted. |
+| `--api-url <url>` | Override the API URL (or set `BETTERAGENT_API_URL`). |
+
+```bash
+$ betteragent login --key ba_secret_abc123
+✓ Signed in to acme-app (FREE).
+  Credentials saved to ~/.betteragent/credentials.json
+```
+
+## `betteragent init`
+
+First-time setup wizard — installs a chat component, scaffolds tool files,
+generates `AgentProvider`, writes `.env.local`.
+
+```bash
+betteragent init [OPTIONS]
+```
+
+| Option | Description |
+| --- | --- |
+| `--cwd <dir>` | Working directory (default: current). |
+| `--yes` | Accept all defaults without prompting. |
+
+```bash
+$ betteragent init
+✓ Signed in as acme-app (http://localhost:3000)
+
+? Which chat variant? › sidebar
+
+→ Installing sidebar...
+✓ components/chat/sidebar.tsx
+✓ components/chat/pieces/...
+
+? Scan your project for tools? › yes
+→ Found 8 routes · 4 server actions
+
+✓ components/betteragent-provider.tsx (AgentProvider)
+✓ Done. Run betteragent sync to push.
+```
+
+## `betteragent discover`
+
+Scan your codebase for route handlers and server actions, then generate tool
+files.
+
+```bash
+betteragent discover [OPTIONS]
+```
+
+| Option | Description |
+| --- | --- |
+| `--cwd <dir>` | Working directory (default: current). |
+| `--dry-run` | Preview generated files without writing. |
+| `--yes` | Skip confirmation prompts. |
+
+```bash
+$ betteragent discover
+✓ Found 11 route handlers · 9 server action exports
+
+? Select routes to expose as tools › (multiselect)
+? Select server actions to expose › (multiselect)
+? Generate actions.betteragent.ts template? › yes
+
+✓ routes.betteragent.ts (3 routes)
+✓ server-actions.betteragent.ts (4 actions)
+✓ actions.betteragent.ts (template)
+```
+
+## `betteragent sync`
+
+Push your local tool definitions to the BetterAgent backend.
+
+```bash
+betteragent sync [OPTIONS]
+```
+
+| Option | Description |
+| --- | --- |
+| `--cwd <dir>` | Working directory (default: current). |
+| `--dry-run` | Validate without uploading. |
+
+```bash
+$ betteragent sync
+Using betteragent.config.json
+→ Loading tool files from .
+✓ routes.betteragent.ts (3 tools)
+✓ server-actions.betteragent.ts (4 tools)
+→ Prepared 7 tools for sync.
+✓ Synced. +7 added · ~0 updated · -0 removed · =0 unchanged.
+```
+
+## `betteragent add`
+
+Install a BetterAgent chat component into your project from the registry.
+
+```bash
+betteragent add [NAME] [OPTIONS]
+```
+
+| Option | Description |
+| --- | --- |
+| `NAME` | Component: `sidebar` \| `chat-popup` \| `cmd-k` \| `inline-bar`. Omit for interactive picker. |
+| `--cwd <dir>` | Working directory (default: current). |
+| `--overwrite` | Overwrite existing files without prompting. |
+| `--dry-run` | Show what would be installed without writing. |
+
+```bash
+$ betteragent add
+
+? Which components do you want to install? (multiselect)
+◉ sidebar        Right-side panel, always visible ✓
+◯ chat-popup     Floating bottom-right button
+◯ cmd-k          ⌘K overlay for power users
+◯ inline-bar     Embedded input bar in the page
+
+→ Installing sidebar...
+✓ components/chat/sidebar.tsx
+✓ components/chat/pieces/ (10 files)
+✓ sidebar installed.
+```
+
+## `betteragent remove`
+
+Remove installed BetterAgent chat components from your project.
+
+```bash
+betteragent remove [NAME] [OPTIONS]
+```
+
+| Option | Description |
+| --- | --- |
+| `NAME` | Component name. Omit for interactive picker of installed components. |
+| `--cwd <dir>` | Working directory (default: current). |
+| `--yes` | Skip confirmation prompt. |
+
+```bash
+$ betteragent remove
+? Which components do you want to remove? (multiselect)
+◉ sidebar  10 files · installed 2026-05-22
+
+? Remove sidebar (10 files)? › yes
+✓ components/chat/sidebar.tsx
+✓ sidebar removed. 10 files deleted.
+```
+
+## `betteragent whoami`
+
+Show the currently authenticated project and re-verify credentials.
+
+```bash
+betteragent whoami
+```
+
+```bash
+$ betteragent whoami
+acme-app
+  project:    cmpbilv2g00002rck...
+  client key: ba_client_abc123...
+  plan:       FREE
+  api:        https://www.betteragent.dev
+```
+
+## `betteragent logout`
+
+Remove stored credentials from `~/.betteragent/credentials.json`.
+
+```bash
+betteragent logout
+```
+
+```bash
+$ betteragent logout
+✓ Removed credentials at ~/.betteragent/credentials.json
+```
+
+## Configuration — `betteragent.config.json`
+
+Optional per-project config. Place it alongside your tool files. All fields are
+optional — the CLI falls back to credentials and defaults.
+
+```json
+{
+  // API URL — overrides BETTERAGENT_API_URL
+  // and the URL stored in credentials.
+  "apiUrl": "http://localhost:3000",
+
+  // Project ID — override for monorepos
+  // where you sync to a specific project.
+  "projectId": "cmpbilv2g00002rck...",
+
+  // Custom tool file paths
+  "files": {
+    "routes":        "./routes.betteragent.ts",
+    "serverActions": "./server-actions.betteragent.ts",
+    "actions":       "./actions.betteragent.ts",
+    "provider":      "./components/betteragent-provider.tsx"
+  },
+
+  // Installed components (managed by CLI)
+  "installed": {
+    "sidebar": {
+      "files": ["components/chat/sidebar.tsx", "..."],
+      "installedAt": "2026-05-22T10:00:00.000Z"
+    }
+  }
+}
+```
+
+<Callout type="info">
+  **Env var override.** `BETTERAGENT_API_URL` overrides `apiUrl` from config and
+  credentials. Useful in CI/CD.
+</Callout>
+
+**Resolution order:**
+
+1. CLI flag (`--api-url`)
+2. Env var (`BETTERAGENT_API_URL`)
+3. `betteragent.config.json` `apiUrl`
+4. Production default (`https://www.betteragent.dev`)
+
+## Tool files
+
+Generated by `betteragent discover` or written by hand. `betteragent sync` reads
+and pushes them to the backend. See the [Tool Files reference](/tools) for the
+full schema.

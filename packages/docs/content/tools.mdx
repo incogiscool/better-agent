@@ -1,0 +1,278 @@
+---
+title: Tool Files
+description: Tool files teach your agent what it can do — define HTTP routes, server actions, and browser-side effects, then sync once.
+---
+
+import { Callout } from 'nextra/components'
+
+# Tool files
+
+Tool files are how the agent learns what it can do in your app. Define HTTP
+routes, server actions, and browser-side effects — then sync once. The agent
+calls them automatically.
+
+## What are tool files?
+
+Tool files declare what capabilities your agent has. Without them, the agent can
+only respond in text — it can't actually do anything in your app.
+
+| File | What it's for |
+| --- | --- |
+| `routes.betteragent.ts` | HTTP endpoints the agent calls server-to-server via fetch. Good for REST APIs, data fetching, and mutations that already have route handlers. |
+| `server-actions.betteragent.ts` | Next.js Server Actions the agent calls through your provider. The SDK dispatches them from the browser, but they execute on the server with full session context — good for form mutations, database writes, and authenticated work. |
+| `actions.betteragent.ts` | Browser-side effects the agent triggers on the client — opening modals, navigating, refreshing state. These run in the user's browser, not the server. |
+
+<Callout type="info">
+  **Discovery vs. manual authoring.** Run `betteragent discover` to scaffold the
+  three files with one entry per selected handler and empty Zod schemas. Fill in
+  the descriptions and schemas by hand, or write tools from scratch for things
+  discovery can't detect (e.g. third-party API calls). Both approaches produce
+  the same file format — there's no lock-in to either.
+</Callout>
+
+## routes.betteragent.ts
+
+Use `defineRoute` from `betteragent-next` to expose any HTTP endpoint as a tool.
+The chat engine performs a server-to-server request using the `baseUrl` you
+configured in your project settings.
+
+```ts
+import { defineRoute } from "betteragent-next";
+import { z } from "zod";
+
+// GET with optional query params
+export const searchProducts = defineRoute({
+  name: "searchProducts",
+  method: "GET",
+  path: "/api/products",
+  description:
+    "Search the product catalogue. Use when the user asks to find, " +
+    "list, or browse products.",
+  schema: z.object({
+    q:        z.string().optional().describe("Search query"),
+    category: z.string().optional().describe("Filter by category slug"),
+    limit:    z.number().int().min(1).max(50).optional(),
+  }),
+});
+
+// POST with a body
+export const createOrder = defineRoute({
+  name: "createOrder",
+  method: "POST",
+  path: "/api/orders",
+  description:
+    "Place a new order for the current user. Only call this after " +
+    "explicitly confirming the items and total with the user.",
+  schema: z.object({
+    items: z.array(
+      z.object({
+        productId: z.string(),
+        quantity:  z.number().int().min(1),
+      }),
+    ),
+  }),
+});
+
+export const routes = [searchProducts, createOrder];
+```
+
+| Field | Description |
+| --- | --- |
+| `name` | Unique identifier used in tool calls. camelCase recommended. |
+| `method` | HTTP method: GET · POST · PUT · PATCH · DELETE. |
+| `path` | Path appended to your project's `baseUrl` setting. |
+| `description` | Natural-language description the agent uses to decide when to call this tool. |
+| `schema` | Zod schema for the input. GET params become query string; POST/PUT become JSON body. |
+
+## server-actions.betteragent.ts
+
+Use `defineServerAction` to expose a Next.js Server Action as a tool. The React
+SDK dispatches calls from the browser — the handler runs on the server via the
+normal server-action mechanism, so session context and auth are available as
+usual.
+
+```ts
+"use server";
+// ^ Required. This file is a "use server" module — Next.js compiles
+// each exported async function as a callable server action.
+
+import { defineServerAction } from "betteragent-next";
+import { z } from "zod";
+
+// Import handlers from your own "use server" files.
+import { updateProfile } from "@/app/actions/profile";
+import { sendInvoice }  from "@/app/actions/billing";
+
+// Export each action individually — no array export.
+// The generated AgentProvider imports this file automatically.
+
+export const updateDisplayName = defineServerAction({
+  name: "updateDisplayName",
+  description:
+    "Update the user's display name. Use when the user explicitly " +
+    "asks to change their name.",
+  schema: z.object({
+    name: z.string().min(1).max(100),
+  }),
+  handler: updateProfile,
+});
+
+export const sendUserInvoice = defineServerAction({
+  name: "sendUserInvoice",
+  description:
+    "Re-send an invoice to the user's email address. " +
+    "Only call this when explicitly requested.",
+  schema: z.object({
+    invoiceId: z.string(),
+  }),
+  handler: sendInvoice,
+});
+```
+
+- **`"use server"` required** — the file must start with `"use server"`. This
+  makes each exported async function a real Next.js server action reference,
+  callable from the browser.
+- **`handler`** — must be imported from one of your own `"use server"` files,
+  not defined inline. Input is Zod-validated before the handler is called.
+- **No array export** — export each action individually. `"use server"` files
+  cannot export arrays; the generated `AgentProvider` uses `import *` to pick
+  them all up automatically.
+- **Return value** — whatever the handler returns is serialised and sent back to
+  the agent as the tool result. Keep it concise — the agent uses it to decide
+  the next step.
+
+## actions.betteragent.ts
+
+Use `defineAction` to declare pure client-side effects — opening modals,
+navigating, refreshing UI state. The agent emits an `action_call` event; the
+React SDK dispatches it locally in the user's browser.
+
+```ts
+// actions.betteragent.ts
+import { defineAction } from "betteragent-next";
+import { z } from "zod";
+
+export const openModal = defineAction({
+  name: "openModal",
+  description:
+    "Open a dialog or modal panel. Use when the user " +
+    "asks to edit or view something in a dialog.",
+  schema: z.object({
+    name: z.enum(["settings", "profile", "billing"]),
+  }),
+});
+
+export const navigate = defineAction({
+  name: "navigate",
+  description:
+    "Navigate to a different page in the app. Only use " +
+    "for navigation the user explicitly requests.",
+  schema: z.object({
+    path: z.string().describe("App path, e.g. /dashboard/projects"),
+  }),
+});
+
+export const actions = [openModal, navigate];
+```
+
+Register handlers by adding an `actions` prop to the generated `AgentProvider`
+in `components/betteragent-provider.tsx` — a map from action name to handler
+function.
+
+```tsx
+// components/betteragent-provider.tsx
+"use client";
+
+import { BetterAgentProvider } from "betteragent-react";
+import * as serverActions from "@/server-actions.betteragent";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+export function AgentProvider({ children, ...props }) {
+  const router = useRouter();
+  const [dialog, setDialog] = useState<string | null>(null);
+
+  return (
+    <BetterAgentProvider
+      {...props}
+      serverActions={serverActions}
+      actions={{
+        openModal: ({ name }) => setDialog(name),
+        navigate:  ({ path }) => router.push(path),
+      }}
+    >
+      {children}
+      <SettingsDialog open={dialog === "settings"} />
+    </BetterAgentProvider>
+  );
+}
+```
+
+## Best practices for descriptions
+
+The agent picks tools based on their descriptions. Vague descriptions lead to
+wrong tool calls or no tool calls at all.
+
+**Avoid — too vague:**
+
+```ts
+description: "Get projects"
+description: "Update user"
+description: "Open modal"
+```
+
+**Better — says when to call it:**
+
+```ts
+description: "List the current user's projects. Use when they ask to see, find, or browse their projects."
+description: "Update the user's profile name and bio. Only call after they explicitly ask to change their name."
+description: "Open the settings dialog. Use when the user asks to change their account settings or preferences."
+```
+
+- **Be specific about when** — include "Use when the user asks to..." This
+  directly maps to intent.
+- **Add safety guardrails** — for destructive actions, add "Only call after
+  explicit user confirmation."
+- **Describe parameters too** — use `.describe()` on Zod fields to give the agent
+  context about each param.
+
+## Keep tools in sync
+
+Run `betteragent sync` whenever your tool files change. The CLI diffs against
+what's already on the backend and reports added, updated, removed, and unchanged
+tools.
+
+```bash
+# Push changes
+npx betteragent sync
+
+→ Loading tool files from .
+✓ routes.betteragent.ts (3 tools)
+✓ server-actions.betteragent.ts (4 tools)
+✓ Synced. +2 added · ~1 updated · -0 removed · =4 unchanged.
+```
+
+```bash
+# Validate without pushing
+npx betteragent sync --dry-run
+
+→ Dry run — no changes will be made.
+✓ routes.betteragent.ts (3 tools)
+✓ server-actions.betteragent.ts (4 tools)
+  Would push: +2 added · ~1 updated · -0 removed · =4 unchanged.
+```
+
+**When to sync:**
+
+- After adding or removing a tool
+- After editing a description or schema
+- Before deploying to production
+- After renaming a route handler or action
+
+<Callout type="info">
+  **CI/CD tip.** Add `betteragent sync` to your deploy pipeline so tools stay in
+  sync on every production deploy. Set `BETTERAGENT_API_URL` for
+  environment-specific URLs.
+</Callout>
+
+Full CLI reference: [CLI Reference](/cli).

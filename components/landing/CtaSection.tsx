@@ -3,6 +3,7 @@
 import { Lightning, Sparkle, ArrowUpRight } from "@phosphor-icons/react";
 import { Pill, DOT_BG } from "./primitives";
 import { Button } from "@/components/ui/button";
+import { DOCS_URL } from "@/lib/const/DOCS_URL";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +29,7 @@ export function CtaSection() {
               <Link href="/auth/sign-up"><Lightning size={14} /> Get started — free</Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link href="/docs/quickstart">Read the quickstart <ArrowUpRight size={12} /></Link>
+              <Link href={`${DOCS_URL}/quickstart`}>Read the quickstart <ArrowUpRight size={12} /></Link>
             </Button>
           </div>
           <div className="flex gap-4 flex-wrap justify-center font-mono text-xs text-muted-foreground mt-2">

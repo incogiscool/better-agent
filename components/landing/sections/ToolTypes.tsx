@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check, ArrowUpRight } from "@phosphor-icons/react";
 import { Eyebrow, WRAP, SEC, SECHEAD, H2, SUB } from "@/components/landing/primitives";
 import { Button } from "@/components/ui/button";
+import { DOCS_URL } from "@/lib/const/DOCS_URL";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -159,7 +160,7 @@ export function ToolTypes() {
                 ))}
               </div>
               <Button asChild variant="outline" className="self-start mt-1">
-                <Link href="/docs">Read the docs <ArrowUpRight size={11} /></Link>
+                <Link href={DOCS_URL}>Read the docs <ArrowUpRight size={11} /></Link>
               </Button>
             </div>
           </div>

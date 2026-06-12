@@ -1,0 +1,187 @@
+---
+title: Quickstart
+description: Zero to a working agent in eight steps — create a project, install the CLI, scaffold a chat component, define tools, wire up the provider, and render the UI.
+---
+
+import { Callout, Steps } from 'nextra/components'
+
+# Quickstart
+
+Create a project, install the CLI, scaffold a chat component, define your tools,
+wire up the provider, and render the UI. Takes about five minutes on an existing
+Next.js app.
+
+<Callout type="info">
+  **Skip the manual steps.** Paste the [AI setup prompt](/ai-setup) into Claude
+  Code or Cursor and your coding assistant handles all of this automatically.
+</Callout>
+
+<Steps>
+
+### Create a project
+
+Sign in to the [dashboard](https://betteragent.dev/dashboard), click **New
+project**, and give it a name. Once created, copy the **secret key** — you'll
+need it in the next step and it's only shown once.
+
+The **client key** (shown in settings) is safe to expose in client code. The
+secret key is for the CLI and server only.
+
+### Install the CLI
+
+Install the CLI as a dev dependency alongside the React and Next.js SDKs.
+
+```bash
+npm install -D betteragent-cli
+npm install betteragent-react betteragent-next
+```
+
+### Authenticate
+
+Log in with the secret key you copied. Credentials are stored in
+`~/.betteragent/credentials.json` so you only need to do this once per machine.
+
+```bash
+npx betteragent login --key ba_secret_...
+
+✓ Signed in to acme-app (FREE).
+  Credentials saved to ~/.betteragent/credentials.json
+```
+
+### Initialize
+
+Run the setup wizard. It will prompt you to pick a chat component variant and
+optionally scan your project for tools. Sidebar is a good default for most apps.
+
+```bash
+npx betteragent init
+
+? Which chat variant? › sidebar
+
+→ Installing sidebar...
+✓ components/chat/sidebar.tsx
+✓ components/chat/pieces/ (10 files)
+
+? Scan your project for tools? › yes
+→ Found 8 routes · 4 server actions
+
+✓ components/betteragent-provider.tsx (AgentProvider)
+✓ Done. Run betteragent sync to push.
+```
+
+Init also generates `components/betteragent-provider.tsx` — a ready-to-use
+`<AgentProvider>` wrapper that handles wiring server actions to the provider
+automatically. Available variants: `sidebar` · `chat-popup` · `cmd-k` ·
+`inline-bar`. Add more later with `betteragent add`.
+
+### Discover tools
+
+If you skipped discovery during init, run it separately. The CLI scans your
+Next.js routes and server actions and generates three tool files. Review them
+and remove anything the agent shouldn't access (admin endpoints, internal APIs).
+
+```bash
+npx betteragent discover
+
+✓ Found 11 route handlers · 9 server action exports
+
+? Select routes to expose as tools › (multiselect)
+? Select server actions to expose › (multiselect)
+
+✓ routes.betteragent.ts (3 routes)
+✓ server-actions.betteragent.ts (4 actions)
+✓ actions.betteragent.ts (template)
+```
+
+See the [Tool files reference](/tools) for the full schema and manual authoring
+guide.
+
+### Sync
+
+Push your tool definitions to the BetterAgent backend. Run this again whenever
+the files change.
+
+```bash
+npx betteragent sync
+
+→ Loading tool files from .
+✓ routes.betteragent.ts (3 tools)
+✓ server-actions.betteragent.ts (4 tools)
+✓ Synced. +7 added · ~0 updated · -0 removed · =0 unchanged.
+```
+
+### Add the provider
+
+Import `AgentProvider` from the component that `betteragent init` generated and
+wrap your dashboard or root layout with it. It handles server action wiring
+internally — no extra imports needed.
+
+If your agent exposes **route tools** that read or write per-user data, pass
+`authToken` so the engine can authenticate requests to your backend on behalf of
+the logged-in user:
+
+- **String** — forwarded as `Authorization: Bearer <token>`
+- **Object** — forwarded verbatim, for custom header names or formats
+
+```tsx
+import { cookies } from "next/headers";
+import { AgentProvider } from "@/components/betteragent-provider";
+
+export default async function Layout({ children }) {
+  const user = await requireUser();
+  const sessionToken = (await cookies()).get("session")?.value;
+
+  return (
+    <AgentProvider
+      clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
+      apiUrl={process.env.NEXT_PUBLIC_BETTERAGENT_API_URL}
+      endUserId={user.id}
+      authToken={{ Authorization: `Bearer ${sessionToken}` }}
+    >
+      {children}
+    </AgentProvider>
+  );
+}
+```
+
+```bash
+# .env.local
+NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY=ba_client_...
+```
+
+### Render the chat component
+
+The provider supplies context but renders nothing on its own. Import and render
+the component that `betteragent init` installed. For the sidebar variant, add it
+alongside your main content in the root layout:
+
+```tsx
+import { ChatSidebar } from "@/components/chat/sidebar";
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <AgentProvider ...>
+          <div className="flex h-screen">
+            <main className="flex-1 overflow-y-auto">{children}</main>
+            <ChatSidebar
+              title="Assistant"
+              greeting="Hi — how can I help?"
+              suggestedPrompts={[
+                { label: "What can you do?", prompt: "What can you help me with?" },
+              ]}
+            />
+          </div>
+        </AgentProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+The import path matches whatever `betteragent init` wrote. Check
+`betteragent.config.json` (written by init) for the installed component name and
+file list. Visit your app — the chat UI should now appear.
+
+</Steps>

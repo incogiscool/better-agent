@@ -1,12 +1,13 @@
 import { WRAP } from "./primitives";
+import { DOCS_URL } from "@/lib/const/DOCS_URL";
 
 const FOOTER_COLS = [
   {
     h: "Product",
     links: [
-      { label: "Docs",          href: "/docs"        },
-      { label: "CLI reference", href: "/cli"         },
-      { label: "Components",    href: "/components"  },
+      { label: "Docs",          href: DOCS_URL                 },
+      { label: "CLI reference", href: `${DOCS_URL}/cli`        },
+      { label: "Components",    href: `${DOCS_URL}/components` },
       { label: "Pricing",       href: "/pricing"     },
       { label: "Demo",          href: "/demo"        },
     ],
@@ -14,10 +15,10 @@ const FOOTER_COLS = [
   {
     h: "Build",
     links: [
-      { label: "Quickstart",  href: "/docs/quickstart" },
-      { label: "Tool files",  href: "/docs/tools"      },
-      { label: "AI setup",    href: "/docs/agent"      },
-      { label: "CLI",         href: "/cli"             },
+      { label: "Quickstart",  href: `${DOCS_URL}/quickstart` },
+      { label: "Tool files",  href: `${DOCS_URL}/tools`      },
+      { label: "AI setup",    href: `${DOCS_URL}/ai-setup`   },
+      { label: "CLI",         href: `${DOCS_URL}/cli`        },
     ],
   },
   {

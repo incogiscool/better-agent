@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/cli",
+    "packages/next",
+    "packages/react"
   ],
   "scripts": {
     "dev": "next dev",
@@ -25,8 +27,6 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.77",
     "@ai-sdk/react": "^3.0.179",
-    "betteragent-next": "workspace:*",
-    "betteragent-react": "workspace:*",
     "@hookform/resolvers": "^5.2.2",
     "@phosphor-icons/react": "^2.1.10",
     "@prisma/adapter-neon": "^7.8.0",
@@ -36,16 +36,18 @@
     "@upstash/redis": "^1.38.0",
     "ai": "^6.0.177",
     "better-auth": "^1.6.10",
+    "betteragent-next": "workspace:*",
+    "betteragent-react": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "dotenv": "^17.4.2",
     "input-otp": "^1.4.2",
-    "next": "16.2.6",
+    "next": "^16.2.9",
     "next-themes": "1.0.0-beta.0",
     "radix-ui": "^1.4.3",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "react-hook-form": "^7.75.0",
     "resend": "^6.12.3",
     "shadcn": "^4.7.0",
@@ -63,8 +65,8 @@
     "dotenv-cli": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
-    "tailwindcss": "^4",
     "prisma": "^7.8.0",
+    "tailwindcss": "^4",
     "typescript": "^5"
   },
   "ignoreScripts": [
