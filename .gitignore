@@ -46,3 +46,6 @@ next-env.d.ts
 
 # workspace package builds
 packages/*/dist/
+
+# agent worktrees
+.claude/worktrees/
