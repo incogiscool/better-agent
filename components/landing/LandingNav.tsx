@@ -28,11 +28,12 @@ export function LandingNav() {
       </Link>
 
       <nav className="flex gap-5" aria-label="Main navigation">
-        {PUBLIC_NAVBAR_LINKS.map(({ name, link }) => (
+        {PUBLIC_NAVBAR_LINKS.map(({ name, link, external }) => (
           <Link
             key={name}
             href={link}
             className="text-muted-foreground text-[13px] no-underline font-mono"
+            {...(external && { target: "_blank", rel: "noopener noreferrer" })}
           >
             {name}
           </Link>

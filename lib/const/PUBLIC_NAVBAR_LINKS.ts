@@ -1,4 +1,5 @@
 import { DOCS_URL } from "./DOCS_URL";
+import { FEATUREBASE_URL } from "./FEATUREBASE_URL";
 
 export const PUBLIC_NAVBAR_LINKS = [
   {
@@ -25,5 +26,11 @@ export const PUBLIC_NAVBAR_LINKS = [
     name: "Contact",
     id: "contact",
     link: "/contact",
+  },
+  {
+    name: "Feedback",
+    id: "feedback",
+    link: FEATUREBASE_URL,
+    external: true,
   },
 ];

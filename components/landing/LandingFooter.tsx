@@ -1,7 +1,11 @@
 import { WRAP } from "./primitives";
 import { DOCS_URL } from "@/lib/const/DOCS_URL";
+import { FEATUREBASE_URL } from "@/lib/const/FEATUREBASE_URL";
 
-const FOOTER_COLS = [
+type FooterLink = { label: string; href: string; external?: boolean };
+type FooterCol = { h: string; links: FooterLink[] };
+
+const FOOTER_COLS: FooterCol[] = [
   {
     h: "Product",
     links: [
@@ -24,9 +28,10 @@ const FOOTER_COLS = [
   {
     h: "Company",
     links: [
-      { label: "Contact", href: "/contact" },
-      { label: "Privacy", href: "/privacy" },
-      { label: "Terms",   href: "/terms"   },
+      { label: "Contact",  href: "/contact"                       },
+      { label: "Feedback", href: FEATUREBASE_URL, external: true  },
+      { label: "Privacy",  href: "/privacy"                       },
+      { label: "Terms",    href: "/terms"                         },
     ],
   },
 ];
@@ -61,11 +66,12 @@ export function LandingFooter() {
               <h5 className="font-mono text-[11px] tracking-[0.06em] uppercase text-foreground m-0 mb-3 font-medium">
                 {col.h}
               </h5>
-              {col.links.map(({ label, href }) => (
+              {col.links.map(({ label, href, external }) => (
                 <a
                   key={label}
                   href={href}
                   className="text-muted-foreground no-underline block py-1 font-mono"
+                  {...(external && { target: "_blank", rel: "noopener noreferrer" })}
                 >
                   {label}
                 </a>

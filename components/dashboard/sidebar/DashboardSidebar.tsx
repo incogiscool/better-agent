@@ -13,6 +13,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { getCurrentSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { SidebarNav } from "./SidebarNav";
+import { SidebarFeedbackLink } from "./SidebarFeedbackLink";
 
 export async function DashboardSidebar() {
   const session = await getCurrentSession();
@@ -37,6 +38,8 @@ export async function DashboardSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-border">
+        <SidebarFeedbackLink />
+
         <div className="flex items-center gap-3">
           {session?.user && (
             <SidebarMenu>
