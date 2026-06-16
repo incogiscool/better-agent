@@ -17,7 +17,9 @@ import {
 } from "@/lib/chat/idempotency";
 import { SSE_HEADERS } from "@/lib/chat/streaming";
 import { prisma } from "@/lib/db";
-import { ConversationStatus } from "@/lib/generated/prisma/enums";
+import { PLAN_CONFIGS } from "@/lib/billing";
+import { decryptSecret } from "@/lib/crypto/secrets";
+import { ConversationStatus, type ProjectPlan } from "@/lib/generated/prisma/enums";
 import { chatRequestSchema } from "@/lib/schemas/chat";
 import { chatLimiter, chatProjectLimiter, checkRateLimit } from "@/lib/ratelimit";
 import { corsHeaders, isOriginAllowed } from "@/lib/projects/origins";
@@ -111,12 +113,26 @@ export async function POST(req: NextRequest) {
   if (userRl.limited) return rateLimited(userRl.reset);
 
   let project:
-    | { id: string; baseUrl: string | null; systemPrompt: string | null; allowedOrigins: string[] }
+    | {
+        id: string;
+        baseUrl: string | null;
+        systemPrompt: string | null;
+        allowedOrigins: string[];
+        plan: ProjectPlan;
+        anthropicApiKeyEncrypted: string | null;
+      }
     | null;
   try {
     project = await prisma.project.findUnique({
       where: { clientKey },
-      select: { id: true, baseUrl: true, systemPrompt: true, allowedOrigins: true },
+      select: {
+        id: true,
+        baseUrl: true,
+        systemPrompt: true,
+        allowedOrigins: true,
+        plan: true,
+        anthropicApiKeyEncrypted: true,
+      },
     });
   } catch (err) {
     console.error("[chat] project lookup failed:", err);
@@ -132,6 +148,22 @@ export async function POST(req: NextRequest) {
     return json({ error: "Origin not allowed" }, 403);
   }
 
+  // BYOK: only honor a stored key if the project's current plan still allows it
+  // (guards a downgraded plan with a stale key). When active, the project pays
+  // Anthropic directly — credits are recorded for visibility but never deducted.
+  const byok =
+    !!project.anthropicApiKeyEncrypted &&
+    PLAN_CONFIGS[project.plan].byokAvailable;
+  let anthropicApiKey: string | null = null;
+  if (byok) {
+    try {
+      anthropicApiKey = decryptSecret(project.anthropicApiKeyEncrypted!);
+    } catch (err) {
+      console.error("[chat] failed to decrypt project BYOK key:", err);
+      return json({ error: "Internal server error" }, 500);
+    }
+  }
+
   let claim: IdempotencyClaim | null = null;
   if (idempotencyKey) {
     claim = await claimIdempotencyKey({
@@ -144,14 +176,16 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const hasCredits = await hasMinimumCredits(project.id, 1);
-  if (!hasCredits) {
-    getPostHogClient().capture({
-      distinctId: project.id,
-      event: "chat_credit_limit_reached",
-      properties: { project_id: project.id, end_user_id: endUserId },
-    });
-    return json({ error: "Credit limit reached" }, 402);
+  if (!byok) {
+    const hasCredits = await hasMinimumCredits(project.id, 1);
+    if (!hasCredits) {
+      getPostHogClient().capture({
+        distinctId: project.id,
+        event: "chat_credit_limit_reached",
+        properties: { project_id: project.id, end_user_id: endUserId },
+      });
+      return json({ error: "Credit limit reached" }, 402);
+    }
   }
 
   let conversationId: string;
@@ -179,11 +213,15 @@ export async function POST(req: NextRequest) {
     // not this id.
     const created = await createConversation(project.id, endUserId);
     conversationId = created.id;
-    const start = await consumeCredits(project.id, {
-      type: "conversation_start",
-      credits: CREDIT_WEIGHTS.conversation_start,
-      conversationId,
-    });
+    const start = await consumeCredits(
+      project.id,
+      {
+        type: "conversation_start",
+        credits: CREDIT_WEIGHTS.conversation_start,
+        conversationId,
+      },
+      { byok },
+    );
     if (!start.ok) {
       getPostHogClient().capture({
         distinctId: project.id,
@@ -208,7 +246,13 @@ export async function POST(req: NextRequest) {
   const history = await loadHistory(conversationId);
 
   const { stream } = runChatTurn({
-    project,
+    project: {
+      id: project.id,
+      baseUrl: project.baseUrl,
+      systemPrompt: project.systemPrompt,
+      anthropicApiKey,
+    },
+    byok,
     conversationId,
     endUserId,
     endUserToken,

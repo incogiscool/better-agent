@@ -52,6 +52,7 @@ export async function getProjectForOwner(projectId: string, ownerId: string) {
       systemPrompt: true,
       allowedOrigins: true,
       plan: true,
+      anthropicApiKeyMasked: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -129,6 +130,31 @@ export async function regenerateProjectCredentialsForOwner(
     clientKey: credentials.clientKey,
     secretKey: credentials.secretKey,
   };
+}
+
+export async function setProjectByokKey(input: {
+  projectId: string;
+  ownerId: string;
+  encrypted: string;
+  masked: string;
+}) {
+  return prisma.project.updateMany({
+    where: { id: input.projectId, ownerId: input.ownerId },
+    data: {
+      anthropicApiKeyEncrypted: input.encrypted,
+      anthropicApiKeyMasked: input.masked,
+    },
+  });
+}
+
+export async function clearProjectByokKey(input: ProjectKeyInput) {
+  return prisma.project.updateMany({
+    where: { id: input.projectId, ownerId: input.ownerId },
+    data: {
+      anthropicApiKeyEncrypted: null,
+      anthropicApiKeyMasked: null,
+    },
+  });
 }
 
 export async function deleteProjectForOwner(input: ProjectKeyInput) {

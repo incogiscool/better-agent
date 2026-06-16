@@ -3,18 +3,23 @@
 import { useActionState } from "react";
 import {
   regenerateProjectKeysAction,
+  removeProjectByokAction,
+  updateProjectByokAction,
   updateProjectSettingsAction,
 } from "@/lib/actions";
 import posthog from "posthog-js";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type {
+  ByokActionState,
   RegenerateKeysActionState,
   UpdateProjectActionState,
 } from "@/lib/types";
 
 const initialUpdateState: UpdateProjectActionState = {};
 const initialRegenerateState: RegenerateKeysActionState = {};
+const initialByokState: ByokActionState = {};
 
 function FieldError({ errors }: { errors?: string[] }) {
   if (!errors?.length) {
@@ -32,8 +37,125 @@ type ProjectSettingsFormProps = {
     systemPrompt: string | null;
     clientKey: string;
     allowedOrigins: string[];
+    byokAvailable: boolean;
+    anthropicApiKeyMasked: string | null;
   };
 };
+
+function ByokSection({
+  projectId,
+  byokAvailable,
+  maskedKey,
+}: {
+  projectId: string;
+  byokAvailable: boolean;
+  maskedKey: string | null;
+}) {
+  const saveAction = updateProjectByokAction.bind(null, projectId);
+  const removeAction = removeProjectByokAction.bind(null, projectId);
+
+  const [saveState, saveFormAction, savePending] = useActionState(
+    saveAction,
+    initialByokState,
+  );
+  const [removeState, removeFormAction, removePending] = useActionState(
+    removeAction,
+    initialByokState,
+  );
+
+  const masked = saveState.masked ?? maskedKey;
+
+  return (
+    <div className="space-y-4 border border-border p-4">
+      <div className="space-y-1">
+        <h2 className="text-lg font-semibold">Bring your own key</h2>
+        <p className="text-sm text-muted-foreground">
+          Use your own Anthropic API key for this project. While set, chat runs
+          on your key and consumes zero platform credits — usage is still shown
+          for visibility.
+        </p>
+      </div>
+
+      {!byokAvailable ? (
+        <p className="text-sm text-muted-foreground">
+          BYOK is available on the Plus plan and above.{" "}
+          <Link href="/dashboard/billing" className="underline">
+            Upgrade
+          </Link>{" "}
+          to enable it.
+        </p>
+      ) : (
+        <>
+          {masked ? (
+            <div className="space-y-1">
+              <p className="text-sm font-medium">Current key</p>
+              <p className="break-all border border-border p-3 font-mono text-xs">
+                {masked}
+              </p>
+            </div>
+          ) : null}
+
+          <form
+            action={saveFormAction}
+            className="space-y-3"
+            onSubmit={() =>
+              posthog.capture("project_byok_saved", { project_id: projectId })
+            }
+          >
+            <div className="space-y-2">
+              <label htmlFor="anthropicApiKey" className="text-sm font-medium">
+                {masked ? "Replace key" : "Anthropic API key"}
+              </label>
+              <Input
+                id="anthropicApiKey"
+                name="anthropicApiKey"
+                type="password"
+                placeholder="sk-ant-..."
+                autoComplete="off"
+              />
+              {saveState.error ? (
+                <p className="text-xs text-destructive">{saveState.error}</p>
+              ) : null}
+              {saveState.message ? (
+                <p className="text-xs text-muted-foreground">
+                  {saveState.message}
+                </p>
+              ) : null}
+            </div>
+            <Button type="submit" disabled={savePending}>
+              {savePending ? "Verifying..." : masked ? "Replace key" : "Save key"}
+            </Button>
+          </form>
+
+          {masked ? (
+            <form
+              action={removeFormAction}
+              onSubmit={() =>
+                posthog.capture("project_byok_removed", {
+                  project_id: projectId,
+                })
+              }
+            >
+              <Button type="submit" variant="outline" disabled={removePending}>
+                {removePending ? "Removing..." : "Remove key"}
+              </Button>
+              {removeState.error ? (
+                <p className="mt-2 text-xs text-destructive">
+                  {removeState.error}
+                </p>
+              ) : null}
+              {removeState.message ? (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {removeState.message}
+                </p>
+              ) : null}
+            </form>
+          ) : null}
+        </>
+      )}
+    </div>
+  );
+}
 
 export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
   const updateAction = updateProjectSettingsAction.bind(null, project.id);
@@ -164,6 +286,12 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
           </Button>
         </form>
       </div>
+
+      <ByokSection
+        projectId={project.id}
+        byokAvailable={project.byokAvailable}
+        maskedKey={project.anthropicApiKeyMasked}
+      />
     </div>
   );
 }

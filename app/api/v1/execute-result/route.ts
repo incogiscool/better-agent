@@ -1,5 +1,6 @@
 import { type NextRequest } from "next/server";
-import { hasMinimumCredits } from "@/lib/billing";
+import { hasMinimumCredits, PLAN_CONFIGS } from "@/lib/billing";
+import { decryptSecret } from "@/lib/crypto/secrets";
 import { checkTokenCap, truncateTo8KB } from "@/lib/chat/caps";
 import {
   loadConversationForProject,
@@ -13,6 +14,7 @@ import { prisma } from "@/lib/db";
 import {
   ConversationStatus,
   ToolExecutionStatus,
+  type ProjectPlan,
 } from "@/lib/generated/prisma/enums";
 import { executeResultRequestSchema } from "@/lib/schemas/chat";
 import { corsHeaders, isOriginAllowed } from "@/lib/projects/origins";
@@ -62,12 +64,26 @@ export async function POST(req: NextRequest) {
   const { conversationId, toolCallId, output, error } = parsed.data;
 
   let project:
-    | { id: string; baseUrl: string | null; systemPrompt: string | null; allowedOrigins: string[] }
+    | {
+        id: string;
+        baseUrl: string | null;
+        systemPrompt: string | null;
+        allowedOrigins: string[];
+        plan: ProjectPlan;
+        anthropicApiKeyEncrypted: string | null;
+      }
     | null;
   try {
     project = await prisma.project.findUnique({
       where: { clientKey },
-      select: { id: true, baseUrl: true, systemPrompt: true, allowedOrigins: true },
+      select: {
+        id: true,
+        baseUrl: true,
+        systemPrompt: true,
+        allowedOrigins: true,
+        plan: true,
+        anthropicApiKeyEncrypted: true,
+      },
     });
   } catch (err) {
     console.error("[execute-result] project lookup failed:", err);
@@ -81,6 +97,20 @@ export async function POST(req: NextRequest) {
   // Browser origin allowlist. Empty list => allow all (project not locked down).
   if (!isOriginAllowed(req.headers.get("origin"), project.allowedOrigins)) {
     return json({ error: "Origin not allowed" }, 403);
+  }
+
+  // BYOK: honor a stored key only if the current plan still allows it.
+  const byok =
+    !!project.anthropicApiKeyEncrypted &&
+    PLAN_CONFIGS[project.plan].byokAvailable;
+  let anthropicApiKey: string | null = null;
+  if (byok) {
+    try {
+      anthropicApiKey = decryptSecret(project.anthropicApiKeyEncrypted!);
+    } catch (err) {
+      console.error("[execute-result] failed to decrypt project BYOK key:", err);
+      return json({ error: "Internal server error" }, 500);
+    }
   }
 
   const conv = await loadConversationForProject(project.id, conversationId);
@@ -118,9 +148,11 @@ export async function POST(req: NextRequest) {
 
   await saveToolResultMessage(conv.id, toolCallId, truncated);
 
-  const hasCredits = await hasMinimumCredits(project.id, 1);
-  if (!hasCredits) {
-    return json({ error: "Credit limit reached" }, 402);
+  if (!byok) {
+    const hasCredits = await hasMinimumCredits(project.id, 1);
+    if (!hasCredits) {
+      return json({ error: "Credit limit reached" }, 402);
+    }
   }
 
   const cap = await checkTokenCap(conv.id);
@@ -145,7 +177,13 @@ export async function POST(req: NextRequest) {
   }
 
   const { stream } = runChatTurn({
-    project,
+    project: {
+      id: project.id,
+      baseUrl: project.baseUrl,
+      systemPrompt: project.systemPrompt,
+      anthropicApiKey,
+    },
+    byok,
     conversationId: conv.id,
     endUserId: conv.endUserId,
     endUserToken: req.headers.get("x-end-user-token"),

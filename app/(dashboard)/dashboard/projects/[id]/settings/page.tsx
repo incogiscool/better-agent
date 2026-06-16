@@ -1,6 +1,7 @@
 import { ProjectSettingsForm } from "@/app/(dashboard)/dashboard/projects/[id]/settings/ProjectSettingsForm";
 import { ProjectDangerZone } from "@/app/(dashboard)/dashboard/projects/[id]/settings/ProjectDangerZone";
 import { loadProjectContext } from "@/lib/dashboard/context";
+import { PLAN_CONFIGS } from "@/lib/billing";
 import { SectionHeader } from "@/components/dashboard/common";
 import { formatDate } from "@/lib/format";
 
@@ -31,6 +32,8 @@ export default async function ProjectSettingsPage({
           systemPrompt: project.systemPrompt,
           clientKey: project.clientKey,
           allowedOrigins: project.allowedOrigins,
+          byokAvailable: PLAN_CONFIGS[project.plan].byokAvailable,
+          anthropicApiKeyMasked: project.anthropicApiKeyMasked,
         }}
       />
 

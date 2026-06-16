@@ -5,15 +5,22 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireCurrentUser } from "@/lib/auth/session";
 import {
+  clearProjectByokKey,
   createProjectForOwner,
   deleteProjectForOwner,
+  getProjectForOwner,
   regenerateProjectCredentialsForOwner,
+  setProjectByokKey,
   updateProjectForOwner,
 } from "@/lib/projects/service";
 import { prisma } from "@/lib/db";
 import { checkOutboundUrlSync } from "@/lib/net/ssrf";
 import { sendWelcomeEmail } from "@/lib/email/notifications";
+import { PLAN_CONFIGS } from "@/lib/billing";
+import { encryptSecret, maskAnthropicKey } from "@/lib/crypto/secrets";
+import { validateAnthropicKey } from "@/lib/chat/validateAnthropicKey";
 import type {
+  ByokActionState,
   CreateProjectActionState,
   RegenerateKeysActionState,
   UpdateProjectActionState,
@@ -203,6 +210,72 @@ export async function regenerateProjectKeysAction(
       secretKey: result.secretKey,
     },
   };
+}
+
+function revalidateProjectPaths(projectId: string) {
+  revalidatePath("/dashboard");
+  revalidatePath(`/dashboard/projects/${projectId}`);
+  revalidatePath(`/dashboard/projects/${projectId}/settings`);
+}
+
+export async function updateProjectByokAction(
+  projectId: string,
+  _prevState: ByokActionState,
+  formData: FormData,
+): Promise<ByokActionState> {
+  void _prevState;
+  const user = await requireCurrentUser();
+
+  const project = await getProjectForOwner(projectId, user.id);
+  if (!project) {
+    return { error: "Project not found." };
+  }
+  if (!PLAN_CONFIGS[project.plan].byokAvailable) {
+    return { error: "BYOK isn't available on this project's plan." };
+  }
+
+  const apiKey = String(formData.get("anthropicApiKey") ?? "").trim();
+  if (!apiKey) {
+    return { error: "Enter an Anthropic API key." };
+  }
+  if (!apiKey.startsWith("sk-ant-")) {
+    return { error: "That doesn't look like an Anthropic key (expected sk-ant-…)." };
+  }
+
+  const validation = await validateAnthropicKey(apiKey);
+  if (!validation.ok) {
+    return { error: validation.error };
+  }
+
+  const masked = maskAnthropicKey(apiKey);
+  const result = await setProjectByokKey({
+    projectId,
+    ownerId: user.id,
+    encrypted: encryptSecret(apiKey),
+    masked,
+  });
+  if (result.count === 0) {
+    return { error: "Project not found." };
+  }
+
+  revalidateProjectPaths(projectId);
+  return { message: "Key saved. This project now uses your Anthropic key.", masked };
+}
+
+export async function removeProjectByokAction(
+  projectId: string,
+  _prevState: ByokActionState,
+): Promise<ByokActionState> {
+  void _prevState;
+  const user = await requireCurrentUser();
+
+  const result = await clearProjectByokKey({ projectId, ownerId: user.id });
+  if (result.count === 0) {
+    return { error: "Project not found." };
+  }
+
+  revalidateProjectPaths(projectId);
+  return { message: "Key removed. This project is back on platform credits." };
 }
 
 export async function deleteProjectAction(projectId: string) {

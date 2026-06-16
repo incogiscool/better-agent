@@ -9,6 +9,7 @@ export type PlanConfig = {
   maxProjects: number | null;
   historyDays: number | null;
   watermark: boolean;
+  byokAvailable: boolean;
 };
 
 export const PLAN_CONFIGS: Record<ProjectPlan, PlanConfig> = {
@@ -21,6 +22,7 @@ export const PLAN_CONFIGS: Record<ProjectPlan, PlanConfig> = {
     maxProjects: 1,
     historyDays: 7,
     watermark: true,
+    byokAvailable: false,
   },
   [ProjectPlan.PRO]: {
     includedCredits: 10_000,
@@ -31,6 +33,7 @@ export const PLAN_CONFIGS: Record<ProjectPlan, PlanConfig> = {
     maxProjects: null,
     historyDays: null,
     watermark: false,
+    byokAvailable: true,
   },
   [ProjectPlan.ENTERPRISE]: {
     // includedCredits is a placeholder; a future per-project override column will supersede this
@@ -42,6 +45,7 @@ export const PLAN_CONFIGS: Record<ProjectPlan, PlanConfig> = {
     maxProjects: null,
     historyDays: null,
     watermark: false,
+    byokAvailable: true,
   },
 };
 

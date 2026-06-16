@@ -13,6 +13,7 @@ export type DashboardProject = {
   systemPrompt: string | null;
   allowedOrigins: string[];
   plan: ProjectPlan;
+  anthropicApiKeyMasked: string | null;
   stripeCustomerId: string | null;
   stripeSubscriptionId: string | null;
   createdAt: Date;
@@ -57,6 +58,7 @@ export const loadProjectContext = cache(
         systemPrompt: true,
         allowedOrigins: true,
         plan: true,
+        anthropicApiKeyMasked: true,
         stripeCustomerId: true,
         stripeSubscriptionId: true,
         createdAt: true,

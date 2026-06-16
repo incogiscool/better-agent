@@ -1,4 +1,4 @@
-import { anthropic } from "@ai-sdk/anthropic";
+import { anthropic, createAnthropic } from "@ai-sdk/anthropic";
 import { stepCountIs, streamText, type ModelMessage, type ToolSet } from "ai";
 import { consumeCredits, CREDIT_WEIGHTS } from "@/lib/billing";
 import { getRunningTokenTotal, isOverTokenCap, MAX_STEPS } from "./caps";
@@ -19,7 +19,11 @@ export type ChatTurnContext = {
     id: string;
     baseUrl: string | null;
     systemPrompt: string | null;
+    /** Decrypted BYOK Anthropic key, or null to use the platform key. */
+    anthropicApiKey: string | null;
   };
+  /** When true, usage is recorded but never deducted from the credit pool. */
+  byok: boolean;
   conversationId: string;
   endUserId: string;
   endUserToken: string | null;
@@ -96,23 +100,31 @@ async function orchestrate(
   const collectedToolResults: CollectedToolResult[] = [];
   let aborted = false;
 
+  const provider = ctx.project.anthropicApiKey
+    ? createAnthropic({ apiKey: ctx.project.anthropicApiKey })
+    : anthropic;
+
   const result = streamText({
-    model: anthropic(MODEL_ID),
+    model: provider(MODEL_ID),
     system: { role: "system", content: system, providerOptions: CACHE_CONTROL },
     messages: withCachePrefix(ctx.history),
     tools: withToolCaching(built.toolSet),
     stopWhen: stepCountIs(MAX_STEPS),
     onFinish: async ({ totalUsage }) => {
       try {
-        await consumeCredits(ctx.project.id, {
-          type: "message",
-          credits: CREDIT_WEIGHTS.message,
-          conversationId: ctx.conversationId,
-          tokensInput: totalUsage.inputTokens,
-          tokensOutput: totalUsage.outputTokens,
-          tokensCached: totalUsage.inputTokenDetails?.cacheReadTokens,
-          model: MODEL_ID,
-        });
+        await consumeCredits(
+          ctx.project.id,
+          {
+            type: "message",
+            credits: CREDIT_WEIGHTS.message,
+            conversationId: ctx.conversationId,
+            tokensInput: totalUsage.inputTokens,
+            tokensOutput: totalUsage.outputTokens,
+            tokensCached: totalUsage.inputTokenDetails?.cacheReadTokens,
+            model: MODEL_ID,
+          },
+          { byok: ctx.byok },
+        );
         const total = await getRunningTokenTotal(ctx.conversationId);
         if (isOverTokenCap(total)) {
           await markConversationAbandoned(ctx.conversationId);
@@ -139,11 +151,15 @@ async function orchestrate(
           break;
 
         case "tool-call": {
-          const billed = await consumeCredits(ctx.project.id, {
-            type: "tool_call",
-            credits: CREDIT_WEIGHTS.tool_call,
-            conversationId: ctx.conversationId,
-          });
+          const billed = await consumeCredits(
+            ctx.project.id,
+            {
+              type: "tool_call",
+              credits: CREDIT_WEIGHTS.tool_call,
+              conversationId: ctx.conversationId,
+            },
+            { byok: ctx.byok },
+          );
           if (!billed.ok) {
             sse.send({
               event: "error",

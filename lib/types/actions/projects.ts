@@ -28,3 +28,10 @@ export type RegenerateKeysActionState = {
     secretKey: string;
   };
 };
+
+export type ByokActionState = {
+  error?: string;
+  message?: string;
+  /** Masked display hint for the saved key, e.g. `sk-ant-…ab12`. */
+  masked?: string;
+};
