@@ -3,15 +3,23 @@
 import * as React from "react";
 import { cn, useChatStream } from "betteragent-react";
 import { PaperPlaneTilt, X as CloseIcon } from "@phosphor-icons/react";
-import { ChatMessages, ChatErrorBanner } from "./pieces";
+import { ChatMessages, ChatErrorBanner, ChatAttribution } from "./pieces";
 
 export interface ChatInlineBarProps {
   placeholder?: string;
+  /** Footer attribution. Pass `null` to remove, or a node to replace. */
+  attribution?: React.ReactNode;
   className?: string;
 }
 
 export function ChatInlineBar({
   placeholder = "Tell the agent what to do…",
+  attribution = (
+    <ChatAttribution
+      inline
+      className="mt-1.5 w-full justify-center font-[var(--ba-font-mono)] text-[10px] text-[var(--ba-muted-fg)]"
+    />
+  ),
   className,
 }: ChatInlineBarProps) {
   const [value, setValue] = React.useState("");
@@ -94,6 +102,8 @@ export function ChatInlineBar({
           <PaperPlaneTilt size={13} weight="fill" />
         </button>
       </form>
+
+      {attribution}
     </div>
   );
 }

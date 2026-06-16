@@ -10,6 +10,7 @@ import {
   ChatEmptyState,
   ChatErrorBanner,
   ChatSuggestedPrompts,
+  ChatAttribution,
   type SuggestedPrompt,
 } from "./pieces";
 
@@ -20,6 +21,8 @@ export interface ChatPopupProps {
   suggestedPrompts?: readonly SuggestedPrompt[];
   /** Initial open state (default closed). */
   defaultOpen?: boolean;
+  /** Footer attribution. Pass `null` to remove, or a node to replace. */
+  attribution?: React.ReactNode;
   className?: string;
 }
 
@@ -29,6 +32,7 @@ export function ChatPopup({
   greeting = "Hi — how can I help?",
   suggestedPrompts = [],
   defaultOpen = false,
+  attribution = <ChatAttribution />,
   className,
 }: ChatPopupProps) {
   const [open, setOpen] = React.useState(defaultOpen);
@@ -82,6 +86,8 @@ export function ChatPopup({
             disabled={isStreaming}
             autoFocus
           />
+
+          {attribution}
         </section>
       )}
 

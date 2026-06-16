@@ -81,6 +81,60 @@ import { ChatSidebar } from "@/components/chat/sidebar";
 
 </Steps>
 
+## Attribution footer
+
+Every container shows a small **“powered by betteragent”** link by default. It’s
+fully configurable through the `attribution` prop — available on `ChatSidebar`,
+`ChatPopup`, `ChatCmdk`, `ChatInlineBar`, and `ChatDrawer`.
+
+<Tabs items={['Remove it', 'Rebrand it', 'Default']}>
+<Tabs.Tab>
+
+```tsx
+// Pass null to remove the attribution entirely
+<ChatSidebar attribution={null} />
+```
+
+</Tabs.Tab>
+<Tabs.Tab>
+
+```tsx
+import { ChatAttribution } from "@/components/chat";
+
+// Replace it with your own label and link
+<ChatPopup
+  attribution={
+    <ChatAttribution label="powered by Acme" href="https://acme.com" />
+  }
+/>
+```
+
+</Tabs.Tab>
+<Tabs.Tab>
+
+```tsx
+// Omit the prop to show the default "powered by betteragent" link
+<ChatDrawer />
+```
+
+</Tabs.Tab>
+</Tabs>
+
+`ChatAttribution` accepts:
+
+| Prop | Default | Description |
+| --- | --- | --- |
+| `label` | `"powered by betteragent"` | The attribution text. |
+| `href` | `"https://betteragent.dev"` | Link target (opens in a new tab). |
+| `inline` | `false` | Render a bare link with no footer bar, for embedding inside an existing footer. |
+| `className` | — | Extra classes, merged via `tailwind-merge`. |
+
+<Callout type="info">
+  The components are copied into your project, so you own the attribution markup
+  too — the `attribution` prop is the quickest switch, but you can edit
+  `chat-attribution.tsx` directly for anything custom.
+</Callout>
+
 ## Theming through CSS variables
 
 Components inherit your shadcn tokens by default. Override any `--ba-*` variable

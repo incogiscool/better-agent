@@ -9,3 +9,5 @@ export { ChatSuggestedPrompts } from "./chat-suggested-prompts";
 export type { SuggestedPrompt } from "./chat-suggested-prompts";
 export { ChatErrorBanner } from "./chat-error";
 export { ChatMarkdown } from "./chat-markdown";
+export { ChatAttribution } from "./chat-attribution";
+export type { ChatAttributionProps } from "./chat-attribution";

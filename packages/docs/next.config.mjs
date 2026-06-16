@@ -10,4 +10,8 @@ export default withNextra({
   // betteragent monorepo. Pin the tracing root here so Next doesn't pick up
   // the repo-root lockfile / main app.
   outputFileTracingRoot: import.meta.dirname,
+  experimental: {
+    // Bypass Nextra's root layout for 404s to avoid LayoutRouterContext E56.
+    globalNotFound: true,
+  },
 });

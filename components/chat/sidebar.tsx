@@ -10,6 +10,7 @@ import {
   ChatEmptyState,
   ChatErrorBanner,
   ChatSuggestedPrompts,
+  ChatAttribution,
   type SuggestedPrompt,
 } from "./pieces";
 
@@ -26,6 +27,8 @@ export interface ChatSidebarProps {
   width?: number;
   /** Show a close button in the header. */
   onClose?: () => void;
+  /** Footer attribution. Pass `null` to remove, or a node to replace. */
+  attribution?: React.ReactNode;
   className?: string;
 }
 
@@ -36,6 +39,7 @@ export function ChatSidebar({
   suggestedPrompts = [],
   width = 360,
   onClose,
+  attribution = <ChatAttribution />,
   className,
 }: ChatSidebarProps) {
   const { messages, send, error, isStreaming, reset } = useChatStream();
@@ -90,6 +94,8 @@ export function ChatSidebar({
         disabled={isStreaming}
         placeholder={`Ask ${typeof title === "string" ? title : "the agent"} to do something…`}
       />
+
+      {attribution}
     </aside>
   );
 }

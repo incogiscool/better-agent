@@ -14,6 +14,7 @@ import {
 import {
   ChatMessages,
   ChatErrorBanner,
+  ChatAttribution,
   type SuggestedPrompt,
 } from "./pieces";
 
@@ -24,8 +25,8 @@ export interface ChatCmdkProps {
   suggestedPrompts?: readonly SuggestedPrompt[];
   /** Keyboard shortcut key (default "k" → ⌘K / Ctrl+K). Pass "" to disable. */
   shortcutKey?: string;
-  /** Footer attribution label. */
-  footerLabel?: string;
+  /** Footer attribution. Pass `null` to remove, or a node to replace. */
+  attribution?: React.ReactNode;
   className?: string;
 }
 
@@ -33,7 +34,7 @@ export function ChatCmdk({
   placeholder = "Type a command, ask, or give an instruction…",
   suggestedPrompts = [],
   shortcutKey = "k",
-  footerLabel = "powered by betteragent",
+  attribution = <ChatAttribution inline />,
   className,
 }: ChatCmdkProps) {
   const [open, setOpen] = React.useState(false);
@@ -128,7 +129,7 @@ export function ChatCmdk({
         )}
 
         <div className={cn(
-          "flex items-center justify-between border-t border-border bg-muted/40 px-3 py-1.5 font-mono text-[10px] text-muted-foreground",
+          "flex items-center justify-between gap-3 border-t border-border bg-muted/40 px-3 py-1.5 font-mono text-[10px] text-muted-foreground",
         )}>
           <div className="flex items-center gap-3">
             <span>↵ send</span>
@@ -136,7 +137,7 @@ export function ChatCmdk({
             <span>esc close</span>
             {isStreaming && <span className="text-primary">streaming…</span>}
           </div>
-          <span>{footerLabel}</span>
+          {attribution}
         </div>
       </Command>
     </CommandDialog>

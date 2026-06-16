@@ -18,6 +18,7 @@ import {
   ChatEmptyState,
   ChatErrorBanner,
   ChatSuggestedPrompts,
+  ChatAttribution,
   type SuggestedPrompt,
 } from "./pieces";
 
@@ -32,6 +33,8 @@ export interface ChatDrawerProps {
   width?: number;
   /** Custom trigger element. Defaults to a floating bottom-right button. */
   trigger?: React.ReactNode;
+  /** Footer attribution. Pass `null` to remove, or a node to replace. */
+  attribution?: React.ReactNode;
   className?: string;
 }
 
@@ -43,6 +46,7 @@ export function ChatDrawer({
   defaultOpen = false,
   width = 400,
   trigger,
+  attribution = <ChatAttribution />,
   className,
 }: ChatDrawerProps) {
   const [open, setOpen] = React.useState(defaultOpen);
@@ -126,6 +130,8 @@ export function ChatDrawer({
           disabled={isStreaming}
           autoFocus
         />
+
+        {attribution}
       </DrawerContent>
     </Drawer>
   );

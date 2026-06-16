@@ -385,7 +385,6 @@ export function VariantSwitcher() {
             <ChatCmdk
               placeholder="Type a command, ask, or give an instruction…"
               suggestedPrompts={SUGGESTED}
-              footerLabel="powered by betteragent"
             />
             <div className="pointer-events-none fixed bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 rounded-full border border-border bg-background/90 px-4 py-2 shadow-md backdrop-blur-sm font-mono text-xs text-muted-foreground">
               Press

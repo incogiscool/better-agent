@@ -179,8 +179,8 @@ A per-project toggle, available on Plus (included by default on Enterprise) — 
 - `Project.anthropicApiKeyEncrypted` (AES-256-GCM, server-side `KEY_ENCRYPTION_SECRET`) stores the customer's Anthropic key. Never returned to the client; UI shows a masked `sk-ant-...xxxx`.
 - The chat route (`app/api/v1/chat/route.ts`) constructs the Anthropic client with the project's key instead of the platform key when set.
 - On save, validate the key with a cheap call (e.g. `models.list()` or a 1-token request) before accepting it.
-- `message`-type credit events (the only ones with real LLM cost) are recorded for visibility (`tokensInput/Output/Cached`, `costUsd`, `model`) but **not deducted from the credit pool** and don't count toward overage — the customer is billed by Anthropic directly.
-- `tool_call` / `conversation_start` overhead credits still apply normally (covers platform compute, not LLM cost).
+- All credit events (`message`, `tool_call`, `conversation_start`) are recorded for visibility (`tokensInput/Output/Cached`, `costUsd`, `model`) but **not deducted from the credit pool** and don't count toward overage — the project pays $0 in platform credits while BYOK is active. `message` cost is billed by Anthropic directly; `tool_call`/`conversation_start` overhead is absorbed by us.
+- Binary toggle, not a mid-conversation mix — a project is either fully on platform credits or fully on BYOK at any given time.
 - Pitch: _"Want zero limits, ever? Add your own Anthropic API key."_
 
 ---
@@ -655,8 +655,7 @@ CSS variables that inherit from shadcn tokens, exposed via Tailwind utility clas
 - [ ] `Project.anthropicApiKeyEncrypted` column + AES-256-GCM encrypt/decrypt helpers (`KEY_ENCRYPTION_SECRET` env var)
 - [ ] Settings UI: add/rotate/remove key, masked display, validation call on save
 - [ ] Chat route: use project key when set, fall back to platform key otherwise
-- [ ] Skip credit deduction/overage for `message` events when BYOK active; still record tokens/costUsd for visibility
-- [ ] `tool_call`/`conversation_start` credits still apply
+- [ ] Skip credit deduction/overage for ALL event types (`message`, `tool_call`, `conversation_start`) when BYOK active; still record tokens/costUsd for visibility
 
 ### Phase 4: Chat Engine (Weeks 5–6)
 
@@ -917,7 +916,7 @@ These are locked in. Don't relitigate without strong reason:
 | Free plan              | 500 credits, hosted tokens, per-project                       |
 | Starter plan           | $0.99/mo, 1,500 credits, hard cap, credit-value badge         |
 | Plus plan              | $14.99/mo, 4,000 credits, $10/1k overage, no hard cap         |
-| BYOK                   | Per-project toggle, Plus+ (included on Enterprise)            |
+| BYOK                   | Per-project binary toggle, Plus+ (included on Enterprise); full credit exemption, no mixing |
 | Source of truth        | Code (sync), with dashboard overrides separate                |
 | Action protocol        | Stream-then-resume                                            |
 | Component distribution | shadcn-style registry                                         |

@@ -9,3 +9,5 @@ export type { ChatInlineBarProps } from "./inline-bar";
 export { ChatDrawer } from "./chat-drawer";
 export type { ChatDrawerProps } from "./chat-drawer";
 export type { SuggestedPrompt } from "./pieces";
+export { ChatAttribution } from "./pieces";
+export type { ChatAttributionProps } from "./pieces";
