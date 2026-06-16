@@ -79,7 +79,10 @@ function ByokSection({
       {!byokAvailable ? (
         <p className="text-sm text-muted-foreground">
           BYOK is available on the Plus plan and above.{" "}
-          <Link href="/dashboard/billing" className="underline">
+          <Link
+            href={`/dashboard/projects/${projectId}/billing`}
+            className="underline"
+          >
             Upgrade
           </Link>{" "}
           to enable it.

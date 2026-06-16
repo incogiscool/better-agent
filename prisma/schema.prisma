@@ -9,7 +9,8 @@ datasource db {
 
 enum ProjectPlan {
   FREE
-  PRO
+  STARTER
+  PLUS
   ENTERPRISE
 }
 
@@ -293,4 +294,12 @@ model CreditEvent {
   @@index([billingPeriodId, createdAt])
   @@index([conversationId])
   @@index([toolExecutionId])
+}
+
+// Idempotency ledger for Stripe webhooks — we insert each event id before
+// processing and skip duplicates, since Stripe retries delivery.
+model StripeEvent {
+  id        String   @id
+  type      String
+  createdAt DateTime @default(now())
 }

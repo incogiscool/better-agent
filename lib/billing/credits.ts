@@ -6,6 +6,37 @@ import {
   sendCreditWarningEmail,
   sendCreditsExhaustedEmail,
 } from "@/lib/email/notifications";
+import { stripe } from "@/lib/stripe/client";
+import { STRIPE_OVERAGE_METER_EVENT } from "@/lib/stripe/plans";
+
+/**
+ * Report metered overage for a Plus project: bump the period's overageCredits
+ * and emit a Stripe meter event for the credits consumed above the included
+ * pool. Best-effort — billing visibility must never block chat.
+ */
+async function reportOverage(
+  billingPeriodId: string,
+  stripeCustomerId: string,
+  overageCredits: number,
+): Promise<void> {
+  try {
+    await prisma.billingPeriod.update({
+      where: { id: billingPeriodId },
+      data: { overageCredits: { increment: overageCredits } },
+    });
+    if (stripe) {
+      await stripe.billing.meterEvents.create({
+        event_name: STRIPE_OVERAGE_METER_EVENT,
+        payload: {
+          stripe_customer_id: stripeCustomerId,
+          value: String(overageCredits),
+        },
+      });
+    }
+  } catch (err) {
+    console.error("[billing] overage report failed:", err);
+  }
+}
 
 export type CreditEventInput = {
   type: CreditEventType;
@@ -102,6 +133,7 @@ export async function consumeCredits(
       select: {
         plan: true,
         name: true,
+        stripeCustomerId: true,
         owner: { select: { email: true } },
       },
     }),
@@ -122,6 +154,23 @@ export async function consumeCredits(
   await recordCreditEvent(projectId, period.id, event);
 
   const newUsed = period.creditsUsed + event.credits;
+
+  // Metered overage (Plus): report only the portion of this event that pushes
+  // usage above the included pool. Plans without a per-1k overage rate (Free,
+  // Starter, Enterprise) are skipped.
+  if (
+    config.overageAllowed &&
+    config.overageCreditCostPer1k != null &&
+    project.stripeCustomerId
+  ) {
+    const prevOver = Math.max(0, period.creditsUsed - period.includedCredits);
+    const newOver = Math.max(0, newUsed - period.includedCredits);
+    const overageDelta = newOver - prevOver;
+    if (overageDelta > 0) {
+      void reportOverage(period.id, project.stripeCustomerId, overageDelta);
+    }
+  }
+
   const usageRatio = newUsed / period.includedCredits;
   if (config.hardCap && usageRatio >= 0.8 && !period.warningEmailSentAt) {
     sendCreditWarningEmail(

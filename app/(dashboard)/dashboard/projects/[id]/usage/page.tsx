@@ -42,7 +42,7 @@ export default async function UsagePage({ params }: PageProps) {
         description="Credits, tokens, and cost for the current billing period."
         actions={
           <Button asChild variant="outline" size="sm">
-            <Link href={`/dashboard/projects/${id}/settings`}>Plan settings</Link>
+            <Link href={`/dashboard/projects/${id}/billing`}>Billing</Link>
           </Button>
         }
       />
