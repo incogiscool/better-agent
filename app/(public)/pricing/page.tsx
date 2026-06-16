@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Plus } from "@phosphor-icons/react";
 import posthog from "posthog-js";
 import { PricingCards } from "@/components/landing/PricingCards";
+import { PricingComparison } from "@/components/landing/PricingComparison";
 import { CtaSection } from "@/components/landing/CtaSection";
 import {
   Eyebrow,
@@ -58,6 +59,7 @@ export default function PricingPage() {
       <PricingHero />
       <PlansSection />
       <CreditExplainer />
+      <ComparisonSection />
       <FaqSection />
       <CtaSection />
     </>
@@ -76,10 +78,8 @@ function PricingHero() {
             earns its keep.
           </h1>
           <p className={SUB}>
-            500 credits a month on the house — roughly 25 conversations. Need
-            more? Starter is $0.99/mo for 1,500 credits. Plus ($14.99/mo, 4,000
-            credits + pay-as-you-go overage) is launching soon. No card required
-            to start.
+            500 credits a month, free — no card required. Paid plans start at
+            $0.99/mo when you need more room.
           </p>
         </div>
       </div>
@@ -104,78 +104,53 @@ function CreditExplainer() {
         <div className={SECHEAD}>
           <Eyebrow>How credits work</Eyebrow>
           <h2 className={H2}>One credit ≈ one small agent action.</h2>
+          <p className={SUB}>Credits are consumed per event, not per token.</p>
+        </div>
+
+        <div className="border border-border rounded-lg overflow-hidden">
+          <div className="grid grid-cols-[1.6fr_120px_2fr] px-[18px] py-2.5 border-b border-border bg-muted font-mono text-[10px] tracking-[0.06em] uppercase text-muted-foreground">
+            <span>Event</span>
+            <span className="text-center">Credits</span>
+            <span>What it covers</span>
+          </div>
+          {CREDIT_EVENTS.map((row, i) => (
+            <div
+              key={row.event}
+              className={cn(
+                "grid grid-cols-[1.6fr_120px_2fr] px-[18px] py-3.5 font-mono text-[13px] items-center",
+                i < CREDIT_EVENTS.length - 1 && "border-b border-border",
+              )}
+            >
+              <span>{row.event}</span>
+              <span className="text-center font-semibold text-primary">
+                {row.credits}
+              </span>
+              <span className="text-muted-foreground text-xs">{row.note}</span>
+            </div>
+          ))}
+        </div>
+
+        <p className="font-sans text-[13px] text-muted-foreground leading-[1.55] mt-5">
+          Flat rate per event — token costs are always included.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function ComparisonSection() {
+  return (
+    <section className={SEC}>
+      <div className={WRAP}>
+        <div className={SECHEAD}>
+          <Eyebrow>Compare plans</Eyebrow>
+          <h2 className={H2}>Every plan, side by side.</h2>
           <p className={SUB}>
-            Credits are consumed per event, not per token. Here{"’"}s the full
-            cost table:
+            The essentials at a glance. Full feature details live in each plan
+            card above.
           </p>
         </div>
-
-        <div className="grid grid-cols-2 gap-6 items-start">
-          {/* Cost table */}
-          <div className="border border-border rounded-lg overflow-hidden">
-            <div className="grid grid-cols-[1fr_80px_1fr] px-[18px] py-2.5 border-b border-border bg-muted font-mono text-[10px] tracking-[0.06em] uppercase text-muted-foreground">
-              <span>Event</span>
-              <span className="text-center">Credits</span>
-              <span>Note</span>
-            </div>
-            {CREDIT_EVENTS.map((row, i) => (
-              <div
-                key={row.event}
-                className={cn(
-                  "grid grid-cols-[1fr_80px_1fr] px-[18px] py-3 font-mono text-[13px] items-center",
-                  i < CREDIT_EVENTS.length - 1 && "border-b border-border",
-                )}
-              >
-                <span>{row.event}</span>
-                <span className="text-center font-semibold text-primary">
-                  {row.credits}
-                </span>
-                <span className="text-muted-foreground text-xs">
-                  {row.note}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* Math examples */}
-          <div className="flex flex-col gap-4">
-            <h3 className="font-mono font-medium text-lg m-0 tracking-[-0.01em]">
-              What does that look like?
-            </h3>
-
-            {[
-              {
-                plan: "Free · 500 credits",
-                eg: "Roughly 25 short conversations with a couple of tool calls each.",
-              },
-              {
-                plan: "Starter · 1,500 credits",
-                eg: "Roughly 75 short conversations. 3x the Free runway.",
-              },
-              {
-                plan: "Plus · 4,000 credits",
-                eg: "Roughly 200 short conversations, then $10 per 1,000 more, no hard cap.",
-              },
-            ].map((row) => (
-              <div
-                key={row.plan}
-                className="p-4 border border-border rounded-[var(--radius-md)]"
-              >
-                <div className="font-mono font-semibold text-[13px] mb-1.5">
-                  {row.plan}
-                </div>
-                <div className="font-sans text-[13px] text-muted-foreground leading-relaxed">
-                  {row.eg}
-                </div>
-              </div>
-            ))}
-
-            <p className="font-sans text-[13px] text-muted-foreground leading-[1.55] m-0">
-              Token costs are included in credit pricing — you pay a flat rate
-              per event, not for individual tokens.
-            </p>
-          </div>
-        </div>
+        <PricingComparison />
       </div>
     </section>
   );

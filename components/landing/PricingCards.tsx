@@ -14,7 +14,7 @@ export const PLANS = [
     cta: "Start free",
     href: "/auth/sign-up",
     tagline: "For prototyping and small projects.",
-    features: ["500 credits / month", "1 project", "Hosted Sonnet 4.6"],
+    features: ["500 credits / month", "Unlimited projects", "Hosted Sonnet 4.6"],
   },
   {
     name: "Starter",
@@ -59,8 +59,9 @@ export const PLANS = [
 
 export function PricingCards() {
   return (
-    <div className="grid grid-cols-4 gap-3.5">
-      {PLANS.map((p) => (
+    <div className="flex flex-col gap-5">
+      <div className="grid grid-cols-4 gap-3.5">
+        {PLANS.map((p) => (
         <div
           key={p.name}
           className={cn(
@@ -118,7 +119,11 @@ export function PricingCards() {
             </Button>
           </Link>
         </div>
-      ))}
+        ))}
+      </div>
+      <p className="font-mono text-[12px] text-muted-foreground text-center m-0">
+        Every plan is priced per project — create as many projects as you want.
+      </p>
     </div>
   );
 }

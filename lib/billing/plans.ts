@@ -19,7 +19,7 @@ export const PLAN_CONFIGS: Record<ProjectPlan, PlanConfig> = {
     hardCap: true,
     overageAllowed: false,
     overageCreditCostPer1k: null,
-    maxProjects: 1,
+    maxProjects: null,
     historyDays: 7,
     watermark: true,
     byokAvailable: false,
