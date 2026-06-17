@@ -1,0 +1,234 @@
+{
+  "summary": {
+    "health_score": 38,
+    "business_type": "B2B SaaS / Developer Tool (AI agent infrastructure)",
+    "top_findings": [
+      "Zero structured data (JSON-LD) anywhere on betteragent.dev or docs.betteragent.dev",
+      "Identical <title> and meta description on 6+ distinct pages (home, pricing, demo, contact, sign-in, sign-up)",
+      "No sitemap.xml on either the marketing site or the docs subdomain (both 404)",
+      "robots.txt explicitly blocks GPTBot, ClaudeBot, Google-Extended, Applebot-Extended, CCBot, Bytespider, meta-externalagent — ironic and self-defeating for a product selling AI agent infrastructure",
+      "/demo renders almost no server-side content (50 characters of text) — effectively invisible to crawlers and an empty social-share target"
+    ],
+    "quick_wins": [
+      "Write unique title + meta description per page (10 minutes, highest leverage fix available)",
+      "Add a sitemap.xml (trivial in Next.js App Router via app/sitemap.ts) and reference it in robots.txt",
+      "Add Open Graph + Twitter Card tags (currently completely absent — shared links have no preview)",
+      "Add canonical tags site-wide (currently absent everywhere)",
+      "Add Organization + SoftwareApplication JSON-LD to the homepage"
+    ]
+  },
+  "categories": [
+    {
+      "name": "Technical SEO",
+      "score": 55,
+      "what_works": [
+        "HTTPS enforced with HSTS (max-age=63072000)",
+        "Clean, descriptive URL structure (/pricing, /demo, /contact)",
+        "robots.txt present and explicitly allows general crawling (Allow: / for User-agent: *)",
+        "Mobile viewport meta tag present",
+        "Pages are server-prerendered (x-nextjs-prerender header) and served from Vercel/Cloudflare edge cache"
+      ],
+      "findings": [
+        {
+          "title": "No sitemap.xml on apex domain or docs subdomain",
+          "severity": "Critical",
+          "description": "https://betteragent.dev/sitemap.xml and https://docs.betteragent.dev/sitemap.xml both return 404 (soft 404s rendering the site's not-found page). robots.txt also contains no Sitemap: directive.",
+          "recommendation": "Add app/sitemap.ts (Next.js App Router) listing all indexable routes for both betteragent.dev and docs.betteragent.dev, and add a Sitemap: line to each robots.txt."
+        },
+        {
+          "title": "No canonical tags on any page",
+          "severity": "High",
+          "description": "Checked all 9 crawled pages (home, pricing, demo, contact, privacy, terms, auth/sign-in, auth/sign-up, docs home) — none contain <link rel=\"canonical\">.",
+          "recommendation": "Add canonical URLs via Next.js metadata API (alternates.canonical) on every page, especially important since www and apex both resolve (307 redirect from betteragent.dev to www.betteragent.dev was observed)."
+        },
+        {
+          "title": "AI/LLM crawlers blocked in robots.txt",
+          "severity": "High",
+          "description": "robots.txt disallows GPTBot, ClaudeBot, Google-Extended, Applebot-Extended, CCBot, Bytespider, meta-externalagent, Amazonbot, and CloudflareBrowserRenderingCrawler. Content-Signal is set to ai-train=no. This is likely a Cloudflare-managed default, but it blocks the product from appearing in ChatGPT, Claude, Perplexity, and Google AI Overview answers — a significant channel for a developer tool audience that researches via AI assistants.",
+          "recommendation": "Decide deliberately: if the goal is visibility in AI-assisted developer search (highly likely for this product category), allow ai-input access for ClaudeBot/GPTBot/Google-Extended at minimum, even if ai-train stays restricted. See AI Search Readiness section."
+        },
+        {
+          "title": "Missing security response headers",
+          "severity": "Medium",
+          "description": "No Content-Security-Policy, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, or Permissions-Policy headers observed on the homepage response.",
+          "recommendation": "Add baseline security headers via next.config headers() or vercel.ts — improves trust signals and is increasingly checked by security-aware enterprise buyers evaluating a SaaS vendor."
+        },
+        {
+          "title": "Apex domain redirects to www with a 307 (temporary) redirect",
+          "severity": "Low",
+          "description": "betteragent.dev/ returns a 307 to www.betteragent.dev/. 307s are technically fine for SEO (treated as permanent enough by Google when consistent) but a 301 is the conventional choice for a permanent canonical host decision.",
+          "recommendation": "Switch the apex→www redirect to a 301/308 to remove any ambiguity for crawlers."
+        }
+      ]
+    },
+    {
+      "name": "Content Quality",
+      "score": 40,
+      "what_works": [
+        "Homepage copy is concise, specific, and avoids generic SaaS filler ('Point BetterAgent at your codebase. It reads your routes and server actions...')",
+        "Pricing page clearly explains the credit-based billing model with a comparison table"
+      ],
+      "findings": [
+        {
+          "title": "/demo page is server-side empty",
+          "severity": "Critical",
+          "description": "Stripping scripts/styles/tags from the rendered HTML leaves only 50 characters of text on /demo, versus 6,736 on the homepage. The page is fully client-rendered with no SSR fallback content, meta description duplicated from the homepage, and no <h1>.",
+          "recommendation": "Server-render at least a title, description, and static preview/screenshot on /demo so it has indexable content and a meaningful social/AI-search snippet, even if the interactive demo itself is client-side."
+        },
+        {
+          "title": "No E-E-A-T / authority signals: no About, team, case studies, or testimonials page",
+          "severity": "High",
+          "description": "Full link crawl across all 9 pages turned up only: /, /pricing, /demo, /contact, /privacy, /terms, /auth/sign-in, /auth/sign-up, and docs pages. There is no page establishing who built the product, customer proof, or usage evidence.",
+          "recommendation": "Add a lightweight About/company page and at least one customer quote or usage stat on the homepage — both for human trust and because LLM answer engines weight authority/citation signals heavily for B2B tool recommendations."
+        },
+        {
+          "title": "No blog or educational content",
+          "severity": "Medium",
+          "description": "No /blog route exists (404). For a dev-tool category that competes on discovery via search and AI assistants, there's no long-tail content surface (e.g. 'how to add an AI agent to a Next.js app', integration guides, comparison posts).",
+          "recommendation": "Not urgent for MVP stage, but flag as a growth lever once core product-market fit is established — docs.betteragent.dev structure could be extended with guides."
+        }
+      ]
+    },
+    {
+      "name": "On-Page SEO",
+      "score": 30,
+      "what_works": [
+        "Single <h1> present on most pages (home, pricing, contact, privacy, terms, docs, sign-in, sign-up)",
+        "lang=\"en\" attribute correctly set"
+      ],
+      "findings": [
+        {
+          "title": "Duplicate title tag and meta description across 6 distinct pages",
+          "severity": "Critical",
+          "description": "Home, pricing, demo, contact, auth/sign-in, and auth/sign-up all serve the exact same <title>BetterAgent — the agent layer your SaaS is missing</title> and identical meta description. Only /privacy, /terms, and the docs subdomain have unique titles.",
+          "recommendation": "Set per-route metadata via Next.js generateMetadata for /pricing, /demo, /contact, and the auth pages. Example: /pricing → 'Pricing — BetterAgent', description summarizing the credit model."
+        },
+        {
+          "title": "No Open Graph or Twitter Card tags anywhere",
+          "severity": "High",
+          "description": "Searched all crawled pages for og: and twitter: meta tags — none found. Links shared in Slack, Twitter/X, or LinkedIn will render with no title, no description, and no image.",
+          "recommendation": "Add og:title, og:description, og:image (1200x630), twitter:card=summary_large_image via the Next.js metadata API, ideally with a per-page OG image."
+        },
+        {
+          "title": "/demo has no <h1>",
+          "severity": "Medium",
+          "description": "Consistent with the empty-content finding above — there is no heading structure to crawl.",
+          "recommendation": "Resolved by the same fix as the Content Quality finding: server-render a heading and supporting copy."
+        }
+      ]
+    },
+    {
+      "name": "Schema / Structured Data",
+      "score": 0,
+      "what_works": [],
+      "findings": [
+        {
+          "title": "No JSON-LD structured data on any page",
+          "severity": "High",
+          "description": "Searched all 9 crawled pages for application/ld+json — zero matches. No Organization, SoftwareApplication, Product, FAQPage, or BreadcrumbList schema anywhere.",
+          "recommendation": "Add Organization schema sitewide (name, logo, url, sameAs), SoftwareApplication or Product schema with pricing on /pricing (matches the existing comparison table — also makes the plans eligible for rich pricing snippets), and BreadcrumbList on docs pages."
+        }
+      ]
+    },
+    {
+      "name": "Performance (CWV)",
+      "score": 65,
+      "what_works": [
+        "Pages are pre-rendered at build/edge time (x-nextjs-prerender: 1) and served from Vercel/Cloudflare cache (cf-cache-status, x-vercel-cache: HIT)",
+        "Gzip compression enabled",
+        "HTTP/3 advertised via alt-svc"
+      ],
+      "findings": [
+        {
+          "title": "Lab Core Web Vitals data unavailable for this audit",
+          "severity": "Info",
+          "description": "PageSpeed Insights API returned a rate-limit error and CrUX API requires an API key not configured in this environment — no Lighthouse or field CWV scores could be captured. Score above is a heuristic estimate based on response headers and architecture (Next.js + Vercel edge + Cloudflare), not a measured Lighthouse score.",
+          "recommendation": "Re-run with a Google API key (PageSpeed Insights + CrUX) to get real LCP/INP/CLS numbers, especially for the homepage which loads 16 JS chunks."
+        }
+      ]
+    },
+    {
+      "name": "AI Search Readiness",
+      "score": 20,
+      "what_works": [
+        "Content-Signal header in robots.txt explicitly grants search=yes, meaning traditional search indexing is allowed"
+      ],
+      "findings": [
+        {
+          "title": "Major AI crawlers and answer-engine bots are blocked",
+          "severity": "Critical",
+          "description": "robots.txt disallows GPTBot (ChatGPT), ClaudeBot (Claude), Google-Extended (Gemini/AI Overviews), Applebot-Extended (Apple Intelligence), CCBot (Common Crawl, used to train/ground many models), Bytespider (TikTok/ByteDance), and meta-externalagent (Meta AI). For a product whose entire pitch is 'the agent layer your SaaS is missing,' being invisible to AI assistants when developers ask 'what should I use to add an agent to my SaaS' is a direct hit to the target acquisition channel.",
+          "recommendation": "This block appears to be Cloudflare's default AI-crawler managed ruleset rather than an intentional product decision — confirm with the team whether blocking AI training was a deliberate IP-protection choice. If discovery matters more than training-data protection, allow ai-input for at least ClaudeBot, GPTBot, and Google-Extended while keeping ai-train=no."
+        },
+        {
+          "title": "No llms.txt file",
+          "severity": "Medium",
+          "description": "No /llms.txt found at either betteragent.dev or docs.betteragent.dev. This emerging convention helps AI agents/crawlers quickly understand site structure and find canonical documentation.",
+          "recommendation": "Add an llms.txt pointing to the docs subdomain's quickstart, CLI reference, tools, and components pages — low effort, directly relevant since the docs already have clean MDX content."
+        }
+      ]
+    },
+    {
+      "name": "Images",
+      "score": 50,
+      "what_works": [
+        "No broken or oversized raster images detected — the site uses an icon/SVG-driven design with essentially zero <img> tags on marketing pages",
+        "Favicon (icon.png) present and referenced correctly"
+      ],
+      "findings": [
+        {
+          "title": "No social preview image (og:image) anywhere",
+          "severity": "High",
+          "description": "Consistent with the missing Open Graph findings — there is no image asset configured for social/AI link previews on any page.",
+          "recommendation": "Create one branded 1200x630 OG image for the homepage at minimum, ideally per-route (especially /pricing) since this is the cheapest visual trust signal for shared links."
+        }
+      ]
+    }
+  ],
+  "action_plan": {
+    "phases": [
+      {
+        "name": "Phase 1: Critical Fixes",
+        "timeframe": "Week 1",
+        "items": [
+          "Write unique <title> and meta description for /pricing, /demo, /contact, /auth/sign-in, /auth/sign-up",
+          "Add app/sitemap.ts for betteragent.dev and docs.betteragent.dev, reference both in robots.txt",
+          "Server-render real content (heading + description) on /demo instead of a client-only empty shell",
+          "Decide and fix the AI-crawler block in robots.txt (allow ClaudeBot/GPTBot/Google-Extended for ai-input at minimum)"
+        ]
+      },
+      {
+        "name": "Phase 2: High-Impact Improvements",
+        "timeframe": "Weeks 2-3",
+        "items": [
+          "Add canonical tags sitewide via Next.js metadata API",
+          "Add Open Graph + Twitter Card tags with a branded OG image",
+          "Add Organization + SoftwareApplication/Product JSON-LD (pricing tiers already exist — map directly to schema)",
+          "Add an llms.txt pointing into docs.betteragent.dev"
+        ]
+      },
+      {
+        "name": "Phase 3: Content & Authority",
+        "timeframe": "Month 2",
+        "items": [
+          "Add an About/company page with founder or team info",
+          "Add at least one customer testimonial or usage stat to the homepage",
+          "Switch apex→www redirect from 307 to 301/308",
+          "Add baseline security headers (CSP, X-Content-Type-Options, Referrer-Policy)"
+        ]
+      },
+      {
+        "name": "Phase 4: Monitoring & Iteration",
+        "timeframe": "Ongoing",
+        "items": [
+          "Re-run PageSpeed Insights / CrUX with an API key to get real Core Web Vitals once traffic volume supports CrUX field data",
+          "Consider a docs-extension blog/guides section for long-tail and AI-citation surface area once core product priorities allow"
+        ]
+      }
+    ]
+  },
+  "artifacts": {
+    "findings_dir": "findings/",
+    "screenshots_dir": "screenshots/"
+  }
+}
