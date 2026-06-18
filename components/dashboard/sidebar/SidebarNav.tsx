@@ -9,6 +9,7 @@ import {
   SquaresFourIcon,
   TerminalIcon,
   CreditCardIcon,
+  ReceiptIcon,
   PlusIcon,
   HexagonIcon,
 } from "@phosphor-icons/react";
@@ -28,6 +29,7 @@ const PROJECT_SECTIONS = [
   { label: "Tools", segment: "tools", icon: TerminalIcon },
   { label: "Logs", segment: "logs", icon: FileIcon },
   { label: "Usage", segment: "usage", icon: CreditCardIcon },
+  { label: "Billing", segment: "billing", icon: ReceiptIcon },
   { label: "Settings", segment: "settings", icon: GearIcon },
 ] as const;
 
