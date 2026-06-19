@@ -1,13 +1,11 @@
 "use client";
 
-import { Pulse, Sparkle, WebhooksLogo, Check, Lock } from "@phosphor-icons/react";
+import { Pulse, Sparkle, Lock } from "@phosphor-icons/react";
 import {
   SSEViz,
-  CapsGauge,
   ModelStack,
   FxGrid,
   AuthFlow,
-  IdempotencyViz,
   RateLimitViz,
 } from "@/components/landing/BentoTiles";
 import { Eyebrow, GithubIcon, WRAP, SEC, SECHEAD, H2, SUB } from "@/components/landing/primitives";
@@ -66,12 +64,6 @@ const BENTO_ITEMS = [
     content: <ModelStack />,
   },
   {
-    title: "Hard caps & budgets",
-    sub: "Per-project credit limits shut off before they bill you.",
-    icon: <WebhooksLogo size={14} />,
-    content: <CapsGauge />,
-  },
-  {
     title: "Observable by default",
     sub: "Every run, every token, every tool call logged and queryable.",
     icon: <Pulse size={14} />,
@@ -106,12 +98,6 @@ const BENTO_ITEMS = [
     content: <FxGrid />,
   },
   {
-    title: "Idempotency included",
-    sub: "Duplicate sends return instantly at zero cost. Never double-bill.",
-    icon: <Check size={14} />,
-    content: <IdempotencyViz />,
-  },
-  {
     title: "Rate limiting built in",
     sub: "Per-project and per-IP limits enforced before requests hit your tools.",
     icon: <Lock size={14} />,
@@ -131,7 +117,7 @@ export function Features() {
             unsexy stuff that decides whether your agent ships.
           </p>
         </div>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           {BENTO_ITEMS.map((item) => (
             <BentoTile
               key={item.title}

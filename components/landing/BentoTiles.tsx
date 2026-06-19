@@ -177,14 +177,6 @@ export function ModelStack() {
             {m.name}
           </span>
           <span className="text-muted-foreground text-[10px]">· {m.tag}</span>
-          <span
-            className={cn(
-              "ml-auto text-[10px]",
-              sel === m.id ? "text-primary" : "text-muted-foreground",
-            )}
-          >
-            {m.price}
-          </span>
         </div>
       ))}
       <div className="mt-0.5 text-[10.5px] text-muted-foreground">
