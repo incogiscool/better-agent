@@ -1,10 +1,17 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import {
   AuthShell,
   AuthTerminal,
   SIGNUP_TERMINAL,
   SignupForm,
 } from "@/components/public/auth";
+
+export const metadata: Metadata = {
+  title: "Sign Up",
+  description: "Create a BetterAgent account and ship an agent inside your SaaS.",
+  robots: { index: false, follow: true },
+};
 
 export default function SignUpPage() {
   return (

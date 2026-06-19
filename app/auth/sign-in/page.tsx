@@ -1,10 +1,17 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import {
   AuthShell,
   AuthTerminal,
   SIGNIN_TERMINAL,
   SigninForm,
 } from "@/components/public/auth";
+
+export const metadata: Metadata = {
+  title: "Sign In",
+  description: "Sign in to your BetterAgent dashboard.",
+  robots: { index: false, follow: true },
+};
 
 export default function SignInPage() {
   return (

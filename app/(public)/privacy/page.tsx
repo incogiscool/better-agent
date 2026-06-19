@@ -2,7 +2,7 @@ import { Eyebrow, WRAP, SEC } from "@/components/landing/primitives";
 import { cn } from "@/lib/utils";
 
 export const metadata = {
-  title: "Privacy Policy — BetterAgent",
+  title: "Privacy Policy",
   description: "How BetterAgent collects, uses, and protects your data.",
 };
 

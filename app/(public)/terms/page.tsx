@@ -2,7 +2,7 @@ import { Eyebrow, WRAP, SEC } from "@/components/landing/primitives";
 import { cn } from "@/lib/utils";
 
 export const metadata = {
-  title: "Terms of Service — BetterAgent",
+  title: "Terms of Service",
   description: "Terms and conditions for using BetterAgent.",
 };
 

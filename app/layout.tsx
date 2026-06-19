@@ -27,6 +27,30 @@ export const metadata: Metadata = {
   },
   description:
     "Point BetterAgent at your codebase. It reads your routes and server actions, generates the schemas, drops in the chat components — and your users get an agent that does real work inside the product you already shipped.",
+  keywords: [
+    "BetterAgent",
+    "Next.js AI agent",
+    "AI agent layer for SaaS",
+    "AI agent infrastructure",
+    "Next.js agent framework",
+    "in-app AI agent",
+    "agentic SaaS",
+    "chat agent for SaaS product",
+  ],
+};
+
+const ORGANIZATION_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "BetterAgent",
+  url: "https://betteragent.dev",
+  logo: "https://betteragent.dev/icon.png",
+  description:
+    "BetterAgent is the agent layer for Next.js SaaS products — it reads your routes and server actions, generates schemas, and drops in chat components so your users get an agent that does real work inside your app.",
+  sameAs: [
+    "https://github.com/incogiscool/better-agent",
+    "https://www.npmjs.com/package/betteragent-react",
+  ],
 };
 
 export default function RootLayout({
@@ -40,6 +64,12 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-mono", jetbrainsMono.variable)}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_JSON_LD) }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider
           attribute="class"

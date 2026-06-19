@@ -3,8 +3,9 @@
 ## Phase 1 — Critical Fixes (Week 1)
 - [ ] Write unique `<title>` + meta description for `/pricing`, `/demo`, `/contact`, `/auth/sign-in`, `/auth/sign-up` (currently all identical to the homepage)
 - [ ] Add `app/sitemap.ts` for betteragent.dev and an equivalent for docs.betteragent.dev; add `Sitemap:` line to both robots.txt files
-- [ ] Server-render real content (heading, description, static preview) on `/demo` — currently ~50 characters of text, fully client-only
+- [ ] Server-render real content (heading, description, static preview) on `/demo` — currently ~9 words of text, fully client-only
 - [ ] Decide and fix the AI-crawler block in robots.txt — allow `ai-input` for ClaudeBot/GPTBot/Google-Extended at minimum, even if `ai-train=no` is kept
+- [ ] Fix the doubled "— BetterAgent — BetterAgent" title suffix on `/privacy` and `/terms`
 
 ## Phase 2 — High-Impact Improvements (Weeks 2-3)
 - [ ] Add canonical tags sitewide via Next.js `alternates.canonical`
@@ -17,6 +18,7 @@
 - [ ] Add at least one customer testimonial or usage stat to the homepage
 - [ ] Switch apex→www redirect from 307 to 301/308
 - [ ] Add baseline security headers (CSP, X-Content-Type-Options, Referrer-Policy, Permissions-Policy)
+- [ ] Add `favicon.ico`, `apple-touch-icon.png`, and `manifest.json` (all 404 today)
 
 ## Phase 4 — Monitoring & Iteration (Ongoing)
 - [ ] Re-run PageSpeed Insights/CrUX with an API key for real Core Web Vitals (PSI was rate-limited and CrUX needs a key in this environment — current Performance score is a heuristic, not measured)
