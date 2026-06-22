@@ -99,7 +99,7 @@ export function ChatDrawer({
               <button
                 type="button"
                 aria-label="Close"
-                className="inline-flex size-5 items-center justify-center text-[var(--ba-muted-fg)] hover:text-[var(--ba-fg)]"
+                className="inline-flex size-7 items-center justify-center text-[var(--ba-muted-fg)] hover:text-[var(--ba-fg)]"
               >
                 <CloseIcon size={12} />
               </button>

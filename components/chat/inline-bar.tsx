@@ -54,7 +54,7 @@ export function ChatInlineBar({
       style={{ fontFamily: "var(--ba-font-sans)" }}
     >
       {expanded && (
-        <div className="mb-2 max-h-72 overflow-hidden border border-[var(--ba-border)] bg-[var(--ba-panel-bg)] shadow-sm">
+        <div className="mb-2 max-h-[60vh] overflow-hidden border border-[var(--ba-border)] bg-[var(--ba-panel-bg)] shadow-sm sm:max-h-72">
           <div className="flex items-center justify-between border-b border-[var(--ba-border)] bg-[var(--ba-muted)]/40 px-3 py-1.5">
             <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--ba-muted-fg)]">
               Response
@@ -68,7 +68,7 @@ export function ChatInlineBar({
               <CloseIcon size={11} />
             </button>
           </div>
-          <ChatMessages messages={messages} className="max-h-60 px-3 py-3" />
+          <ChatMessages messages={messages} className="max-h-[50vh] px-3 py-3 sm:max-h-60" />
           {error && (
             <div className="px-3 pb-2">
               <ChatErrorBanner error={error} onRetry={reset} />

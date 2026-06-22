@@ -42,7 +42,7 @@ export default function ContactPage() {
       <ContactHero />
       <section className={cn(SEC, "border-b-0")}>
         <div className={WRAP}>
-          <div className="grid grid-cols-[1fr_360px] gap-16 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10 lg:gap-16 items-start">
             <ContactForm state={state} formAction={formAction} pending={pending} />
             <ContactInfo />
           </div>
@@ -55,11 +55,11 @@ export default function ContactPage() {
 
 function ContactHero() {
   return (
-    <section className="pt-24 pb-16 border-b border-border">
+    <section className="pt-14 md:pt-24 pb-16 border-b border-border">
       <div className={cn(WRAP, "max-w-[760px]")}>
         <div className="flex flex-col gap-5">
           <Eyebrow>Contact</Eyebrow>
-          <h1 className="font-mono font-medium text-[56px] leading-[1.04] tracking-[-0.03em] m-0">
+          <h1 className="font-mono font-medium text-[clamp(32px,6vw,56px)] leading-[1.04] tracking-[-0.03em] m-0">
             Get in touch.
           </h1>
           <p className={SUB}>

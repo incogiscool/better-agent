@@ -133,7 +133,7 @@ export const REGISTRY: RegistryComponent[] = [
   {
     name: "cmd-k",
     description:
-      "Centered ⌘K-style overlay for typing instructions. Best for power-user productivity surfaces.",
+      "Centered ⌘K-style overlay for typing instructions, with a tap trigger so touch/mobile users can open it too.",
     type: "registry:component",
     dependencies: COMMON_DEPS,
     registryDependencies: ["dialog", "button"],

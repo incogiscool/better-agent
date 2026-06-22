@@ -42,12 +42,12 @@ export function ChatPopup({
     <div
       data-ba-variant="popup"
       data-state={open ? "open" : "closed"}
-      className={cn("fixed bottom-4 right-4 z-40 flex flex-col items-end", className)}
+      className={cn("fixed inset-x-4 bottom-4 z-40 flex flex-col items-end sm:inset-x-auto sm:right-4", className)}
       style={{ fontFamily: "var(--ba-font-sans)" }}
     >
       {open && (
         <section
-          className="mb-2 flex h-[480px] w-[360px] max-w-[calc(100vw-2rem)] flex-col border border-[var(--ba-border)] bg-[var(--ba-panel-bg)] text-[var(--ba-fg)] shadow-lg"
+          className="mb-2 flex h-[70dvh] w-full flex-col border border-[var(--ba-border)] bg-[var(--ba-panel-bg)] text-[var(--ba-fg)] shadow-lg sm:h-[480px] sm:w-[360px]"
           role="dialog"
           aria-label="Agent chat"
         >
@@ -59,7 +59,7 @@ export function ChatPopup({
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close"
-                className="inline-flex size-5 items-center justify-center text-[var(--ba-muted-fg)] hover:text-[var(--ba-fg)]"
+                className="inline-flex size-7 items-center justify-center text-[var(--ba-muted-fg)] hover:text-[var(--ba-fg)]"
               >
                 <CloseIcon size={12} />
               </button>

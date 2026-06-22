@@ -10,13 +10,13 @@ import posthog from "posthog-js";
 
 export function CtaSection() {
   return (
-    <section className={cn("py-24", DOT_BG)}>
-      <div className="max-w-[920px] mx-auto px-10 text-center">
+    <section className={cn("py-12 md:py-16 lg:py-24", DOT_BG)}>
+      <div className="max-w-[920px] mx-auto px-4 sm:px-6 lg:px-10 text-center">
         <div className="flex flex-col gap-5 items-center">
           <Pill primary>
             <Sparkle size={11} /> 5 minutes to a working agent
           </Pill>
-          <h2 className="font-mono font-medium text-[56px] leading-[1.02] tracking-[-0.035em] m-0">
+          <h2 className="font-mono font-medium text-[clamp(30px,6vw,56px)] leading-[1.02] tracking-[-0.035em] m-0">
             Stop describing what your app does.
             <br />
             <span className="text-muted-foreground">Let it do the work.</span>

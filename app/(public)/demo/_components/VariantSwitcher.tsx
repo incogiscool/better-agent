@@ -58,6 +58,7 @@ export function VariantSwitcher() {
   const [activeTab, setActiveTab] = React.useState<ActiveTab>("campaigns");
   const [showCode, setShowCode] = React.useState(false);
   const [isMac, setIsMac] = React.useState(true);
+  const [cmdkOpen, setCmdkOpen] = React.useState(false);
 
   // Refs so action closures always read the latest state, not a stale snapshot
   const campaignsRef = React.useRef(campaigns);
@@ -315,7 +316,7 @@ export function VariantSwitcher() {
       <div className="fixed left-0 right-0 top-0 z-50 flex items-center gap-1 border-b border-border bg-background px-4 py-2 text-[11px]">
         <Link
           href="/"
-          className="mr-3 inline-flex items-center gap-1.5 font-mono font-semibold text-foreground hover:text-primary transition-colors"
+          className="mr-3 inline-flex shrink-0 items-center gap-1.5 font-mono font-semibold text-foreground hover:text-primary transition-colors"
           aria-label="Back to betteragent.dev"
         >
           <svg width="14" height="14" viewBox="0 0 32 32" fill="none" aria-hidden>
@@ -329,23 +330,25 @@ export function VariantSwitcher() {
           </svg>
           betteragent
         </Link>
-        <span className="mr-2 hidden font-mono text-muted-foreground sm:inline">
-          VARIANT
-        </span>
-        {VARIANTS.map((v) => (
-          <Link
-            key={v}
-            href={`?variant=${v}`}
-            className={`border px-2.5 py-1 font-mono transition-colors ${
-              variant === v
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border hover:border-foreground/40"
-            }`}
-          >
-            {v}
-          </Link>
-        ))}
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+          <span className="mr-2 hidden shrink-0 font-mono text-muted-foreground sm:inline">
+            VARIANT
+          </span>
+          {VARIANTS.map((v) => (
+            <Link
+              key={v}
+              href={`?variant=${v}`}
+              className={`shrink-0 border px-2.5 py-1 font-mono transition-colors ${
+                variant === v
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border hover:border-foreground/40"
+              }`}
+            >
+              {v}
+            </Link>
+          ))}
+        </div>
+        <div className="ml-auto flex shrink-0 items-center gap-2">
           <span className="hidden font-mono text-[10px] text-muted-foreground lg:inline">
             New here?
           </span>
@@ -385,26 +388,37 @@ export function VariantSwitcher() {
             <ChatCmdk
               placeholder="Type a command, ask, or give an instruction…"
               suggestedPrompts={SUGGESTED}
+              trigger={null}
+              open={cmdkOpen}
+              onOpenChange={setCmdkOpen}
             />
-            <div className="pointer-events-none fixed bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 rounded-full border border-border bg-background/90 px-4 py-2 shadow-md backdrop-blur-sm font-mono text-xs text-muted-foreground">
-              Press
-              {isMac ? (
-                <kbd className="inline-flex items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-foreground">
-                  ⌘K
-                </kbd>
-              ) : (
-                <>
+            <button
+              type="button"
+              onClick={() => setCmdkOpen(true)}
+              aria-label="Open the agent"
+              className="fixed bottom-8 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border border-border bg-background/90 px-4 py-2 shadow-md backdrop-blur-sm font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <span className="sm:hidden">Tap to ask the agent</span>
+              <span className="hidden items-center gap-2 sm:flex">
+                Press
+                {isMac ? (
                   <kbd className="inline-flex items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-foreground">
-                    Ctrl
+                    ⌘K
                   </kbd>
-                  +
-                  <kbd className="inline-flex items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-foreground">
-                    K
-                  </kbd>
-                </>
-              )}
-              to open the agent
-            </div>
+                ) : (
+                  <>
+                    <kbd className="inline-flex items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-foreground">
+                      Ctrl
+                    </kbd>
+                    +
+                    <kbd className="inline-flex items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-foreground">
+                      K
+                    </kbd>
+                  </>
+                )}
+                to open the agent
+              </span>
+            </button>
           </>
         )}
         {variant === "inline-bar" && (

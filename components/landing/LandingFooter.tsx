@@ -38,10 +38,10 @@ const FOOTER_COLS: FooterCol[] = [
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-border pt-16 pb-10 text-xs text-muted-foreground">
+    <footer className="border-t border-border pt-10 md:pt-16 pb-10 text-xs text-muted-foreground">
       <div className={WRAP}>
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-6">
-          <div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-[2fr_1fr_1fr_1fr] gap-6">
+          <div className="col-span-2 sm:col-span-3 md:col-span-1">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-primary">
                 <svg width="18" height="18" viewBox="0 0 32 32" fill="none">

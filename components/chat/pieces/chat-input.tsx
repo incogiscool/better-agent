@@ -70,7 +70,7 @@ export function ChatInput({
         disabled={disabled}
         autoFocus={autoFocus}
         aria-label="Message"
-        className="flex-1 resize-none overflow-y-hidden bg-transparent px-2 py-1.5 text-sm leading-snug text-[var(--ba-fg)] outline-none placeholder:text-[var(--ba-muted-fg)] disabled:opacity-60"
+        className="flex-1 resize-none overflow-y-hidden bg-transparent px-2 py-1.5 text-base leading-snug text-[var(--ba-fg)] outline-none placeholder:text-[var(--ba-muted-fg)] disabled:opacity-60 sm:text-sm"
       />
       <button
         type="submit"

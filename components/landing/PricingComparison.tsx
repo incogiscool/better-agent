@@ -37,59 +37,61 @@ function Cell({ value }: { value: string | boolean }) {
 
 export function PricingComparison() {
   return (
-    <div className="border border-border rounded-lg overflow-hidden">
-      {/* Header row: plan names, sourced from PLANS */}
-      <div
-        className={cn(
-          GRID,
-          "px-[18px] py-3 border-b border-border bg-muted items-center",
-        )}
-      >
-        <span className="font-mono text-[10px] tracking-[0.06em] uppercase text-muted-foreground">
-          Plan
-        </span>
-        {PLANS.map((p) => (
-          <span
-            key={p.name}
-            className={cn(
-              "font-mono text-[12px] font-medium tracking-[0.04em] uppercase text-center",
-              p.primary ? "text-primary" : "text-foreground",
-            )}
-          >
-            {p.name}
-            {p.primary && (
-              <span className="ml-1.5 text-[9px] px-1 py-px rounded bg-primary text-primary-foreground align-middle">
-                POPULAR
-              </span>
-            )}
-          </span>
-        ))}
-      </div>
-
-      {/* Feature rows */}
-      {FEATURE_ROWS.map((row, i) => (
+    <div className="border border-border rounded-lg overflow-x-auto">
+      <div className="min-w-[640px]">
+        {/* Header row: plan names, sourced from PLANS */}
         <div
-          key={row.label}
           className={cn(
             GRID,
-            "px-[18px] py-3.5 font-mono text-[13px] items-center",
-            i < FEATURE_ROWS.length - 1 && "border-b border-border",
+            "px-[18px] py-3 border-b border-border bg-muted items-center",
           )}
         >
-          <span className="text-muted-foreground text-xs">{row.label}</span>
-          {row.values.map((value, j) => (
+          <span className="font-mono text-[10px] tracking-[0.06em] uppercase text-muted-foreground">
+            Plan
+          </span>
+          {PLANS.map((p) => (
             <span
-              key={j}
+              key={p.name}
               className={cn(
-                "flex items-center justify-center text-center",
-                PLANS[j].primary && "text-primary",
+                "font-mono text-[12px] font-medium tracking-[0.04em] uppercase text-center",
+                p.primary ? "text-primary" : "text-foreground",
               )}
             >
-              <Cell value={value} />
+              {p.name}
+              {p.primary && (
+                <span className="ml-1.5 text-[9px] px-1 py-px rounded bg-primary text-primary-foreground align-middle">
+                  POPULAR
+                </span>
+              )}
             </span>
           ))}
         </div>
-      ))}
+
+        {/* Feature rows */}
+        {FEATURE_ROWS.map((row, i) => (
+          <div
+            key={row.label}
+            className={cn(
+              GRID,
+              "px-[18px] py-3.5 font-mono text-[13px] items-center",
+              i < FEATURE_ROWS.length - 1 && "border-b border-border",
+            )}
+          >
+            <span className="text-muted-foreground text-xs">{row.label}</span>
+            {row.values.map((value, j) => (
+              <span
+                key={j}
+                className={cn(
+                  "flex items-center justify-center text-center",
+                  PLANS[j].primary && "text-primary",
+                )}
+              >
+                <Cell value={value} />
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

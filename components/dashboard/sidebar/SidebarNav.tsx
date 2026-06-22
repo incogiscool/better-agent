@@ -154,12 +154,13 @@ export function SidebarNav({ projects, activeProjectId }: SidebarNavProps) {
                     isActive={isActive}
                     className="rounded-none pl-4 data-[active=true]:border-l-2 data-[active=true]:border-primary data-[active=true]:bg-muted/60 data-[active=true]:text-primary"
                   >
-                    <Link href={href}>
+                    <Link href={href} className="min-w-0">
                       <HexagonIcon
                         size={13}
                         weight={isActive ? "fill" : "regular"}
+                        className="shrink-0"
                       />
-                      <span className="font-mono text-xs">{project.name}</span>
+                      <span className="font-mono text-xs truncate">{project.name}</span>
                     </Link>
                   </SidebarMenuButton>
                   <SidebarMenuBadge className="font-mono text-[10px] text-muted-foreground/60">

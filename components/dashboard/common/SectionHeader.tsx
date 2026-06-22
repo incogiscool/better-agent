@@ -20,7 +20,7 @@ export function SectionHeader({
     return (
       <header
         className={cn(
-          "flex items-start justify-between gap-4 border-b border-border px-6 py-6",
+          "flex flex-col items-start gap-3 border-b border-border px-4 sm:px-6 py-6 md:flex-row md:items-start md:justify-between md:gap-4",
           className,
         )}
       >
@@ -40,7 +40,7 @@ export function SectionHeader({
   return (
     <header
       className={cn(
-        "flex items-center justify-between gap-4 border-b border-border px-6 py-5",
+        "flex flex-col items-start gap-3 border-b border-border px-4 sm:px-6 py-5 md:flex-row md:items-center md:justify-between md:gap-4",
         className,
       )}
     >

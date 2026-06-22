@@ -52,10 +52,13 @@ export function ChatSidebar({
     <aside
       data-ba-variant="sidebar"
       className={cn(
-        "flex h-full flex-col border-l border-[var(--ba-border)] bg-[var(--ba-panel-bg)] text-[var(--ba-fg)]",
+        "flex h-full w-full flex-col border-l border-[var(--ba-border)] bg-[var(--ba-panel-bg)] text-[var(--ba-fg)] lg:w-[var(--ba-sidebar-width)]",
         className,
       )}
-      style={{ width, fontFamily: "var(--ba-font-sans)" }}
+      style={{
+        "--ba-sidebar-width": `${width}px`,
+        fontFamily: "var(--ba-font-sans)",
+      } as React.CSSProperties}
     >
       <ChatHeader
         title={title}
@@ -66,7 +69,7 @@ export function ChatSidebar({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="inline-flex size-5 items-center justify-center text-[var(--ba-muted-fg)] hover:text-[var(--ba-fg)]"
+              className="inline-flex size-7 items-center justify-center text-[var(--ba-muted-fg)] hover:text-[var(--ba-fg)]"
             >
               <CloseIcon size={12} />
             </button>

@@ -55,19 +55,19 @@ export function JsonViewer({
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="flex flex-1 items-center gap-2 px-3 py-2 text-left text-xs"
+          className="flex min-w-0 flex-1 items-center gap-2 px-3 py-2 text-left text-xs"
         >
           <CaretRight
             size={12}
             className={cn("text-muted-foreground transition-transform", open && "rotate-90")}
           />
           {label && (
-            <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+            <span className="shrink-0 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
               {label}
             </span>
           )}
           {!open && (
-            <span className="ml-auto truncate font-mono text-[11px] text-muted-foreground/80">
+            <span className="ml-auto min-w-0 truncate font-mono text-[11px] text-muted-foreground/80">
               {preview}
             </span>
           )}

@@ -119,7 +119,7 @@ export function CompPreview({ id }: { id: string }) {
 export function ComponentGallery({ showCta = false }: { showCta?: boolean }) {
   return (
     <>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {COMPS.map((c) => (
           <div key={c.id} className={cn("border border-border rounded-lg bg-card overflow-hidden flex flex-col")}>
             <div className="h-[220px] bg-muted/50 border-b border-border relative overflow-hidden">
