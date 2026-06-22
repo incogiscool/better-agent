@@ -7,22 +7,34 @@ import { log, fail } from "../logger";
 import { readCredential, DEFAULT_API_URL } from "../config/credentials";
 import { readProjectConfig, DEFAULT_FILES } from "../config/project";
 import { runDiscovery } from "../discovery/run-discovery";
-import { generateRoutesFile, generateServerActionsFile, generateProviderComponent, generateActionsTemplate } from "../generator/tool-files";
+import {
+  generateRoutesFile,
+  generateServerActionsFile,
+  generateProviderComponent,
+  generateActionsTemplate,
+} from "../generator/tool-files";
 import { installOne } from "./add";
 import { makeRegistryClient } from "../registry/client";
 import { getInstalled } from "../registry/tracker";
 
 const VARIANTS = [
-  { title: "sidebar     — right-side panel, always visible",   value: "sidebar" },
-  { title: "chat-popup  — floating bottom-right button",       value: "chat-popup" },
-  { title: "cmd-k       — ⌘K overlay for power users",        value: "cmd-k" },
-  { title: "inline-bar  — embedded input bar in the page",    value: "inline-bar" },
+  { title: "sidebar     — right-side panel, always visible", value: "sidebar" },
+  { title: "chat-popup  — floating bottom-right button", value: "chat-popup" },
+  {
+    title: "cmd-k       — ⌘K overlay, with a tap trigger on mobile",
+    value: "cmd-k",
+  },
+  {
+    title: "inline-bar  — embedded input bar in the page",
+    value: "inline-bar",
+  },
 ] as const;
 
 export const initCommand = defineCommand({
   meta: {
     name: "init",
-    description: "First-time setup wizard: install a chat component, scaffold tools, and configure your project.",
+    description:
+      "First-time setup wizard: install a chat component, scaffold tools, and configure your project.",
   },
   args: {
     cwd: {
@@ -48,7 +60,9 @@ export const initCommand = defineCommand({
         "Run `betteragent login --key <secret>` first.",
       );
     }
-    log.success(`Signed in as ${pc.bold(credential.projectName)} (${credential.apiUrl})`);
+    log.success(
+      `Signed in as ${pc.bold(credential.projectName)} (${credential.apiUrl})`,
+    );
 
     // ── Step 2: pick a chat component ────────────────────────────────────
     log.plain("");
@@ -73,10 +87,21 @@ export const initCommand = defineCommand({
     log.step(`Installing ${pc.bold(component)} component…`);
 
     const { config } = await readProjectConfig(cwd);
-    const apiUrl = config.apiUrl ?? process.env.BETTERAGENT_API_URL ?? credential.apiUrl ?? DEFAULT_API_URL;
+    const apiUrl =
+      config.apiUrl ??
+      process.env.BETTERAGENT_API_URL ??
+      credential.apiUrl ??
+      DEFAULT_API_URL;
     const registry = makeRegistryClient(apiUrl);
     const installed = await getInstalled(cwd);
-    await installOne({ name: component, cwd, overwrite: false, dryRun: false, registry, installed });
+    await installOne({
+      name: component,
+      cwd,
+      overwrite: false,
+      dryRun: false,
+      registry,
+      installed,
+    });
 
     // ── Step 3: discover tools ────────────────────────────────────────────
     log.plain("");
@@ -86,7 +111,8 @@ export const initCommand = defineCommand({
       const res = await prompts({
         type: "confirm",
         name: "want",
-        message: "Scan your project for routes and server actions to expose as tools?",
+        message:
+          "Scan your project for routes and server actions to expose as tools?",
         initial: true,
       });
       if (res.want === undefined) return fail("Cancelled.");
@@ -94,40 +120,73 @@ export const initCommand = defineCommand({
     }
 
     // Always resolve provider path — generated whether or not discovery runs.
-    const providerPath = path.resolve(cwd, config.files?.provider ?? DEFAULT_FILES.provider);
-    const serverActionsPath = path.resolve(cwd, config.files?.serverActions ?? DEFAULT_FILES.serverActions);
+    const providerPath = path.resolve(
+      cwd,
+      config.files?.provider ?? DEFAULT_FILES.provider,
+    );
+    const serverActionsPath = path.resolve(
+      cwd,
+      config.files?.serverActions ?? DEFAULT_FILES.serverActions,
+    );
 
     if (wantDiscover) {
       await runDiscovery({ cwd, yes });
       // Generate provider after discovery (server actions file now exists).
-      const providerExists = await fs.access(providerPath).then(() => true).catch(() => false);
+      const providerExists = await fs
+        .access(providerPath)
+        .then(() => true)
+        .catch(() => false);
       if (!providerExists) {
         await fs.mkdir(path.dirname(providerPath), { recursive: true });
-        await fs.writeFile(providerPath, generateProviderComponent(serverActionsPath, providerPath), "utf-8");
-        log.success(`${path.relative(cwd, providerPath)} ${pc.dim("(AgentProvider)")}`);
+        await fs.writeFile(
+          providerPath,
+          generateProviderComponent(serverActionsPath, providerPath),
+          "utf-8",
+        );
+        log.success(
+          `${path.relative(cwd, providerPath)} ${pc.dim("(AgentProvider)")}`,
+        );
       }
     } else {
       // Write minimal empty tool files so sync has something to load.
       const filePaths = {
         routes: path.resolve(cwd, config.files?.routes ?? DEFAULT_FILES.routes),
-        serverActions: path.resolve(cwd, config.files?.serverActions ?? DEFAULT_FILES.serverActions),
-        actions: path.resolve(cwd, config.files?.actions ?? DEFAULT_FILES.actions),
-        provider: path.resolve(cwd, config.files?.provider ?? DEFAULT_FILES.provider),
+        serverActions: path.resolve(
+          cwd,
+          config.files?.serverActions ?? DEFAULT_FILES.serverActions,
+        ),
+        actions: path.resolve(
+          cwd,
+          config.files?.actions ?? DEFAULT_FILES.actions,
+        ),
+        provider: path.resolve(
+          cwd,
+          config.files?.provider ?? DEFAULT_FILES.provider,
+        ),
       };
       for (const [key, dest] of Object.entries(filePaths)) {
-        const exists = await fs.access(dest).then(() => true).catch(() => false);
+        const exists = await fs
+          .access(dest)
+          .then(() => true)
+          .catch(() => false);
         if (!exists) {
           let content = "";
           if (key === "routes") content = generateRoutesFile(cwd, []);
-          else if (key === "serverActions") content = generateServerActionsFile(cwd, []);
-          else if (key === "provider") content = generateProviderComponent(filePaths.serverActions, dest);
+          else if (key === "serverActions")
+            content = generateServerActionsFile(cwd, []);
+          else if (key === "provider")
+            content = generateProviderComponent(filePaths.serverActions, dest);
           else content = generateActionsTemplate();
           await fs.mkdir(path.dirname(dest), { recursive: true });
           await fs.writeFile(dest, content, "utf-8");
-          log.success(`${path.relative(cwd, dest)} ${pc.dim(key === "provider" ? "(AgentProvider)" : "(empty)")}`);
+          log.success(
+            `${path.relative(cwd, dest)} ${pc.dim(key === "provider" ? "(AgentProvider)" : "(empty)")}`,
+          );
         }
       }
-      log.hint("Run `betteragent discover` when you're ready to expose routes and server actions.");
+      log.hint(
+        "Run `betteragent discover` when you're ready to expose routes and server actions.",
+      );
     }
 
     // ── Step 4: .env.local ────────────────────────────────────────────────
@@ -151,7 +210,9 @@ export const initCommand = defineCommand({
       log.success("Added NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY");
     }
 
-    const isLocalDev = credential.apiUrl.includes("localhost") || credential.apiUrl.includes("127.0.0.1");
+    const isLocalDev =
+      credential.apiUrl.includes("localhost") ||
+      credential.apiUrl.includes("127.0.0.1");
     let addApiUrl = isLocalDev;
 
     if (!envContent.includes("NEXT_PUBLIC_BETTERAGENT_API_URL")) {
@@ -162,23 +223,33 @@ export const initCommand = defineCommand({
           message: `Add NEXT_PUBLIC_BETTERAGENT_API_URL=${credential.apiUrl} for this environment?`,
           initial: false,
         });
-        addApiUrl = !!(res.want);
+        addApiUrl = !!res.want;
       }
 
       if (addApiUrl) {
         lines.push(`NEXT_PUBLIC_BETTERAGENT_API_URL=${credential.apiUrl}`);
-        log.success(`Added NEXT_PUBLIC_BETTERAGENT_API_URL=${credential.apiUrl}`);
+        log.success(
+          `Added NEXT_PUBLIC_BETTERAGENT_API_URL=${credential.apiUrl}`,
+        );
       }
     }
 
     if (lines.length > 0) {
-      const separator = envContent.length > 0 && !envContent.endsWith("\n") ? "\n" : "";
-      await fs.writeFile(envPath, envContent + separator + lines.join("\n") + "\n", "utf-8");
+      const separator =
+        envContent.length > 0 && !envContent.endsWith("\n") ? "\n" : "";
+      await fs.writeFile(
+        envPath,
+        envContent + separator + lines.join("\n") + "\n",
+        "utf-8",
+      );
     }
 
     // ── Step 5: betteragent.config.json ───────────────────────────────────
     const configPath = path.join(cwd, "betteragent.config.json");
-    const configExists = await fs.access(configPath).then(() => true).catch(() => false);
+    const configExists = await fs
+      .access(configPath)
+      .then(() => true)
+      .catch(() => false);
 
     if (!configExists) {
       const config = {
@@ -190,7 +261,11 @@ export const initCommand = defineCommand({
           provider: `./${DEFAULT_FILES.provider}`,
         },
       };
-      await fs.writeFile(configPath, JSON.stringify(config, null, 2) + "\n", "utf-8");
+      await fs.writeFile(
+        configPath,
+        JSON.stringify(config, null, 2) + "\n",
+        "utf-8",
+      );
       log.success("betteragent.config.json written");
     } else {
       log.info("betteragent.config.json already exists — skipping.");

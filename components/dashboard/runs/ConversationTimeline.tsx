@@ -113,13 +113,15 @@ export function ConversationTimeline({
             </header>
             <div className="space-y-3 px-4 py-3">
               {text && (
-                <p className="whitespace-pre-wrap text-xs leading-relaxed">
+                <p className="whitespace-pre-wrap wrap-break-word text-xs leading-relaxed">
                   {text}
                 </p>
               )}
-              {role === "tool" && msg.content != null && typeof msg.content !== "string" && (
-                <JsonViewer value={msg.content} label="Tool result" />
-              )}
+              {role === "tool" &&
+                msg.content != null &&
+                typeof msg.content !== "string" && (
+                  <JsonViewer value={msg.content} label="Tool result" />
+                )}
               {execs.length > 0 && (
                 <div className="space-y-2">
                   {execs.map((exec) => (
@@ -174,7 +176,11 @@ function ExecutionCard({ exec }: { exec: Execution }) {
           </div>
         ) : (
           exec.output != null && (
-            <JsonViewer value={exec.output} label="Output" defaultOpen={false} />
+            <JsonViewer
+              value={exec.output}
+              label="Output"
+              defaultOpen={false}
+            />
           )
         )}
       </div>

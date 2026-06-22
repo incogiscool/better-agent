@@ -19,7 +19,7 @@ suggested prompts. Install one and you get them all.
 | --- | --- |
 | `sidebar` | Right-side panel, always visible alongside your app. |
 | `chat-popup` | Floating bottom-right button that opens a chat panel. |
-| `cmd-k` | ⌘K command-palette overlay for power users. |
+| `cmd-k` | ⌘K command-palette overlay, with a tap trigger for mobile. |
 | `inline-bar` | Embedded input bar that sits inside the page. |
 
 ```bash
@@ -80,6 +80,33 @@ import { ChatSidebar } from "@/components/chat/sidebar";
 ```
 
 </Steps>
+
+## Cmd-K on mobile
+
+`⌘K`/`Ctrl+K` doesn't exist on touch devices, so `ChatCmdk` always renders a
+floating trigger button alongside the keyboard shortcut — tapping it opens the
+same overlay. If you already have your own entry point (a search bar, a nav
+icon, an existing "ask AI" button), drive the dialog from that instead and
+drop the built-in button:
+
+```tsx
+import { useState } from "react";
+import { ChatCmdk } from "@/components/chat/chat-cmdk";
+
+function MyTrigger() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button onClick={() => setOpen(true)}>Ask the agent</button>
+      <ChatCmdk trigger={null} open={open} onOpenChange={setOpen} />
+    </>
+  );
+}
+```
+
+Omit `open`/`onOpenChange` and `ChatCmdk` manages its own state — the
+controlled props are only needed when an external element should open it.
 
 ## Attribution footer
 
