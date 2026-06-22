@@ -60,7 +60,7 @@ export const PLANS = [
 export function PricingCards() {
   return (
     <div className="flex flex-col gap-5">
-      <div className="grid grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {PLANS.map((p) => (
         <div
           key={p.name}
@@ -83,7 +83,7 @@ export function PricingCards() {
             )}
           </span>
 
-          <div className="font-mono text-[44px] font-medium tracking-[-0.025em] leading-none">
+          <div className="font-mono text-[clamp(32px,6vw,44px)] font-medium tracking-[-0.025em] leading-none">
             {p.price}
             <span className="text-sm text-muted-foreground ml-1">{p.unit}</span>
           </div>

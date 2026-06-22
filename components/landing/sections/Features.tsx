@@ -117,7 +117,7 @@ export function Features() {
             unsexy stuff that decides whether your agent ships.
           </p>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {BENTO_ITEMS.map((item) => (
             <BentoTile
               key={item.title}

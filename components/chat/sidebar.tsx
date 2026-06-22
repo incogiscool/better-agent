@@ -55,7 +55,7 @@ export function ChatSidebar({
         "flex h-full flex-col border-l border-[var(--ba-border)] bg-[var(--ba-panel-bg)] text-[var(--ba-fg)]",
         className,
       )}
-      style={{ width, fontFamily: "var(--ba-font-sans)" }}
+      style={{ width: `min(100%, ${width}px)`, fontFamily: "var(--ba-font-sans)" }}
     >
       <ChatHeader
         title={title}
@@ -66,7 +66,7 @@ export function ChatSidebar({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="inline-flex size-5 items-center justify-center text-[var(--ba-muted-fg)] hover:text-[var(--ba-fg)]"
+              className="inline-flex size-7 items-center justify-center text-[var(--ba-muted-fg)] hover:text-[var(--ba-fg)]"
             >
               <CloseIcon size={12} />
             </button>

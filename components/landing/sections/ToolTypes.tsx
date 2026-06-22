@@ -111,13 +111,13 @@ export function ToolTypes() {
           </p>
         </div>
         <div className="bg-card border border-border rounded-lg overflow-hidden">
-          <div className="flex items-stretch border-b border-border bg-muted/50">
+          <div className="flex items-stretch border-b border-border bg-muted/50 overflow-x-auto">
             {TOOL_TYPES.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
                 className={cn(
-                  "px-5 py-3.5 border-0 border-r border-border font-mono text-[13px] font-medium cursor-pointer flex items-center gap-2.5 transition-colors",
+                  "px-5 py-3.5 border-0 border-r border-border font-mono text-[13px] font-medium cursor-pointer flex items-center gap-2.5 transition-colors shrink-0",
                   t.id === tab
                     ? "bg-card text-foreground -mb-px border-b border-b-card"
                     : "bg-transparent text-muted-foreground",
@@ -133,11 +133,11 @@ export function ToolTypes() {
               </button>
             ))}
             <span className="flex-1" />
-            <span className="flex items-center px-4 text-muted-foreground font-mono text-[11px]">
+            <span className="hidden sm:flex items-center px-4 text-muted-foreground font-mono text-[11px] shrink-0">
               {active.file}
             </span>
           </div>
-          <div className="grid grid-cols-[1.4fr_1fr]">
+          <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr]">
             <pre
               className="bg-[oklch(0.145_0_0)] border-r border-border p-[22px_26px] min-h-[280px] text-[13px] leading-[1.7] font-mono text-[oklch(0.985_0_0)] m-0 overflow-x-auto whitespace-pre-wrap"
               dangerouslySetInnerHTML={{ __html: active.code }}

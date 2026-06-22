@@ -16,7 +16,7 @@ export function ChatMessageBlock({ message, className }: ChatMessageProps) {
     return (
       <div className={cn("flex justify-end", className)}>
         <div
-          className="max-w-[80%] bg-[var(--ba-msg-user-bg)] px-3 py-1.5 text-[13px] text-[var(--ba-msg-user-fg)]"
+          className="max-w-[90%] sm:max-w-[80%] bg-[var(--ba-msg-user-bg)] px-3 py-1.5 text-[13px] text-[var(--ba-msg-user-fg)]"
           style={{ borderRadius: "var(--ba-radius-msg)" }}
         >
           {message.content}

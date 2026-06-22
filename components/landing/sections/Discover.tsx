@@ -38,7 +38,7 @@ export function Discover() {
             descriptions it uses to decide when.
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-6 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
           <TerminalDemo height={460} />
           <div className="flex flex-col gap-7 justify-center">
             {DISCOVER_STEPS.map((s) => (

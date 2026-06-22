@@ -37,10 +37,10 @@ export function Pill({ children, primary }: { children: React.ReactNode; primary
 
 // ── Layout class name constants ───────────────────────────────
 
-export const WRAP = "max-w-[1320px] mx-auto px-10";
-export const SEC = "border-b border-border py-24";
-export const SECHEAD = "flex flex-col gap-4 max-w-[720px] mb-14";
-export const H2 = "font-mono font-medium text-[40px] leading-[1.08] tracking-[-0.025em] m-0";
+export const WRAP = "max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-10";
+export const SEC = "border-b border-border py-12 md:py-16 lg:py-24";
+export const SECHEAD = "flex flex-col gap-4 max-w-[720px] mb-8 md:mb-14";
+export const H2 = "font-mono font-medium text-[clamp(26px,5vw,40px)] leading-[1.08] tracking-[-0.025em] m-0";
 export const SUB = "font-sans text-lg leading-[1.55] text-muted-foreground m-0";
 export const DOT_BG = "dot-bg";
 

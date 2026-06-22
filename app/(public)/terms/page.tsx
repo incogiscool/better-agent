@@ -11,11 +11,11 @@ const EFFECTIVE_DATE = "May 26, 2026";
 export default function TermsPage() {
   return (
     <>
-      <section className="pt-20 pb-14 border-b border-border">
+      <section className="pt-12 md:pt-20 pb-14 border-b border-border">
         <div className={cn(WRAP, "max-w-[760px]")}>
           <div className="flex flex-col gap-4">
             <Eyebrow>Legal</Eyebrow>
-            <h1 className="font-mono font-medium text-[48px] leading-[1.06] tracking-[-0.03em] m-0">
+            <h1 className="font-mono font-medium text-[clamp(30px,6vw,48px)] leading-[1.06] tracking-[-0.03em] m-0">
               Terms of Service
             </h1>
             <p className="font-sans text-muted-foreground text-sm m-0">

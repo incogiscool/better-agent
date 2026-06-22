@@ -18,8 +18,8 @@ export function SettingsRow({
 }: SettingsRowProps) {
   return (
     <div className={cn("border-b", danger ? "border-destructive/30" : "border-border")}>
-      <div className="flex gap-16 px-6 py-8">
-        <div className="w-56 shrink-0 space-y-1">
+      <div className="flex flex-col gap-4 px-4 sm:px-6 py-8 md:flex-row md:gap-16">
+        <div className="space-y-1 md:w-56 md:shrink-0">
           <h2 className={cn("text-xs font-medium", danger && "text-destructive")}>
             {title}
           </h2>
@@ -29,12 +29,12 @@ export function SettingsRow({
             </p>
           )}
         </div>
-        <div className="w-80">{children}</div>
+        <div className="w-full md:w-80">{children}</div>
       </div>
       {footer && (
         <div
           className={cn(
-            "flex items-center justify-between border-t px-6 py-3",
+            "flex flex-col items-start gap-2 border-t px-4 sm:px-6 py-3 sm:flex-row sm:items-center sm:justify-between",
             danger
               ? "border-destructive/30 bg-destructive/5"
               : "border-border bg-muted/30",

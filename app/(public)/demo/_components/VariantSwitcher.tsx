@@ -315,7 +315,7 @@ export function VariantSwitcher() {
       <div className="fixed left-0 right-0 top-0 z-50 flex items-center gap-1 border-b border-border bg-background px-4 py-2 text-[11px]">
         <Link
           href="/"
-          className="mr-3 inline-flex items-center gap-1.5 font-mono font-semibold text-foreground hover:text-primary transition-colors"
+          className="mr-3 inline-flex shrink-0 items-center gap-1.5 font-mono font-semibold text-foreground hover:text-primary transition-colors"
           aria-label="Back to betteragent.dev"
         >
           <svg width="14" height="14" viewBox="0 0 32 32" fill="none" aria-hidden>
@@ -329,23 +329,25 @@ export function VariantSwitcher() {
           </svg>
           betteragent
         </Link>
-        <span className="mr-2 hidden font-mono text-muted-foreground sm:inline">
-          VARIANT
-        </span>
-        {VARIANTS.map((v) => (
-          <Link
-            key={v}
-            href={`?variant=${v}`}
-            className={`border px-2.5 py-1 font-mono transition-colors ${
-              variant === v
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border hover:border-foreground/40"
-            }`}
-          >
-            {v}
-          </Link>
-        ))}
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+          <span className="mr-2 hidden shrink-0 font-mono text-muted-foreground sm:inline">
+            VARIANT
+          </span>
+          {VARIANTS.map((v) => (
+            <Link
+              key={v}
+              href={`?variant=${v}`}
+              className={`shrink-0 border px-2.5 py-1 font-mono transition-colors ${
+                variant === v
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border hover:border-foreground/40"
+              }`}
+            >
+              {v}
+            </Link>
+          ))}
+        </div>
+        <div className="ml-auto flex shrink-0 items-center gap-2">
           <span className="hidden font-mono text-[10px] text-muted-foreground lg:inline">
             New here?
           </span>

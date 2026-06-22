@@ -68,11 +68,11 @@ export default function PricingPage() {
 
 function PricingHero() {
   return (
-    <section className="pt-24 pb-16 border-b border-border">
+    <section className="pt-14 md:pt-24 pb-16 border-b border-border">
       <div className={cn(WRAP, "max-w-[760px]")}>
         <div className="flex flex-col gap-5">
           <Eyebrow>Pricing</Eyebrow>
-          <h1 className="font-mono font-medium text-[56px] leading-[1.04] tracking-[-0.03em] m-0">
+          <h1 className="font-mono font-medium text-[clamp(32px,6vw,56px)] leading-[1.04] tracking-[-0.03em] m-0">
             Free until your agent
             <br />
             earns its keep.
@@ -107,27 +107,29 @@ function CreditExplainer() {
           <p className={SUB}>Credits are consumed per event, not per token.</p>
         </div>
 
-        <div className="border border-border rounded-lg overflow-hidden">
-          <div className="grid grid-cols-[1.6fr_120px_2fr] px-[18px] py-2.5 border-b border-border bg-muted font-mono text-[10px] tracking-[0.06em] uppercase text-muted-foreground">
-            <span>Event</span>
-            <span className="text-center">Credits</span>
-            <span>What it covers</span>
-          </div>
-          {CREDIT_EVENTS.map((row, i) => (
-            <div
-              key={row.event}
-              className={cn(
-                "grid grid-cols-[1.6fr_120px_2fr] px-[18px] py-3.5 font-mono text-[13px] items-center",
-                i < CREDIT_EVENTS.length - 1 && "border-b border-border",
-              )}
-            >
-              <span>{row.event}</span>
-              <span className="text-center font-semibold text-primary">
-                {row.credits}
-              </span>
-              <span className="text-muted-foreground text-xs">{row.note}</span>
+        <div className="border border-border rounded-lg overflow-x-auto">
+          <div className="min-w-[520px]">
+            <div className="grid grid-cols-[1.6fr_120px_2fr] px-[18px] py-2.5 border-b border-border bg-muted font-mono text-[10px] tracking-[0.06em] uppercase text-muted-foreground">
+              <span>Event</span>
+              <span className="text-center">Credits</span>
+              <span>What it covers</span>
             </div>
-          ))}
+            {CREDIT_EVENTS.map((row, i) => (
+              <div
+                key={row.event}
+                className={cn(
+                  "grid grid-cols-[1.6fr_120px_2fr] px-[18px] py-3.5 font-mono text-[13px] items-center",
+                  i < CREDIT_EVENTS.length - 1 && "border-b border-border",
+                )}
+              >
+                <span>{row.event}</span>
+                <span className="text-center font-semibold text-primary">
+                  {row.credits}
+                </span>
+                <span className="text-muted-foreground text-xs">{row.note}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         <p className="font-sans text-[13px] text-muted-foreground leading-[1.55] mt-5">

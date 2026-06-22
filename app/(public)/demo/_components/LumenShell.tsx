@@ -98,37 +98,39 @@ function CampaignsTab({ campaigns }: { campaigns: Campaign[] }) {
         ))}
       </div>
 
-      <div className="mt-6 border border-border">
-        <div className="grid grid-cols-[minmax(80px,1fr)_2fr_1fr_1fr_1fr_1fr] gap-px border-b border-border bg-border text-[10px] uppercase tracking-widest text-muted-foreground">
-          {["ID", "NAME", "REACH", "BUDGET", "CPM", "STATUS"].map((h) => (
-            <div key={h} className="bg-muted/50 px-4 py-2">
-              {h}
+      <div className="mt-6 overflow-x-auto border border-border">
+        <div className="min-w-[640px]">
+          <div className="grid grid-cols-[minmax(80px,1fr)_2fr_1fr_1fr_1fr_1fr] gap-px border-b border-border bg-border text-[10px] uppercase tracking-widest text-muted-foreground">
+            {["ID", "NAME", "REACH", "BUDGET", "CPM", "STATUS"].map((h) => (
+              <div key={h} className="bg-muted/50 px-4 py-2">
+                {h}
+              </div>
+            ))}
+          </div>
+          {campaigns.map((c) => (
+            <div
+              key={c.id}
+              className="grid grid-cols-[minmax(80px,1fr)_2fr_1fr_1fr_1fr_1fr] gap-px bg-border text-xs"
+            >
+              <div className="bg-background px-4 py-3 font-mono text-muted-foreground">
+                {c.id}
+              </div>
+              <div className="bg-background px-4 py-3 font-medium">{c.name}</div>
+              <div className="bg-background px-4 py-3 font-mono">
+                {formatReach(c.reach)}
+              </div>
+              <div className="bg-background px-4 py-3 font-mono">
+                {formatCurrency(c.budget)}
+              </div>
+              <div className="bg-background px-4 py-3 font-mono">
+                ${c.cpm.toFixed(2)}
+              </div>
+              <div className="bg-background px-4 py-3">
+                <StatusBadge status={c.status} />
+              </div>
             </div>
           ))}
         </div>
-        {campaigns.map((c) => (
-          <div
-            key={c.id}
-            className="grid grid-cols-[minmax(80px,1fr)_2fr_1fr_1fr_1fr_1fr] gap-px bg-border text-xs"
-          >
-            <div className="bg-background px-4 py-3 font-mono text-muted-foreground">
-              {c.id}
-            </div>
-            <div className="bg-background px-4 py-3 font-medium">{c.name}</div>
-            <div className="bg-background px-4 py-3 font-mono">
-              {formatReach(c.reach)}
-            </div>
-            <div className="bg-background px-4 py-3 font-mono">
-              {formatCurrency(c.budget)}
-            </div>
-            <div className="bg-background px-4 py-3 font-mono">
-              ${c.cpm.toFixed(2)}
-            </div>
-            <div className="bg-background px-4 py-3">
-              <StatusBadge status={c.status} />
-            </div>
-          </div>
-        ))}
       </div>
     </>
   );
@@ -156,57 +158,59 @@ function InfluencersTab({
         </p>
       </div>
 
-      <div className="mt-6 border border-border">
-        <div className="grid grid-cols-[1fr_1fr_auto_1fr_1fr_1fr_2fr] gap-px border-b border-border bg-border text-[10px] uppercase tracking-widest text-muted-foreground">
-          {[
-            "HANDLE",
-            "NAME",
-            "PLATFORM",
-            "FOLLOWERS",
-            "ENGAGEMENT",
-            "COUNTRY",
-            "CAMPAIGNS",
-          ].map((h) => (
-            <div key={h} className="bg-muted/50 px-4 py-2">
-              {h}
+      <div className="mt-6 overflow-x-auto border border-border">
+        <div className="min-w-[760px]">
+          <div className="grid grid-cols-[1fr_1fr_auto_1fr_1fr_1fr_2fr] gap-px border-b border-border bg-border text-[10px] uppercase tracking-widest text-muted-foreground">
+            {[
+              "HANDLE",
+              "NAME",
+              "PLATFORM",
+              "FOLLOWERS",
+              "ENGAGEMENT",
+              "COUNTRY",
+              "CAMPAIGNS",
+            ].map((h) => (
+              <div key={h} className="bg-muted/50 px-4 py-2">
+                {h}
+              </div>
+            ))}
+          </div>
+          {influencers.map((inf) => (
+            <div
+              key={inf.id}
+              className="grid grid-cols-[1fr_1fr_auto_1fr_1fr_1fr_2fr] gap-px bg-border text-xs"
+            >
+              <div className="bg-background px-4 py-3 font-mono text-muted-foreground">
+                {inf.handle}
+              </div>
+              <div className="bg-background px-4 py-3 font-medium">{inf.name}</div>
+              <div className="bg-background px-4 py-3">
+                <PlatformBadge platform={inf.platform} />
+              </div>
+              <div className="bg-background px-4 py-3 font-mono">
+                {formatReach(inf.followers)}
+              </div>
+              <div className="bg-background px-4 py-3 font-mono">
+                {(inf.engagementRate * 100).toFixed(1)}%
+              </div>
+              <div className="bg-background px-4 py-3">{inf.country}</div>
+              <div className="bg-background px-4 py-3 text-muted-foreground">
+                {inf.assignedCampaignIds.length === 0 ? (
+                  <span className="text-muted-foreground/40">—</span>
+                ) : (
+                  inf.assignedCampaignIds.map((id) => (
+                    <span
+                      key={id}
+                      className="inline-block mr-1 px-1 py-0.5 bg-muted font-mono text-[10px]"
+                    >
+                      {campaignName(id)}
+                    </span>
+                  ))
+                )}
+              </div>
             </div>
           ))}
         </div>
-        {influencers.map((inf) => (
-          <div
-            key={inf.id}
-            className="grid grid-cols-[1fr_1fr_auto_1fr_1fr_1fr_2fr] gap-px bg-border text-xs"
-          >
-            <div className="bg-background px-4 py-3 font-mono text-muted-foreground">
-              {inf.handle}
-            </div>
-            <div className="bg-background px-4 py-3 font-medium">{inf.name}</div>
-            <div className="bg-background px-4 py-3">
-              <PlatformBadge platform={inf.platform} />
-            </div>
-            <div className="bg-background px-4 py-3 font-mono">
-              {formatReach(inf.followers)}
-            </div>
-            <div className="bg-background px-4 py-3 font-mono">
-              {(inf.engagementRate * 100).toFixed(1)}%
-            </div>
-            <div className="bg-background px-4 py-3">{inf.country}</div>
-            <div className="bg-background px-4 py-3 text-muted-foreground">
-              {inf.assignedCampaignIds.length === 0 ? (
-                <span className="text-muted-foreground/40">—</span>
-              ) : (
-                inf.assignedCampaignIds.map((id) => (
-                  <span
-                    key={id}
-                    className="inline-block mr-1 px-1 py-0.5 bg-muted font-mono text-[10px]"
-                  >
-                    {campaignName(id)}
-                  </span>
-                ))
-              )}
-            </div>
-          </div>
-        ))}
       </div>
     </>
   );
@@ -268,50 +272,52 @@ function AnalyticsTab({ campaigns }: { campaigns: Campaign[] }) {
         <p className="text-xs text-muted-foreground">Last 7 days · live campaigns</p>
       </div>
 
-      <div className="mt-6 border border-border">
-        <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr] gap-px border-b border-border bg-border text-[10px] uppercase tracking-widest text-muted-foreground">
-          {["DATE", "CAMPAIGN", "REACH", "SPEND", "IMPRESSIONS"].map((h) => (
-            <div key={h} className="bg-muted/50 px-4 py-2">
-              {h}
+      <div className="mt-6 overflow-x-auto border border-border">
+        <div className="min-w-[640px]">
+          <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr] gap-px border-b border-border bg-border text-[10px] uppercase tracking-widest text-muted-foreground">
+            {["DATE", "CAMPAIGN", "REACH", "SPEND", "IMPRESSIONS"].map((h) => (
+              <div key={h} className="bg-muted/50 px-4 py-2">
+                {h}
+              </div>
+            ))}
+          </div>
+
+          {/* Totals row */}
+          <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr] gap-px bg-border text-xs font-semibold">
+            <div className="bg-muted/30 px-4 py-3 text-muted-foreground">Total</div>
+            <div className="bg-muted/30 px-4 py-3 text-muted-foreground">All campaigns</div>
+            <div className="bg-muted/30 px-4 py-3 font-mono">
+              {formatReach(totals.reach)}
+            </div>
+            <div className="bg-muted/30 px-4 py-3 font-mono">
+              {formatCurrency(totals.spend)}
+            </div>
+            <div className="bg-muted/30 px-4 py-3 font-mono">
+              {formatReach(totals.impressions)}
+            </div>
+          </div>
+
+          {rows.map((row, i) => (
+            <div
+              key={i}
+              className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr] gap-px bg-border text-xs"
+            >
+              <div className="bg-background px-4 py-3 font-mono text-muted-foreground">
+                {row.date}
+              </div>
+              <div className="bg-background px-4 py-3">{row.campaign}</div>
+              <div className="bg-background px-4 py-3 font-mono">
+                {formatReach(row.reach)}
+              </div>
+              <div className="bg-background px-4 py-3 font-mono">
+                {formatCurrency(row.spend)}
+              </div>
+              <div className="bg-background px-4 py-3 font-mono">
+                {formatReach(row.impressions)}
+              </div>
             </div>
           ))}
         </div>
-
-        {/* Totals row */}
-        <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr] gap-px bg-border text-xs font-semibold">
-          <div className="bg-muted/30 px-4 py-3 text-muted-foreground">Total</div>
-          <div className="bg-muted/30 px-4 py-3 text-muted-foreground">All campaigns</div>
-          <div className="bg-muted/30 px-4 py-3 font-mono">
-            {formatReach(totals.reach)}
-          </div>
-          <div className="bg-muted/30 px-4 py-3 font-mono">
-            {formatCurrency(totals.spend)}
-          </div>
-          <div className="bg-muted/30 px-4 py-3 font-mono">
-            {formatReach(totals.impressions)}
-          </div>
-        </div>
-
-        {rows.map((row, i) => (
-          <div
-            key={i}
-            className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr] gap-px bg-border text-xs"
-          >
-            <div className="bg-background px-4 py-3 font-mono text-muted-foreground">
-              {row.date}
-            </div>
-            <div className="bg-background px-4 py-3">{row.campaign}</div>
-            <div className="bg-background px-4 py-3 font-mono">
-              {formatReach(row.reach)}
-            </div>
-            <div className="bg-background px-4 py-3 font-mono">
-              {formatCurrency(row.spend)}
-            </div>
-            <div className="bg-background px-4 py-3 font-mono">
-              {formatReach(row.impressions)}
-            </div>
-          </div>
-        ))}
       </div>
     </>
   );
@@ -331,19 +337,20 @@ export function LumenShell({
   ];
 
   return (
-    <div className="flex h-[calc(100vh-2.5rem)]">
+    <div className="flex h-[calc(100dvh-2.5rem)] flex-col lg:flex-row">
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* top nav */}
-        <header className="flex items-center gap-6 border-b border-border bg-background px-6 py-3 text-xs">
-          <span className="font-bold text-primary">Lumen</span>
+        <header className="flex items-center gap-4 overflow-x-auto border-b border-border bg-background px-4 sm:px-6 py-3 text-xs">
+          <span className="shrink-0 font-bold text-primary">Lumen</span>
           {NAV_TABS.map(({ label, key }) => (
             <button
               key={key}
               onClick={() => onTabChange(key)}
               className={
-                activeTab === key
+                "shrink-0 " +
+                (activeTab === key
                   ? "text-foreground font-medium"
-                  : "text-muted-foreground hover:text-foreground transition-colors"
+                  : "text-muted-foreground hover:text-foreground transition-colors")
               }
             >
               {label}
@@ -352,7 +359,7 @@ export function LumenShell({
         </header>
 
         {/* main content */}
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
           {activeTab === "campaigns" && <CampaignsTab campaigns={campaigns} />}
           {activeTab === "influencers" && (
             <InfluencersTab influencers={influencers} campaigns={campaigns} />
@@ -362,7 +369,11 @@ export function LumenShell({
       </div>
 
       {/* sidebar slot — variant switcher passes the active chat panel here */}
-      {children}
+      {children && (
+        <div className="h-[45vh] shrink-0 overflow-hidden lg:h-full lg:w-auto">
+          {children}
+        </div>
+      )}
     </div>
   );
 }

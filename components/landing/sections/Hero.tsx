@@ -80,7 +80,7 @@ export function Hero() {
             ))}
           </div>
         </div>
-        <div className="grid grid-cols-[1.05fr_1fr] gap-6 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-[1.05fr_1fr] gap-6 items-stretch">
           <TerminalDemo height={400} />
           <ChatDemo height={400} />
         </div>
