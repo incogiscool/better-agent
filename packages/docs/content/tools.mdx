@@ -139,7 +139,8 @@ export const sendUserInvoice = defineServerAction({
   them all up automatically.
 - **Return value** — whatever the handler returns is serialised and sent back to
   the agent as the tool result. Keep it concise — the agent uses it to decide
-  the next step.
+  the next step. Results are truncated past 8 KB; see [Limits &
+  Billing](/limits-billing) for the full list of runtime caps.
 
 ## actions.betteragent.ts
 

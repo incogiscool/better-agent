@@ -87,7 +87,6 @@ Full layout example:
     return (
       <AgentProvider
         clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
-        apiUrl={process.env.NEXT_PUBLIC_BETTERAGENT_API_URL}
         endUserId={user.id}
         authToken={{ Authorization: \`Bearer \${sessionToken}\` }}
       >
@@ -95,6 +94,10 @@ Full layout example:
       </AgentProvider>
     );
   }
+
+apiUrl defaults to https://www.betteragent.dev — only pass
+apiUrl={process.env.NEXT_PUBLIC_BETTERAGENT_API_URL} (and set that var in
+.env.local) if pointing at a local or staging backend.
 
 Also import and render the chat component that betteragent init installed.
 The provider supplies context but renders no UI on its own. For the sidebar
@@ -172,7 +175,7 @@ this file automatically.
 Register client actions in AgentProvider via the actions prop (add it to
 the generated components/betteragent-provider.tsx):
 
-  <BetterAgentProvider
+  <AgentProvider
     ...
     actions={{
       openModal: ({ name }) => setOpenDialog(name),
@@ -185,9 +188,11 @@ the generated components/betteragent-provider.tsx):
 
 - Credits: 2 per conversation start · 1 per message · 3 per tool call
 - Free plan: 500 credits/30-day period, no card required
+- Runtime caps: 8KB/tool result · 30s route timeout · 20 steps/conv · 80k tokens/conv
 - Run betteragent sync whenever tool files change
 - Better descriptions = better agent decisions
   Describe *when* to use a tool, not just *what* it does
-- Docs:          https://docs.betteragent.dev
-- CLI reference: https://docs.betteragent.dev/cli
-- Tool files:    https://docs.betteragent.dev/tools`;
+- Docs:           https://docs.betteragent.dev
+- CLI reference:  https://docs.betteragent.dev/cli
+- Tool files:     https://docs.betteragent.dev/tools
+- Limits/billing: https://docs.betteragent.dev/limits-billing`;

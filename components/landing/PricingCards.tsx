@@ -14,7 +14,7 @@ export const PLANS = [
     cta: "Start free",
     href: "/auth/sign-up",
     tagline: "For prototyping and small projects.",
-    features: ["500 credits / month", "Unlimited projects", "Hosted Sonnet 4.6"],
+    features: ["500 credits / 30 days", "Unlimited projects", "Hosted Sonnet 4.6"],
   },
   {
     name: "Starter",
@@ -25,7 +25,7 @@ export const PLANS = [
     href: "/contact",
     tagline: "3x the runway, for less than a pack of gum.",
     features: [
-      "1,500 credits / month",
+      "1,500 credits / 30 days",
       "Hard-capped, no surprise charges",
       "Hosted Sonnet 4.6",
     ],
@@ -39,7 +39,7 @@ export const PLANS = [
     href: "/contact",
     tagline: "For agents that need a little more room.",
     features: [
-      "4,000 credits / month",
+      "4,000 credits / 30 days",
       "$10 per 1,000 additional credits",
       "Bring your own API key for unlimited usage",
       "Hosted Sonnet 4.6",

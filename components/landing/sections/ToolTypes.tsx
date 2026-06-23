@@ -20,17 +20,18 @@ const TOOL_TYPES = [
     },
     blurb:
       "Wrap an existing Next.js Server Action — the SDK dispatches the call so session and revalidation work as normal.",
-    code: `<span style="color:oklch(0.769 0.188 70.08)">import</span> { defineServerAction } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"betteragent-next"</span>;
+    code: `<span style="color:oklch(0.78 0.13 145)">"use server"</span>;
+
+<span style="color:oklch(0.769 0.188 70.08)">import</span> { defineServerAction } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"betteragent-next"</span>;
+<span style="color:oklch(0.769 0.188 70.08)">import</span> { z } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"zod"</span>;
 <span style="color:oklch(0.769 0.188 70.08)">import</span> { createCampaign } <span style="color:oklch(0.769 0.188 70.08)">from</span> <span style="color:oklch(0.78 0.13 145)">"@/app/actions"</span>;
 
-<span style="color:oklch(0.769 0.188 70.08)">export const</span> <span style="color:oklch(0.985 0 0)">serverActions</span> = [
-  defineServerAction({
-    name: <span style="color:oklch(0.78 0.13 145)">"createCampaign"</span>,
-    description: <span style="color:oklch(0.78 0.13 145)">"Draft a re-engagement campaign."</span>,
-    schema: z.object({ audienceId: z.string() }),
-    handler: createCampaign,
-  }),
-];`,
+<span style="color:oklch(0.769 0.188 70.08)">export const</span> <span style="color:oklch(0.985 0 0)">createCampaignAction</span> = defineServerAction({
+  name: <span style="color:oklch(0.78 0.13 145)">"createCampaign"</span>,
+  description: <span style="color:oklch(0.78 0.13 145)">"Draft a re-engagement campaign."</span>,
+  schema: z.object({ audienceId: z.string() }),
+  handler: createCampaign,
+});`,
     checks: [
       "Forwards your end-user bearer token to your APIs.",
       "Hard caps & observability included.",

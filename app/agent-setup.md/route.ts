@@ -1,7 +1,8 @@
 import { AGENT_PROMPT } from "@/lib/agent-prompt";
 
-// Serve the AI setup prompt as raw markdown from the single source of truth
-// (lib/agent-prompt.ts), which also drives the /docs/ai-setup page.
+// Serve the AI setup prompt as raw markdown. The prompt block embedded in
+// packages/docs/content/ai-setup.mdx is a hand-maintained copy of this
+// string, not generated from it — keep both in sync when editing either.
 export const dynamic = "force-static";
 
 export function GET() {

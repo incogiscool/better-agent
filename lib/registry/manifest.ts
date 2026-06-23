@@ -162,6 +162,22 @@ export const REGISTRY: RegistryComponent[] = [
       },
     ],
   },
+  {
+    name: "drawer",
+    description:
+      "Slide-out panel from the right edge, triggered by a floating button. Best for side-by-side layouts that need on-demand, persistent access.",
+    type: "registry:component",
+    dependencies: COMMON_DEPS,
+    registryDependencies: ["button", "input", "drawer"],
+    files: [
+      ...PIECE_FILES,
+      {
+        source: src("components/chat/chat-drawer.tsx"),
+        target: "components/chat/chat-drawer.tsx",
+        type: "registry:component",
+      },
+    ],
+  },
 ];
 
 export function findComponent(name: string): RegistryComponent | null {

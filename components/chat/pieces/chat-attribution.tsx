@@ -21,7 +21,7 @@ export interface ChatAttributionProps {
  */
 export function ChatAttribution({
   label = "powered by betteragent",
-  href = "https://betteragent.dev",
+  href = "https://www.betteragent.dev",
   inline = false,
   className,
 }: ChatAttributionProps) {

@@ -1,0 +1,80 @@
+---
+title: Limits & Billing
+description: Runtime caps, rate limits, the hosted model, and how credits and plans work.
+---
+
+import { Callout } from 'nextra/components'
+
+# Limits & billing
+
+Operational caps the agent enforces at runtime, plus how credits and plans
+work. Design your tools and conversations against these numbers.
+
+## Runtime caps
+
+Per-conversation and per-call limits enforced by the chat engine.
+
+| Cap | Value | What happens on overrun |
+| --- | --- | --- |
+| Tool result size | 8 KB | Result is truncated server-side (`...truncated` suffix) and the truncated value is what the agent sees. |
+| Route timeout | 30s | The server-to-server fetch is aborted and the tool call returns a timeout error. |
+| Steps per conversation | 20 | The agent stops generating further steps once the limit is reached (graceful stop, no error). |
+| Tokens per conversation | 80,000 | The conversation is hard-stopped with a `token_cap` error. Start a new conversation to continue. |
+| Idempotency key TTL | 24 hours | Duplicate `execute-result` calls with the same key return the original cached response instead of re-executing. |
+
+<Callout type="info">
+  Keep route/server-action handlers fast and their return values small —
+  design for the 8 KB / 30s caps above, not just "concise."
+</Callout>
+
+## Rate limits
+
+Enforced per endpoint via a sliding window. Exceeding a limit returns
+`429 Too Many Requests` with a `Retry-After` header.
+
+| Endpoint | Limit | Keyed by |
+| --- | --- | --- |
+| `POST /api/v1/chat` | 20 req/min | project + end-user |
+| `POST /api/v1/chat` (project ceiling) | 120 req/min | project |
+| `POST /api/v1/execute-result` | 60 req/min | project |
+| `POST /api/v1/describe` | 30 req/min | project |
+| Auth endpoints (sign-in, OTP verify) | 20 req/min | IP |
+| Sign-up | 5 attempts / 15 min | IP |
+
+## Models
+
+The hosted chat engine currently runs on a single fixed model —
+`claude-sonnet-4-6` — for every project and plan. Per-project or
+per-conversation model selection isn't available yet.
+
+<Callout type="info">
+  The model-picker widget on the marketing homepage is illustrative of
+  where this is headed, not a live setting — there's no way to switch to
+  Haiku or Opus today.
+</Callout>
+
+## Credits & plans
+
+Every plan is billed in **credits**, consumed per action regardless of
+model or token count:
+
+| Action | Credits |
+| --- | --- |
+| Conversation start | 2 |
+| Message | 1 |
+| Tool call | 3 |
+
+Plans differ in included credits and whether you can go over:
+
+| Plan | Included credits | Period | Overage |
+| --- | --- | --- | --- |
+| Free | 500 | 30 days | Hard-capped — chat endpoint returns an error until reset, no extra billing. |
+| Starter | 1,500 | 30 days | Hard-capped, same as Free. |
+| Plus | 4,000 | 30 days | Allowed, $10 per 1,000 additional credits. Supports bring-your-own API key for unlimited usage. |
+| Enterprise | Custom | 30 days | Custom — [talk to sales](https://www.betteragent.dev/contact). |
+
+The credit period is a rolling 30-day window — it resets 30 days after the
+window last started, not on a fixed calendar date.
+
+Full CLI reference: [CLI Reference](/cli). Tool result/runtime behavior:
+[Tool Files](/tools).

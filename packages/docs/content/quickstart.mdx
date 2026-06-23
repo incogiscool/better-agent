@@ -20,7 +20,7 @@ Next.js app.
 
 ### Create a project
 
-Sign in to the [dashboard](https://betteragent.dev/dashboard), click **New
+Sign in to the [dashboard](https://www.betteragent.dev/dashboard), click **New
 project**, and give it a name. Once created, copy the **secret key** — you'll
 need it in the next step and it's only shown once.
 
@@ -79,6 +79,8 @@ automatically. Available variants: `sidebar` · `chat-popup` · `cmd-k` ·
 If you skipped discovery during init, run it separately. The CLI scans your
 Next.js routes and server actions and generates three tool files. Review them
 and remove anything the agent shouldn't access (admin endpoints, internal APIs).
+Counts here are higher than `init`'s scan above because `discover` inspects
+exports at the file level (every handler/export), not just routes/actions.
 
 ```bash
 npx betteragent discover
@@ -122,6 +124,8 @@ the logged-in user:
 
 - **String** — forwarded as `Authorization: Bearer <token>`
 - **Object** — forwarded verbatim, for custom header names or formats
+- **Function** (Client Component only) — called per-request for refreshed
+  tokens; use this when your backend issues short-lived tokens
 
 ```tsx
 import { cookies } from "next/headers";
@@ -134,7 +138,6 @@ export default async function Layout({ children }) {
   return (
     <AgentProvider
       clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
-      apiUrl={process.env.NEXT_PUBLIC_BETTERAGENT_API_URL}
       endUserId={user.id}
       authToken={{ Authorization: `Bearer ${sessionToken}` }}
     >
@@ -148,6 +151,11 @@ export default async function Layout({ children }) {
 # .env.local
 NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY=ba_client_...
 ```
+
+`apiUrl` defaults to `https://www.betteragent.dev` and only needs to be set
+if you're pointing at a local or staging backend — pass
+`apiUrl={process.env.NEXT_PUBLIC_BETTERAGENT_API_URL}` and set that var in
+`.env.local` in that case.
 
 ### Render the chat component
 

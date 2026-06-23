@@ -13,6 +13,7 @@ const meta = {
   cli: "CLI Reference",
   tools: "Tool Files",
   components: "Components",
+  "limits-billing": "Limits & Billing",
 };
 
 export default meta;

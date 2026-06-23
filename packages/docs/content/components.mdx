@@ -21,6 +21,7 @@ suggested prompts. Install one and you get them all.
 | `chat-popup` | Floating bottom-right button that opens a chat panel. |
 | `cmd-k` | ⌘K command-palette overlay, with a tap trigger for mobile. |
 | `inline-bar` | Embedded input bar that sits inside the page. |
+| `drawer` | Slide-out panel from the right edge, triggered by a floating button. |
 
 ```bash
 # Install one (or pass no name for an interactive picker)
@@ -44,6 +45,13 @@ npx betteragent add sidebar
 ```
 
 ### Import theming + wrap your app
+
+`BetterAgentProvider` here is the underlying SDK component from
+`betteragent-react` — it's what your generated `AgentProvider` (from
+`betteragent init`) wraps internally. If you already ran `betteragent init`,
+import `AgentProvider` from `@/components/betteragent-provider` instead and
+skip this step; use the raw `BetterAgentProvider` only if you're wiring the
+provider by hand.
 
 ```tsx
 // globals.css
@@ -152,7 +160,7 @@ import { ChatAttribution } from "@/components/chat";
 | Prop | Default | Description |
 | --- | --- | --- |
 | `label` | `"powered by betteragent"` | The attribution text. |
-| `href` | `"https://betteragent.dev"` | Link target (opens in a new tab). |
+| `href` | `"https://www.betteragent.dev"` | Link target (opens in a new tab). |
 | `inline` | `false` | Render a bare link with no footer bar, for embedding inside an existing footer. |
 | `className` | — | Extra classes, merged via `tailwind-merge`. |
 

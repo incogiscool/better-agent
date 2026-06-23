@@ -28,6 +28,10 @@ const VARIANTS = [
     title: "inline-bar  — embedded input bar in the page",
     value: "inline-bar",
   },
+  {
+    title: "drawer      — slide-out panel from the right edge",
+    value: "drawer",
+  },
 ] as const;
 
 export const initCommand = defineCommand({

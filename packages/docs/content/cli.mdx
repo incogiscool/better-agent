@@ -67,7 +67,9 @@ $ betteragent init
 ## `betteragent discover`
 
 Scan your codebase for route handlers and server actions, then generate tool
-files.
+files. Counts are higher than `init`'s scan because `discover` inspects
+exports at the file level (every handler/export), while `init` only counts
+at the route/action level.
 
 ```bash
 betteragent discover [OPTIONS]
@@ -125,7 +127,7 @@ betteragent add [NAME] [OPTIONS]
 
 | Option | Description |
 | --- | --- |
-| `NAME` | Component: `sidebar` \| `chat-popup` \| `cmd-k` \| `inline-bar`. Omit for interactive picker. |
+| `NAME` | Component: `sidebar` \| `chat-popup` \| `cmd-k` \| `inline-bar` \| `drawer`. Omit for interactive picker. |
 | `--cwd <dir>` | Working directory (default: current). |
 | `--overwrite` | Overwrite existing files without prompting. |
 | `--dry-run` | Show what would be installed without writing. |
@@ -138,6 +140,7 @@ $ betteragent add
 ◯ chat-popup     Floating bottom-right button
 ◯ cmd-k          ⌘K overlay, tap to open on mobile
 ◯ inline-bar     Embedded input bar in the page
+◯ drawer         Slide-out panel from the right edge
 
 → Installing sidebar...
 ✓ components/chat/sidebar.tsx
@@ -206,8 +209,11 @@ optional — the CLI falls back to credentials and defaults.
 
 ```json
 {
-  // API URL — overrides BETTERAGENT_API_URL
-  // and the URL stored in credentials.
+  // API URL — overrides BETTERAGENT_API_URL and the URL stored in
+  // credentials. This points at the BetterAgent backend the CLI talks to
+  // (production default: https://www.betteragent.dev) — only override it
+  // if you're running a local/self-hosted BetterAgent backend instance,
+  // not your own app's URL.
   "apiUrl": "http://localhost:3000",
 
   // Project ID — override for monorepos

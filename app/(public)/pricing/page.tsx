@@ -33,7 +33,7 @@ const CREDIT_EVENTS = [
 const FAQ_ITEMS = [
   {
     q: "What happens when I hit the free limit?",
-    a: "Your project is hard-capped at 500 credits. The chat endpoint returns a clear error and no further billing occurs. Wait for your next monthly reset, or upgrade to Starter.",
+    a: "Your project is hard-capped at 500 credits. The chat endpoint returns a clear error and no further billing occurs. Wait for your 30-day reset, or upgrade to Starter.",
   },
   {
     q: "When does Plus launch?",
@@ -78,8 +78,8 @@ function PricingHero() {
             earns its keep.
           </h1>
           <p className={SUB}>
-            500 credits a month, free — no card required. Paid plans start at
-            $0.99/mo when you need more room.
+            500 credits every 30 days, free — no card required. Paid plans
+            start at $0.99/mo when you need more room.
           </p>
         </div>
       </div>
