@@ -68,111 +68,56 @@ export function SSEViz() {
   );
 }
 
-// ── Credits gauge ─────────────────────────────────────────────
-export function CapsGauge() {
-  const limit = 10000;
-  const [used, setUsed] = useState(8234);
-  const [paused, setPaused] = useState(false);
-
-  useEffect(() => {
-    if (paused) return;
-    const id = setInterval(() => {
-      setUsed((u) => {
-        const next = u + Math.floor(Math.random() * 8) + 2;
-        return next > limit ? 8234 : next;
-      });
-    }, 600);
-    return () => clearInterval(id);
-  }, [paused]);
-
-  const pct = (used / limit) * 100;
-
-  return (
-    <div className="w-full flex flex-col gap-2 font-mono text-[11px]">
-      <div className="flex justify-between">
-        <span>
-          {used.toLocaleString()}{" "}
-          <span className="text-muted-foreground">
-            / {limit.toLocaleString()}
-          </span>
-        </span>
-        <span
-          className={pct > 80 ? "text-destructive" : "text-muted-foreground"}
-        >
-          {pct.toFixed(1)}%
-        </span>
-      </div>
-      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full transition-[width] duration-[600ms] ease-out"
-          style={{
-            width: `${Math.min(pct, 100)}%`,
-            background:
-              "linear-gradient(90deg, var(--primary), oklch(0.704 0.191 22.216))",
-          }}
-        />
-      </div>
-      <div className="flex justify-between text-[10px] text-muted-foreground">
-        <span>20 turns / conv</span>
-        <button
-          onClick={() => setPaused((p) => !p)}
-          className="text-[10px] font-mono border border-border bg-background text-foreground px-2 py-px cursor-pointer rounded-[var(--radius-sm)]"
-        >
-          {paused ? "▶ resume" : "⏸ pause"}
-        </button>
-      </div>
-      <div className="flex gap-2 text-[10px] text-muted-foreground flex-wrap">
-        {["80k tokens / conv", "8KB / tool result", "30s route timeout"].map(
-          (t) => (
-            <span
-              key={t}
-              className="bg-muted border border-border px-1.5 py-px rounded-[var(--radius-sm)]"
-            >
-              {t}
-            </span>
-          ),
-        )}
-      </div>
-    </div>
-  );
-}
-
 // ── Model selector ────────────────────────────────────────────
 const MODELS = [
-  { id: "sonnet", name: "claude-sonnet-4.6", tag: "default", price: "$3 / 1M" },
-  { id: "haiku", name: "claude-haiku-4.5", tag: "fast", price: "$0.80" },
-  { id: "opus", name: "claude-opus-4.5", tag: "smart", price: "$15" },
+  {
+    id: "sonnet",
+    name: "claude-sonnet-4.6",
+    tag: "live on every plan",
+    price: "$3 / 1M",
+    live: true,
+  },
+  {
+    id: "haiku",
+    name: "claude-haiku-4.5",
+    tag: "coming soon",
+    price: "$0.80",
+    live: false,
+  },
+  {
+    id: "opus",
+    name: "claude-opus-4.5",
+    tag: "coming soon",
+    price: "$15",
+    live: false,
+  },
 ];
 
 export function ModelStack() {
-  const [sel, setSel] = useState("sonnet");
   return (
     <div className="w-full flex flex-col gap-1 font-mono">
       {MODELS.map((m) => (
         <div
           key={m.id}
-          onClick={() => setSel(m.id)}
+          aria-disabled={!m.live}
           className={cn(
-            "flex items-center gap-2 p-[8px_10px] text-[11.5px] cursor-pointer rounded-[var(--radius-sm)] border transition-colors",
-            sel === m.id
+            "flex items-center gap-2 p-[8px_10px] text-[11.5px] rounded-[var(--radius-sm)] border transition-colors",
+            m.live
               ? "border-primary bg-primary/6"
-              : "border-border bg-background",
+              : "border-border bg-background opacity-50",
           )}
         >
           <span
             className="w-1.5 h-1.5 rounded-full shrink-0 inline-block"
             style={{
-              background: sel === m.id ? "var(--primary)" : "var(--border)",
-              boxShadow:
-                sel === m.id
-                  ? "0 0 0 3px color-mix(in oklch, var(--primary) 25%, transparent)"
-                  : undefined,
+              background: m.live ? "var(--primary)" : "var(--border)",
+              boxShadow: m.live
+                ? "0 0 0 3px color-mix(in oklch, var(--primary) 25%, transparent)"
+                : undefined,
             }}
           />
           <span
-            className={
-              sel === m.id ? "text-foreground" : "text-muted-foreground"
-            }
+            className={m.live ? "text-foreground" : "text-muted-foreground"}
           >
             {m.name}
           </span>
@@ -190,11 +135,11 @@ export function ModelStack() {
 export function FxGrid() {
   const items = [
     { name: "Next.js", live: true },
-    { name: "Vue", tag: "soon" },
-    { name: "Svelte", tag: "beta" },
-    { name: "Remix", tag: "soon" },
-    { name: "Express", tag: "soon" },
-    { name: "Hono", tag: "soon" },
+    { name: "Vue", tag: "planned" },
+    { name: "Svelte", tag: "planned" },
+    { name: "Remix", tag: "planned" },
+    { name: "Express", tag: "planned" },
+    { name: "Hono", tag: "planned" },
   ];
   return (
     <div className="w-full grid grid-cols-3 gap-1.5">
@@ -262,7 +207,7 @@ export function AuthFlow() {
       <div>
         <span className="text-[oklch(0.985_0_0)]">createCampaign</span>
         <span className="text-[oklch(0.50_0_0)]">{"({ user_id: "}</span>
-        <span className="text-[oklch(0.78_0.13_145)]">"u_92ab"</span>
+        <span className="text-[oklch(0.78_0.13_145)]">&quot;u_92ab&quot;</span>
         <span className="text-[oklch(0.50_0_0)]">{"  })"}</span>
       </div>
       <div className="border-t border-dashed border-[oklch(1_0_0/10%)] mt-1.5 pt-1.5 text-[10px] text-[oklch(0.55_0_0)]">

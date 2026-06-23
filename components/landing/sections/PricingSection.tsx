@@ -9,7 +9,7 @@ export function PricingSection() {
           <Eyebrow>Pricing</Eyebrow>
           <h2 className={H2}>Free until your agent earns its keep.</h2>
           <p className={SUB}>
-            500 credits a month on the house — ~25 conversations to prototype.
+            500 credits every 30 days on the house, free to prototype.
             Starter is $0.99/mo for 1,500 credits. No card required.
           </p>
         </div>

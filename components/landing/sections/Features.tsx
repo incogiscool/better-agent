@@ -92,8 +92,8 @@ const BENTO_ITEMS = [
     ),
   },
   {
-    title: "Framework agnostic",
-    sub: "Next.js today. Same protocol, different adapter for every other stack.",
+    title: "One protocol, Next.js today",
+    sub: "Next.js (App Router) is the only framework supported right now. Other adapters are planned, not yet available.",
     icon: <GithubIcon size={14} />,
     content: <FxGrid />,
   },
