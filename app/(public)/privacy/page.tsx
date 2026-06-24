@@ -6,7 +6,7 @@ export const metadata = {
   description: "How BetterAgent collects, uses, and protects your data.",
 };
 
-const EFFECTIVE_DATE = "May 26, 2026";
+const EFFECTIVE_DATE = "June 24, 2026";
 
 export default function PrivacyPage() {
   return (
@@ -27,7 +27,6 @@ export default function PrivacyPage() {
 
       <section className={SEC}>
         <div className={cn(WRAP, "max-w-[760px]")}>
-          <ReviewBanner />
           <Prose>
             <p>
               This Privacy Policy describes how BetterAgent (&ldquo;we&rdquo;,
@@ -35,6 +34,15 @@ export default function PrivacyPage() {
               information when you use betteragent.dev and related services
               (the &ldquo;Service&rdquo;). BetterAgent is operated by an
               individual (sole proprietor) based in Ontario, Canada.
+            </p>
+            <p>
+              This policy describes how we handle data for which we are the
+              controller — primarily account holders&rsquo; data. When you
+              deploy an agent in your own application, we process your end
+              users&rsquo; conversation data on your behalf, as your processor;
+              you remain responsible for your own privacy notice and legal basis
+              for that data (see &ldquo;Conversation data&rdquo; below and the{" "}
+              <a href="/terms">Terms of Service</a>).
             </p>
 
             <H3>1. Information We Collect</H3>
@@ -45,8 +53,14 @@ export default function PrivacyPage() {
               in with Google or GitHub, in which case we store an account
               identifier from that provider and the OAuth tokens needed to
               authenticate you. Authentication is handled by our self-hosted
-              auth layer (better-auth). We do not currently offer paid plans, so
-              we do not collect or store payment information.
+              auth layer (better-auth).
+            </p>
+            <p>
+              <strong>Billing information.</strong> When you subscribe to a paid
+              plan, payments are processed by Stripe. We do not receive or store
+              your full payment card number; Stripe handles card data directly.
+              We store a Stripe customer identifier, your subscription plan and
+              status, billing period, and the email associated with billing.
             </p>
             <p>
               <strong>Usage data.</strong> We log API requests, credit
@@ -65,7 +79,16 @@ export default function PrivacyPage() {
               message, the agent&rsquo;s response, and the inputs and outputs of
               any tools the agent calls. We retain this conversation history to
               power multi-turn context and to display run history in your
-              dashboard. See &ldquo;Data Retention&rdquo; below.
+              dashboard. We process this data on your behalf as your processor;
+              you are responsible for the lawful basis and any notices required
+              for your end users. See &ldquo;Data Retention&rdquo; below.
+            </p>
+            <p>
+              <strong>Product analytics.</strong> We use PostHog to understand
+              how the dashboard and marketing site are used and to capture error
+              diagnostics. This includes events such as page views and feature
+              interactions, along with a device/browser identifier. Analytics
+              requests are routed through our own domain.
             </p>
             <p>
               <strong>Technical data.</strong> We store the IP address and
@@ -77,6 +100,7 @@ export default function PrivacyPage() {
             <H3>2. How We Use Information</H3>
             <ul>
               <li>Authenticate you and operate your account.</li>
+              <li>Process payments and manage paid subscriptions.</li>
               <li>Enforce plan credit limits and prevent overuse.</li>
               <li>
                 Route agent requests and return responses to your application.
@@ -93,8 +117,8 @@ export default function PrivacyPage() {
                 Detect and prevent abuse, fraud, and policy violations.
               </li>
               <li>
-                Improve the Service through aggregated, anonymized usage
-                analytics.
+                Understand and improve the Service through product analytics and
+                error diagnostics.
               </li>
               <li>
                 Send operational account emails, such as credit-limit warnings.
@@ -103,18 +127,25 @@ export default function PrivacyPage() {
             <p>
               We do not use conversation content to train AI models.
             </p>
+            <p>
+              Where the law requires a legal basis (such as the EU/UK GDPR), we
+              rely on performance of our contract with you, our legitimate
+              interests in operating and securing the Service, compliance with
+              legal obligations, and your consent where applicable.
+            </p>
 
-            <H3>3. Information Sharing</H3>
+            <H3>3. Information Sharing and Subprocessors</H3>
             <p>
               We do not sell personal information. We share data only with:
             </p>
             <ul>
               <li>
-                <strong>Service providers</strong> necessary to operate the
-                platform: Anthropic (AI inference), Neon (database hosting),
-                Upstash (rate limiting), Resend (email), and our hosting
-                provider. We enter into data processing agreements with these
-                providers where applicable.
+                <strong>Service providers (subprocessors)</strong> necessary to
+                operate the platform: Anthropic (AI inference), Stripe
+                (payments), Neon (database hosting), Upstash (rate limiting),
+                Resend (email), PostHog (product analytics), and Vercel
+                (application hosting). We enter into data processing agreements
+                with these providers where applicable.
               </li>
               <li>
                 <strong>Legal and safety.</strong> We may disclose data when
@@ -150,34 +181,45 @@ export default function PrivacyPage() {
               account or a project from the dashboard, the associated data —
               including projects, tools, conversation history, and usage logs —
               is permanently deleted. We do not keep a recovery copy after
-              deletion.
+              deletion. We may retain limited billing records where required for
+              tax or accounting purposes.
             </p>
 
             <H3>6. Your Rights</H3>
             <p>
               Under Canada&rsquo;s Personal Information Protection and Electronic
               Documents Act (PIPEDA) and, depending on where you live, other
-              applicable laws, you may have rights to access, correct, or delete
-              your personal data, or to receive a portable copy of it. You can
-              delete your account and its data directly from the dashboard. For
-              other requests, email{" "}
+              laws such as the EU/UK GDPR or U.S. state privacy laws, you may
+              have rights to access, correct, delete, or port your personal
+              data, to object to or restrict certain processing, and to withdraw
+              consent. You can delete your account and its data directly from the
+              dashboard. For other requests, email{" "}
               <a href="mailto:legal@betteragent.dev">
                 legal@betteragent.dev
               </a>
-              . We will respond within 30 days.
+              . We will respond within the timeframe required by applicable law,
+              and within 30 days where no specific period applies.
+            </p>
+            <p>
+              If you are an end user of an application built on BetterAgent,
+              please direct privacy requests to the operator of that
+              application, who is the controller of your data; we will assist
+              them as their processor.
             </p>
             <p>
               If you have a concern we have not resolved, you may contact the
-              Office of the Privacy Commissioner of Canada.
+              Office of the Privacy Commissioner of Canada or your local data
+              protection authority.
             </p>
 
             <H3>7. Cookies and Tracking</H3>
             <p>
-              We use strictly-necessary cookies to maintain your session. We do
-              not use third-party advertising cookies or cross-site tracking.
-              You can control cookie preferences in your browser settings, though
-              disabling session cookies will prevent you from logging in. We do
-              not currently use any third-party web analytics.
+              We use strictly-necessary cookies to maintain your session, and
+              analytics cookies/identifiers from PostHog to measure product
+              usage. We do not use advertising cookies or sell your data for
+              cross-context behavioural advertising. You can control cookies in
+              your browser settings, though disabling session cookies will
+              prevent you from logging in.
             </p>
 
             <H3>8. Children&rsquo;s Privacy</H3>
@@ -190,10 +232,15 @@ export default function PrivacyPage() {
 
             <H3>9. International Transfers</H3>
             <p>
-              BetterAgent operates in Canada. If you access the Service from
-              outside Canada, your information will be transferred to and
-              processed in Canada. By using the Service you consent to this
-              transfer.
+              BetterAgent operates in Canada, and our subprocessors may process
+              data in the United States and elsewhere. If you access the Service
+              from outside Canada — including from the EU or UK — your
+              information will be transferred to and processed in Canada, the
+              United States, and other countries where we or our subprocessors
+              operate. We rely on appropriate safeguards for these transfers,
+              such as adequacy decisions or standard contractual clauses, where
+              required by law. By using the Service you consent to these
+              transfers.
             </p>
 
             <H3>10. Changes to This Policy</H3>
@@ -223,16 +270,6 @@ function H3({ children }: { children: React.ReactNode }) {
     <h3 className="font-mono font-semibold text-[17px] tracking-[-0.01em] mt-10 mb-3">
       {children}
     </h3>
-  );
-}
-
-function ReviewBanner() {
-  return (
-    <div className="mb-8 rounded-md border border-amber-500/60 bg-amber-500/10 px-4 py-3 font-mono text-[13px] leading-relaxed text-amber-700 dark:text-amber-400">
-      <span className="font-semibold">⚠️ REVIEW BEFORE LAUNCH · </span>
-      This is a working draft, not legal advice. Have it reviewed by a qualified
-      lawyer before relying on it publicly.
-    </div>
   );
 }
 
