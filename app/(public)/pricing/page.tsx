@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Plus } from "@phosphor-icons/react";
 import posthog from "posthog-js";
 import { PricingCards } from "@/components/landing/PricingCards";
+import { NeedMoreCreditsNote } from "@/components/landing/NeedMoreCreditsNote";
 import { PricingComparison } from "@/components/landing/PricingComparison";
 import { CtaSection } from "@/components/landing/CtaSection";
 import {
@@ -90,8 +91,9 @@ function PricingHero() {
 function PlansSection() {
   return (
     <section className={SEC}>
-      <div className={WRAP}>
+      <div className={cn(WRAP, "flex flex-col gap-6")}>
         <PricingCards />
+        <NeedMoreCreditsNote source="pricing" />
       </div>
     </section>
   );

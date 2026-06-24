@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { Suspense, useActionState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Check } from "@phosphor-icons/react";
 import { CtaSection } from "@/components/landing/CtaSection";
 import {
@@ -34,16 +35,33 @@ const CONTACT_ADDRESSES = [
 
 const initialState: ContactFormState = {};
 
+const CREDITS_MESSAGE_DRAFT =
+  "Hi! I'm running low on credits and would love some more to keep building.\n\nHere's what I'm working on:\n";
+
 export default function ContactPage() {
+  return (
+    <Suspense fallback={null}>
+      <ContactPageContent />
+    </Suspense>
+  );
+}
+
+function ContactPageContent() {
+  const isCreditsRequest = useSearchParams().get("topic") === "credits";
   const [state, formAction, pending] = useActionState(contactAction, initialState);
 
   return (
     <>
-      <ContactHero />
+      <ContactHero isCreditsRequest={isCreditsRequest} />
       <section className={cn(SEC, "border-b-0")}>
         <div className={WRAP}>
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10 lg:gap-16 items-start">
-            <ContactForm state={state} formAction={formAction} pending={pending} />
+            <ContactForm
+              state={state}
+              formAction={formAction}
+              pending={pending}
+              isCreditsRequest={isCreditsRequest}
+            />
             <ContactInfo />
           </div>
         </div>
@@ -53,17 +71,19 @@ export default function ContactPage() {
   );
 }
 
-function ContactHero() {
+function ContactHero({ isCreditsRequest }: { isCreditsRequest: boolean }) {
   return (
     <section className="pt-14 md:pt-24 pb-16 border-b border-border">
       <div className={cn(WRAP, "max-w-[760px]")}>
         <div className="flex flex-col gap-5">
-          <Eyebrow>Contact</Eyebrow>
+          <Eyebrow>{isCreditsRequest ? "More credits" : "Contact"}</Eyebrow>
           <h1 className="font-mono font-medium text-[clamp(32px,6vw,56px)] leading-[1.04] tracking-[-0.03em] m-0">
-            Get in touch.
+            {isCreditsRequest ? "Need more credits?" : "Get in touch."}
           </h1>
           <p className={SUB}>
-            We read every message and aim to respond within one business day.
+            {isCreditsRequest
+              ? "Tell us what you're building and we'll top you up. We read every message and usually reply within one business day."
+              : "We read every message and aim to respond within one business day."}
           </p>
         </div>
       </div>
@@ -75,10 +95,12 @@ function ContactForm({
   state,
   formAction,
   pending,
+  isCreditsRequest,
 }: {
   state: ContactFormState;
   formAction: (payload: FormData) => void;
   pending: boolean;
+  isCreditsRequest: boolean;
 }) {
   if (state.success) {
     return (
@@ -99,6 +121,7 @@ function ContactForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-6">
+      {isCreditsRequest && <input type="hidden" name="topic" value="credits" />}
       <div className="flex flex-col gap-1.5">
         <label htmlFor="name" className="font-mono text-[12px] uppercase tracking-[0.06em] text-muted-foreground">
           Name
@@ -143,6 +166,7 @@ function ContactForm({
           required
           rows={6}
           disabled={pending}
+          defaultValue={isCreditsRequest ? CREDITS_MESSAGE_DRAFT : undefined}
           className="w-full border border-border bg-background px-3 py-2.5 font-sans text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded-[var(--radius-md)] resize-y disabled:opacity-60"
           placeholder="Tell us what's on your mind…"
         />

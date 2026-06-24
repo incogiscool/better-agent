@@ -1,4 +1,5 @@
 import { PricingCards } from "@/components/landing/PricingCards";
+import { NeedMoreCreditsNote } from "@/components/landing/NeedMoreCreditsNote";
 import { Eyebrow, WRAP, SEC, SECHEAD, H2, SUB } from "@/components/landing/primitives";
 
 export function PricingSection() {
@@ -13,7 +14,10 @@ export function PricingSection() {
             Starter is $0.99/mo for 1,500 credits. No card required.
           </p>
         </div>
-        <PricingCards />
+        <div className="flex flex-col gap-6">
+          <PricingCards />
+          <NeedMoreCreditsNote source="landing" />
+        </div>
       </div>
     </section>
   );

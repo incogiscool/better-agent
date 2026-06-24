@@ -53,9 +53,14 @@ export async function contactAction(
 
   const { name, email, message } = parsed.data;
 
+  const isCreditsRequest = formData.get("topic") === "credits";
+  const subject = isCreditsRequest
+    ? `Credits request: ${name}`
+    : `Contact form: ${name}`;
+
   await sendEmail({
     to: "support@betteragent.dev",
-    subject: `Contact form: ${name}`,
+    subject,
     text: `From: ${name} <${email}>\n\n${message}`,
   });
 

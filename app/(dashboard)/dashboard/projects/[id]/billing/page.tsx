@@ -3,6 +3,7 @@ import { loadProjectContext } from "@/lib/dashboard/context";
 import { getUsageSummary } from "@/lib/billing/queries";
 import { PLAN_CONFIGS } from "@/lib/billing/plans";
 import { SectionHeader, UsageBar } from "@/components/dashboard/common";
+import { NeedMoreCreditsNote } from "@/components/landing/NeedMoreCreditsNote";
 import { formatCount, formatDate } from "@/lib/format";
 import type { ProjectPlan } from "@/lib/generated/prisma/enums";
 import { BillingActions } from "./BillingActions";
@@ -75,6 +76,10 @@ export default async function BillingPage({ params }: PageProps) {
 
         <BillingActions projectId={id} plan={project.plan} />
       </div>
+
+      {project.plan === "FREE" && (
+        <NeedMoreCreditsNote source="dashboard-billing" className="justify-start text-left" />
+      )}
 
       <p className="text-xs text-muted-foreground">
         See{" "}

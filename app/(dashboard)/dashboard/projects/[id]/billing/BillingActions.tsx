@@ -93,6 +93,23 @@ export function BillingActions({
           </Button>
         )}
 
+        {isPaid && (
+          <Button asChild variant="ghost">
+            <Link
+              href="/contact?topic=credits"
+              onClick={() =>
+                posthog.capture("need_more_credits_clicked", {
+                  source: "billing",
+                  project_id: projectId,
+                  plan,
+                })
+              }
+            >
+              Need more credits?
+            </Link>
+          </Button>
+        )}
+
         <Button asChild variant="ghost">
           <Link href="/contact">Need Enterprise?</Link>
         </Button>

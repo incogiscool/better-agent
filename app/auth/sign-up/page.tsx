@@ -6,6 +6,7 @@ import {
   SIGNUP_TERMINAL,
   SignupForm,
 } from "@/components/public/auth";
+import { NeedMoreCreditsNote } from "@/components/landing/NeedMoreCreditsNote";
 
 export const metadata: Metadata = {
   title: "Sign Up",
@@ -37,7 +38,12 @@ export default function SignUpPage() {
         </div>
       }
     >
-      <SignupForm callbackURL="/dashboard/projects/new" />
+      <div className="flex flex-col gap-6">
+        <SignupForm callbackURL="/dashboard/projects/new" />
+        <div className="border-t border-border pt-5">
+          <NeedMoreCreditsNote source="sign-up" variant="inline" />
+        </div>
+      </div>
     </AuthShell>
   );
 }
