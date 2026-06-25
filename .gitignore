@@ -50,3 +50,10 @@ packages/*/dist/
 # agent worktrees
 .claude/worktrees/
 .env.local
+
+# internal SEO audit material (kept locally, not published)
+/betteragent.dev-audit/
+
+# agent skill folders — kept locally, excluded from the public repo
+/.claude/skills/
+/.agents/skills/
