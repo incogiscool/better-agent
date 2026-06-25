@@ -86,6 +86,11 @@ const PIECE_FILES: RegistryFile[] = [
     type: "registry:component",
   },
   {
+    source: src("components/chat/pieces/chat-attribution.tsx"),
+    target: "components/chat/pieces/chat-attribution.tsx",
+    type: "registry:component",
+  },
+  {
     source: src("components/chat/pieces/index.ts"),
     target: "components/chat/pieces/index.ts",
     type: "registry:component",

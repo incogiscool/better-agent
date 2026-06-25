@@ -285,12 +285,14 @@ ${pc.bold("  ✓ Done! Here's what to do next:")}
 
        ${pc.dim("<")}${pc.cyan("AgentProvider")}
          clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
-         apiUrl={process.env.NEXT_PUBLIC_BETTERAGENT_API_URL}
          endUserId={currentUser.id}
          authToken=${pc.dim("{/* string token or { Authorization: \`Bearer \${token}\` } */}")}
        ${pc.dim(">")}
          {children}
        ${pc.dim("</")}${pc.cyan("AgentProvider")}${pc.dim(">")}
+
+     ${pc.dim("apiUrl defaults to https://www.betteragent.dev — only pass")}
+     ${pc.dim("apiUrl={process.env.NEXT_PUBLIC_BETTERAGENT_API_URL} for a local/staging backend.")}
 
   ${pc.dim("2.")} Render the installed chat component somewhere in your layout.
      The provider only supplies context — it renders no UI on its own.
