@@ -141,7 +141,7 @@ export const REGISTRY: RegistryComponent[] = [
       "Centered ⌘K-style overlay for typing instructions, with a tap trigger so touch/mobile users can open it too.",
     type: "registry:component",
     dependencies: COMMON_DEPS,
-    registryDependencies: ["dialog", "button"],
+    registryDependencies: ["command"],
     files: [
       ...PIECE_FILES,
       {
