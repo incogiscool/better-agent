@@ -52,7 +52,7 @@ export function LandingNav() {
 
       <span className="flex-1" />
 
-      <Button asChild variant="ghost" size="icon-sm" aria-label="BetterAgent on GitHub">
+      <Button asChild variant="outline" size="icon" aria-label="BetterAgent on GitHub">
         <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
           <GithubIcon size={16} />
         </a>
