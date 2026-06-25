@@ -114,7 +114,11 @@ export function ChatCmdk({
 
   return (
     <>
-      {trigger === null ? null : trigger ?? defaultTrigger}
+      {trigger === null
+        ? null
+        : React.isValidElement(trigger)
+          ? trigger
+          : defaultTrigger}
       <CommandDialog
         open={open}
         onOpenChange={handleOpenChange}

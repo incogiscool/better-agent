@@ -75,7 +75,7 @@ export function ChatDrawer({
       direction="right"
     >
       <DrawerTrigger asChild>
-        {trigger ?? defaultTrigger}
+        {React.isValidElement(trigger) ? trigger : defaultTrigger}
       </DrawerTrigger>
 
       <DrawerContent
