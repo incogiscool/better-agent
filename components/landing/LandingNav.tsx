@@ -13,6 +13,8 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { PUBLIC_NAVBAR_LINKS } from "@/lib/const/PUBLIC_NAVBAR_LINKS";
+import { GITHUB_URL } from "@/lib/const/GITHUB_URL";
+import { GithubIcon } from "@/components/landing/primitives";
 
 export function LandingNav() {
   return (
@@ -50,6 +52,11 @@ export function LandingNav() {
 
       <span className="flex-1" />
 
+      <Button asChild variant="ghost" size="icon-sm" aria-label="BetterAgent on GitHub">
+        <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
+          <GithubIcon size={16} />
+        </a>
+      </Button>
       <ModeToggle />
       <div className="hidden lg:flex items-center gap-2">
         <Button asChild variant="outline">

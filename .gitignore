@@ -57,3 +57,6 @@ packages/*/dist/
 # agent skill folders — kept locally, excluded from the public repo
 /.claude/skills/
 /.agents/skills/
+
+# internal design doc — kept locally, not published
+/DESIGN-DOC.md
