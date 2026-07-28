@@ -109,8 +109,11 @@ export async function loadAppEnv(cwd: string, extraEnvFiles: string[] = []): Pro
         }
         loaded.push({ path: abs, contents, env: {} });
       }
-      // forceReload: loadEnvConfig above set __NEXT_PROCESSED_ENV, which would
-      // make a plain processEnv call a no-op.
+      // loadEnvConfig above set __NEXT_PROCESSED_ENV, which makes a plain
+      // processEnv call a no-op. Clear it (rather than only passing
+      // forceReload) so this also works on @next/env versions predating the
+      // forceReload parameter.
+      delete process.env.__NEXT_PROCESSED_ENV;
       if (loaded.length > 0) nextEnv.processEnv(loaded, cwd, quietLog, true, onLoad);
     }
     return;
