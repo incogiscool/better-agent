@@ -5,6 +5,10 @@ import { z } from "zod";
 const projectConfigSchema = z.object({
   apiUrl: z.string().url().optional(),
   projectId: z.string().min(1).optional(),
+  // Extra env files (relative to cwd) loaded before tool files are imported,
+  // for apps whose .env lives outside the app dir (e.g. monorepo root:
+  // "env": ["../../.env"]). The app's own .env* cascade is always loaded.
+  env: z.array(z.string().min(1)).optional(),
   files: z
     .object({
       routes: z.string().optional(),

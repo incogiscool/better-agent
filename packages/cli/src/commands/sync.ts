@@ -56,7 +56,7 @@ export const syncCommand = defineCommand({
 
     let loaded;
     try {
-      loaded = await loadTools(files, cwd);
+      loaded = await loadTools(files, cwd, { envFiles: config.env });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       return fail(message);

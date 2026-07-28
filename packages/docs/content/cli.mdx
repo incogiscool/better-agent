@@ -220,6 +220,11 @@ optional — the CLI falls back to credentials and defaults.
   // where you sync to a specific project.
   "projectId": "cmpbilv2g00002rck...",
 
+  // Extra env files loaded before tool files are imported, on top of the
+  // app's own .env* cascade (which `sync` always loads, mirroring
+  // `next dev`). Useful when .env lives at the monorepo root.
+  "env": ["../../.env"],
+
   // Custom tool file paths
   "files": {
     "routes":        "./routes.betteragent.ts",

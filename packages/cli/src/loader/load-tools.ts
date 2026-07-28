@@ -4,6 +4,7 @@ import os from "node:os";
 import { createJiti } from "jiti";
 import { TOOL_METADATA, type ToolMetadata } from "betteragent-next";
 import type { ResolvedFiles } from "../config/project";
+import { loadAppEnv } from "./load-env";
 
 // Stub for Next.js-only packages that would throw when loaded outside Next.js.
 // Written once to a temp file and aliased in jiti so the CLI can load user
@@ -78,18 +79,31 @@ function extractMetadata(value: unknown): ToolMetadata | null {
   return null;
 }
 
+export type LoadToolsOptions = {
+  /** Extra env files (from `betteragent.config.json`) applied on top of the app's `.env*` cascade. */
+  envFiles?: string[];
+};
+
 export async function loadTools(
   files: ResolvedFiles,
   cwd: string,
+  options: LoadToolsOptions = {},
 ): Promise<LoadedTools> {
-  // Read tsconfig.json in cwd to discover path aliases like `@/*`.
-  const aliases = await readTsConfigAliases(cwd);
+  // Tool files import real app modules that read process.env at module scope
+  // (DB clients, env validation) — load env the way `next dev` would first.
+  await loadAppEnv(cwd, options.envFiles);
 
   const jiti = createJiti(cwd, {
     interopDefault: true,
     moduleCache: false,
-    fsCache: false,
-    alias: { ...aliases, "server-only": SERVER_ONLY_STUB },
+    fsCache: true,
+    // get-tsconfig under the hood: handles JSONC, `extends` chains, and
+    // upward discovery — real-world tsconfigs a hand-rolled reader can't.
+    tsconfigPaths: true,
+    // Tool files transitively reach .tsx (email templates, UI plumbing);
+    // Next.js apps always resolve react/jsx-runtime.
+    jsx: { runtime: "automatic" },
+    alias: { "server-only": SERVER_ONLY_STUB },
   });
 
   const out: LoadedToolFile[] = [];
@@ -159,37 +173,4 @@ export async function loadTools(
   }
 
   return { files: out };
-}
-
-/**
- * Read tsconfig.json in the given directory and convert `compilerOptions.paths`
- * to the flat alias map jiti expects: `{ "@/*": "/abs/path/to/root/*" }` →
- * `{ "@/": "/abs/path/to/root/" }`.
- */
-async function readTsConfigAliases(cwd: string): Promise<Record<string, string>> {
-  const tsconfigPath = path.join(cwd, "tsconfig.json");
-  try {
-    const raw = await fs.readFile(tsconfigPath, "utf-8");
-    const tsconfig = JSON.parse(raw) as {
-      compilerOptions?: { paths?: Record<string, string[]>; baseUrl?: string };
-    };
-    const paths = tsconfig.compilerOptions?.paths;
-    if (!paths) return {};
-
-    const baseUrl = path.resolve(cwd, tsconfig.compilerOptions?.baseUrl ?? ".");
-    const aliases: Record<string, string> = {};
-
-    for (const [alias, targets] of Object.entries(paths)) {
-      const target = targets[0];
-      if (!target) continue;
-      // Strip trailing `*` from both sides: `@/*` → `@/`, `./src/*` → `./src/`
-      const aliasKey = alias.endsWith("/*") ? alias.slice(0, -1) : alias;
-      const targetVal = target.endsWith("/*") ? target.slice(0, -1) : target;
-      aliases[aliasKey] = path.resolve(baseUrl, targetVal);
-    }
-
-    return aliases;
-  } catch {
-    return {};
-  }
 }

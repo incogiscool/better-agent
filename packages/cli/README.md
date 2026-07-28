@@ -110,6 +110,7 @@ generated `AgentProvider` handles that.
 {
   "apiUrl": "http://localhost:3000",
   "projectId": "...",
+  "env": ["../../.env"],
   "files": {
     "routes":        "src/routes.betteragent.ts",
     "serverActions": "src/server-actions.betteragent.ts",
@@ -121,3 +122,9 @@ generated `AgentProvider` handles that.
 
 Any field is optional. The CLI falls back to defaults / stored credentials /
 environment variables.
+
+`sync` loads your app's `.env*` files the same way `next dev` does before
+importing tool files, so app modules that read `process.env` at import time
+(database clients, env validation) work without wrappers like `dotenv-cli`.
+`env` adds extra env files on top of that — useful in monorepos where `.env`
+lives at the repo root rather than the app directory.
