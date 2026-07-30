@@ -68,6 +68,7 @@ export async function POST(req: NextRequest) {
         id: string;
         baseUrl: string | null;
         systemPrompt: string | null;
+        allowCookieForwarding: boolean;
         allowedOrigins: string[];
         plan: ProjectPlan;
         anthropicApiKeyEncrypted: string | null;
@@ -80,6 +81,7 @@ export async function POST(req: NextRequest) {
         id: true,
         baseUrl: true,
         systemPrompt: true,
+        allowCookieForwarding: true,
         allowedOrigins: true,
         plan: true,
         anthropicApiKeyEncrypted: true,
@@ -181,6 +183,7 @@ export async function POST(req: NextRequest) {
       id: project.id,
       baseUrl: project.baseUrl,
       systemPrompt: project.systemPrompt,
+      allowCookieForwarding: project.allowCookieForwarding,
       anthropicApiKey,
     },
     byok,

@@ -4,6 +4,12 @@
 npm i betteragent-react
 ```
 
+> **ESM only.** This package ships no CommonJS build — it renders React
+> components and is always consumed through a bundler. `require()` will fail.
+> If you need to import BetterAgent from a CJS script (a `tsx` one-off, Jest
+> without ESM configured, a build script), use `betteragent-next`, which ships
+> both formats.
+
 ## Quick start
 
 The recommended way to use the provider is via the `AgentProvider` component

@@ -63,6 +63,21 @@ function parseAllowedOrigins(
   return { ok: true, origins };
 }
 
+/** Localhost is exempt so the setting is testable in development. */
+function isHttpsBaseUrl(baseUrl: string | undefined): boolean {
+  if (!baseUrl) return false;
+  try {
+    const url = new URL(baseUrl);
+    return (
+      url.protocol === "https:" ||
+      url.hostname === "localhost" ||
+      url.hostname === "127.0.0.1"
+    );
+  } catch {
+    return false;
+  }
+}
+
 function parseProjectFormData(formData: FormData) {
   const parsed = projectSchema.safeParse({
     name: formData.get("name"),
@@ -160,10 +175,26 @@ export async function updateProjectSettingsAction(
     };
   }
 
+  // Cookie forwarding sends a live session credential to the project's
+  // backend, so refuse to enable it against a URL that isn't encrypted — the
+  // engine enforces the same rule at call time.
+  const allowCookieForwarding = formData.get("allowCookieForwarding") === "on";
+  if (allowCookieForwarding && !isHttpsBaseUrl(parsed.data.baseUrl)) {
+    return {
+      errors: {
+        allowCookieForwarding: [
+          "Cookie forwarding requires an https base URL (localhost excepted).",
+        ],
+      },
+      message: "Please fix the highlighted fields.",
+    };
+  }
+
   const result = await updateProjectForOwner({
     projectId,
     ownerId: user.id,
     ...parsed.data,
+    allowCookieForwarding,
   });
 
   if (result.count === 0) {

@@ -1,6 +1,6 @@
 {
   "name": "betteragent-react",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "React SDK for embedding BetterAgent chat in your app.",
   "license": "MIT",
   "repository": {
@@ -9,7 +9,6 @@
     "directory": "packages/react"
   },
   "type": "module",
-  "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { parsePathTemplate } from "betteragent-next";
 
 // JSON Schema is an open object — we validate structure elsewhere
 const jsonSchemaObject = z.looseObject({}).transform((v) => v as Record<string, unknown>);
@@ -32,6 +33,18 @@ export const syncToolSchema = z
           message: "path is required for route tools",
           path: ["path"],
         });
+      } else {
+        // Reject a malformed template at sync time rather than letting every
+        // call of the tool fail once it's live.
+        try {
+          parsePathTemplate(tool.path);
+        } catch (err) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: err instanceof Error ? err.message : "invalid path template",
+            path: ["path"],
+          });
+        }
       }
     }
   });

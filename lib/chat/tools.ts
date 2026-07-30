@@ -4,6 +4,7 @@ import { assertSafeOutboundUrl } from "@/lib/net/ssrf";
 import type { ToolType } from "@/lib/generated/prisma/enums";
 import { ToolExecutionStatus } from "@/lib/generated/prisma/enums";
 import { MAX_TOOL_RESULT_BYTES } from "./caps";
+import { buildRouteRequest } from "./route-url";
 import {
   insertPendingExecution,
   updateExecution,
@@ -22,17 +23,46 @@ export type BuiltTools = {
   meta: Map<string, ToolMeta>;
 };
 
+/**
+ * Headers the SDK asked us to forward, minus anything the project hasn't opted
+ * into. Cookies are the only gated header: forwarding one hands a live session
+ * credential to the project's backend, so it stays off until a project owner
+ * turns it on in settings.
+ */
 function resolveEndUserHeaders(
   endUserHeaders: Record<string, string> | null,
   endUserToken: string | null,
+  allowCookieForwarding: boolean,
 ): Record<string, string> {
   if (endUserHeaders && Object.keys(endUserHeaders).length > 0) {
-    return endUserHeaders;
+    if (allowCookieForwarding) return endUserHeaders;
+    return Object.fromEntries(
+      Object.entries(endUserHeaders).filter(
+        ([key]) => key.toLowerCase() !== "cookie",
+      ),
+    );
   }
   if (endUserToken) {
     return { authorization: `Bearer ${endUserToken}` };
   }
   return {};
+}
+
+/** True when the headers carry an end-user credential we must not let leak. */
+function carriesCredentials(headers: Record<string, string>): boolean {
+  return Object.keys(headers).some((key) => {
+    const lower = key.toLowerCase();
+    return lower === "cookie" || lower === "authorization";
+  });
+}
+
+/** Local development is exempt; anything else must be encrypted in transit. */
+function isSecureBaseUrl(url: URL): boolean {
+  return (
+    url.protocol === "https:" ||
+    url.hostname === "localhost" ||
+    url.hostname === "127.0.0.1"
+  );
 }
 
 const TRUNCATION_SUFFIX = "\n[...truncated]";
@@ -50,6 +80,7 @@ async function executeRouteFetch(args: {
   path: string;
   endUserToken: string | null;
   endUserHeaders: Record<string, string> | null;
+  allowCookieForwarding: boolean;
   input: unknown;
   signal: AbortSignal;
 }): Promise<{ ok: boolean; status: number | null; body: unknown; raw: string }> {
@@ -57,24 +88,42 @@ async function executeRouteFetch(args: {
     throw new Error("project baseUrl is not configured");
   }
 
-  const url = new URL(args.path, args.baseUrl).toString();
+  const upperMethod = args.method.toUpperCase();
+  const { url, body } = buildRouteRequest({
+    baseUrl: args.baseUrl,
+    method: upperMethod,
+    path: args.path,
+    input: args.input,
+  });
 
   // SSRF guard: reject internal/metadata targets before making the request.
   await assertSafeOutboundUrl(url);
 
+  const endUserHeaders = resolveEndUserHeaders(
+    args.endUserHeaders,
+    args.endUserToken,
+    args.allowCookieForwarding,
+  );
+
+  if (carriesCredentials(endUserHeaders) && !isSecureBaseUrl(new URL(url))) {
+    throw new Error(
+      "refusing to send end-user credentials over plain HTTP — configure an https baseUrl",
+    );
+  }
+
   const headers: Record<string, string> = {
     "content-type": "application/json",
-    ...resolveEndUserHeaders(args.endUserHeaders, args.endUserToken),
+    ...endUserHeaders,
   };
-
-  const upperMethod = args.method.toUpperCase();
-  const hasBody = upperMethod !== "GET" && upperMethod !== "HEAD";
 
   const res = await fetch(url, {
     method: upperMethod,
     headers,
-    body: hasBody ? JSON.stringify(args.input) : undefined,
+    body,
     signal: args.signal,
+    // A 3xx would otherwise hand the end user's credentials to whatever host
+    // the target names. Surface the redirect as the result instead.
+    redirect: carriesCredentials(endUserHeaders) ? "manual" : "follow",
   });
 
   const raw = await res.text();
@@ -95,6 +144,7 @@ export async function buildToolSet(args: {
   baseUrl: string | null;
   endUserToken: string | null;
   endUserHeaders: Record<string, string> | null;
+  allowCookieForwarding: boolean;
   conversationId: string;
 }): Promise<BuiltTools> {
   const dbTools = await prisma.tool.findMany({
@@ -163,6 +213,7 @@ export async function buildToolSet(args: {
               path,
               endUserToken: args.endUserToken,
               endUserHeaders: args.endUserHeaders,
+              allowCookieForwarding: args.allowCookieForwarding,
               input,
               signal: ctrl.signal,
             });

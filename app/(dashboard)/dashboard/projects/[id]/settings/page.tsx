@@ -32,6 +32,7 @@ export default async function ProjectSettingsPage({
           systemPrompt: project.systemPrompt,
           clientKey: project.clientKey,
           allowedOrigins: project.allowedOrigins,
+          allowCookieForwarding: project.allowCookieForwarding,
           byokAvailable: PLAN_CONFIGS[project.plan].byokAvailable,
           anthropicApiKeyMasked: project.anthropicApiKeyMasked,
         }}

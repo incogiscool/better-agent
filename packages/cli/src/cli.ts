@@ -1,4 +1,5 @@
 import { defineCommand, runMain } from "citty";
+import pkg from "../package.json";
 import { loginCommand } from "./commands/login";
 import { logoutCommand } from "./commands/logout";
 import { whoamiCommand } from "./commands/whoami";
@@ -11,7 +12,7 @@ import { initCommand } from "./commands/init";
 const main = defineCommand({
   meta: {
     name: "betteragent",
-    version: "0.1.0",
+    version: pkg.version,
     description: "Sync tools and install chat components for BetterAgent.",
   },
   subCommands: {

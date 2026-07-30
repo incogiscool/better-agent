@@ -73,16 +73,127 @@ export const createOrder = defineRoute({
   }),
 });
 
-export const routes = [searchProducts, createOrder];
+// Path parameters: {placeholders} are filled from the schema
+export const getProduct = defineRoute({
+  name: "getProduct",
+  method: "GET",
+  path: "/api/products/{productId}",
+  description: "Fetch one product by id.",
+  schema: z.object({
+    productId: z.string().describe("The product's id"),
+    includeVariants: z.boolean().optional(),
+  }),
+});
+
+export const routes = [searchProducts, createOrder, getProduct];
 ```
 
 | Field | Description |
 | --- | --- |
-| `name` | Unique identifier used in tool calls. camelCase recommended. |
+| `name` | Unique identifier used in tool calls. camelCase recommended. Must be alphanumeric with underscores. |
 | `method` | HTTP method: GET · POST · PUT · PATCH · DELETE. |
-| `path` | Path appended to your project's `baseUrl` setting. |
+| `path` | Path appended to your project's `baseUrl` setting. May contain `{placeholder}` segments — see below. |
 | `description` | Natural-language description the agent uses to decide when to call this tool. |
-| `schema` | Zod schema for the input. GET params become query string; POST/PUT become JSON body. |
+| `schema` | Zod schema (or a plain JSON Schema object) for the input. See the placement rules below. |
+
+### Where each field ends up
+
+Every field in `schema` is sent to your endpoint in exactly one place:
+
+| Field | Goes to | Notes |
+| --- | --- | --- |
+| Named by a `{placeholder}` in `path` | The URL path | Removed from the query string / body. |
+| Everything else, `GET` | The query string | Arrays repeat the key (`?tag=a&tag=b`); objects are JSON-encoded. |
+| Everything else, `POST` · `PUT` · `PATCH` · `DELETE` | The JSON body | `DELETE` sends a body, not a query string. |
+
+`{...}` placeholders must be **required** and **primitive** (string or number).
+`defineRoute` throws at import time otherwise, rather than letting a broken URL
+reach your API:
+
+```ts
+// ❌ throws: "{productId}" must be required
+schema: z.object({ productId: z.string().optional() })
+
+// ❌ throws: "{productId}" has no matching property in the schema
+schema: z.object({ id: z.string() })
+```
+
+Values are URL-encoded on the way in, and a value containing `/`, `\`, or `..`
+is rejected — a tool argument can't walk out of its endpoint.
+
+A path with no placeholders behaves exactly as it always has.
+
+### Keep results small
+
+Tool results are capped at **8 KB** (`MAX_TOOL_RESULT_BYTES`); anything longer is
+truncated before the agent sees it, so a list endpoint that returns full records
+will silently lose the tail. Design around it: expose a narrower projection, or
+default to a smaller page size.
+
+```ts
+export const searchProducts = defineRoute({
+  name: "searchProducts",
+  method: "GET",
+  path: "/api/products",
+  schema: z.object({
+    q: z.string().optional(),
+    // Cap it here so the agent can't ask for 500 rows.
+    limit: z.number().int().min(1).max(20).default(10),
+  }),
+});
+```
+
+If the agent needs detail, give it a second tool that fetches one record by id
+rather than widening the list response.
+
+### How route tools authenticate
+
+This is the part that most often surprises people, so to be explicit:
+
+**Route tools are called server-to-server from BetterAgent's backend, not from
+the user's browser. Your app's session cookie is not attached to those
+requests.** A route tool that relies on a session cookie will see an
+unauthenticated request.
+
+The mechanism is the `authToken` prop on the provider. Whatever you pass is
+forwarded verbatim as headers on every route-tool call:
+
+```tsx
+// A short-lived, scoped token minted server-side — the recommended shape.
+<AgentProvider
+  clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
+  endUserId={user.id}
+  authToken={{ Authorization: `Bearer ${await mintAgentToken(user.id)}` }}
+>
+```
+
+Pass a **string** to send `Authorization: Bearer <token>`, an **object** to send
+custom headers verbatim, or a **function** (Client Components only) to refresh
+the value per request. Scope the token to what the agent is allowed to do and
+give it a short lifetime — it leaves your infrastructure.
+
+If your API genuinely can't issue a token and only accepts a session cookie,
+there is an opt-in escape hatch. Enable **Forward end-user cookies** in project
+settings (it requires an https base URL), then:
+
+```tsx
+import { buildCookieHeader } from "betteragent-next";
+
+<AgentProvider
+  clientKey={process.env.NEXT_PUBLIC_BETTERAGENT_CLIENT_KEY!}
+  endUserId={user.id}
+  authToken={await buildCookieHeader(["session"])}
+>
+```
+
+Understand what this does before enabling it: it sends a live session credential
+to BetterAgent, which forwards it to your backend on every tool call. The
+credential is only sent over HTTPS and redirects are not followed, but it is
+still a real session cookie leaving your app. Prefer a short-lived scoped token
+wherever your backend can mint one.
+
+Server actions and client actions are unaffected — they run in your own app,
+with the user's session intact.
 
 ## server-actions.betteragent.ts
 

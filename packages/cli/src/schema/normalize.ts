@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { ToolMetadata } from "betteragent-next";
+import { parsePathTemplate, type ToolMetadata } from "betteragent-next";
 
 const syncToolSchema = z
   .object({
@@ -33,6 +33,16 @@ const syncToolSchema = z
           message: "path is required for route tools",
           path: ["path"],
         });
+      } else {
+        try {
+          parsePathTemplate(tool.path);
+        } catch (err) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: err instanceof Error ? err.message : "invalid path template",
+            path: ["path"],
+          });
+        }
       }
     }
   });

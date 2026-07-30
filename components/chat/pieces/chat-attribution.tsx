@@ -1,4 +1,3 @@
-import * as React from "react";
 import { cn } from "betteragent-react";
 
 export interface ChatAttributionProps {
