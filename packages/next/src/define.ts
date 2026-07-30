@@ -32,7 +32,7 @@ export function defineRoute<TInput>(
     method: opts.method,
     path: opts.path,
     description: opts.description,
-    schema: toJsonSchema(opts.schema),
+    schema: toJsonSchema(opts.schema, opts.name),
   };
   // Also expose the metadata via the discovery symbol so CLI loaders can pick
   // up either pattern (named export of metadata, or call-time wrap).
@@ -92,7 +92,7 @@ export function defineServerAction<TInput, TOutput>(
     kind: "server_action" as const,
     name: opts.name,
     description: opts.description,
-    schema: toJsonSchema(opts.schema),
+    schema: toJsonSchema(opts.schema, opts.name),
   };
 
   const wrapped = (async (input: TInput) => {
@@ -164,7 +164,7 @@ export function defineAction<TInput>(
     kind: "client_action",
     name: opts.name,
     description: opts.description,
-    schema: toJsonSchema(opts.schema),
+    schema: toJsonSchema(opts.schema, opts.name),
   };
   Object.defineProperty(def, TOOL_METADATA, {
     value: def,
