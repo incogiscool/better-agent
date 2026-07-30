@@ -127,6 +127,12 @@ the logged-in user:
 - **Function** (Client Component only) — called per-request for refreshed
   tokens; use this when your backend issues short-lived tokens
 
+Route tools are fetched server-to-server from BetterAgent's backend, so the
+browser's session cookie never reaches them — `authToken` is the only way to
+authenticate them. See [how route tools authenticate](/tools) for the full
+model, including the opt-in cookie escape hatch for APIs that can't issue a
+token.
+
 ```tsx
 import { cookies } from "next/headers";
 import { AgentProvider } from "@/components/betteragent-provider";

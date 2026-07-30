@@ -26,12 +26,50 @@ function routeNameFromPath(routePath: string, method: string): string {
   const segments = routePath
     .replace(/^\//, "")
     .split("/")
-    .filter((s) => s && !s.startsWith("[") && s !== "api")
+    .filter((s) => s && !s.startsWith("{") && s !== "api")
     .map((s, i) =>
       i === 0 ? s : s.charAt(0).toUpperCase() + s.slice(1),
     );
   const noun = segments.join("") || "resource";
   return p + noun.charAt(0).toUpperCase() + noun.slice(1);
+}
+
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+/**
+ * Give every route a distinct export name. Names are derived from the last
+ * static segment, so a list endpoint and its detail endpoint — `/surveys` and
+ * `/surveys/{surveyId}` — collide, which would generate a file with two
+ * identical `const` declarations and two tools of the same name.
+ *
+ * The path parameters are what distinguish the pair, so the one that has them
+ * gets a `By…` suffix. A numeric suffix is the last resort.
+ */
+function assignUniqueNames(selected: RouteCandidate[]): string[] {
+  const bases = selected.map(
+    (c) => c.suggestedName || routeNameFromPath(c.routePath, c.method),
+  );
+
+  const counts = new Map<string, number>();
+  for (const base of bases) counts.set(base, (counts.get(base) ?? 0) + 1);
+
+  const used = new Set<string>();
+  return bases.map((base, i) => {
+    const candidate = selected[i]!;
+    let name = base;
+
+    if ((counts.get(base) ?? 0) > 1 && candidate.pathParams.length > 0) {
+      name = base + "By" + candidate.pathParams.map(capitalize).join("And");
+    }
+
+    let unique = name;
+    let n = 2;
+    while (used.has(unique)) unique = `${name}${n++}`;
+    used.add(unique);
+    return unique;
+  });
 }
 
 export function generateRoutesFile(
@@ -53,11 +91,19 @@ export function generateRoutesFile(
     ``,
   ];
 
-  const varNames: string[] = [];
+  const varNames = assignUniqueNames(selected);
 
-  for (const c of selected) {
-    const varName = c.suggestedName || routeNameFromPath(c.routePath, c.method);
-    varNames.push(varName);
+  for (const [i, c] of selected.entries()) {
+    const varName = varNames[i]!;
+
+    // Path parameters are mandatory — the URL can't be built without them —
+    // so seed them into the schema rather than leaving them to the TODO.
+    const schema =
+      c.pathParams.length > 0
+        ? `z.object({ ${c.pathParams
+            .map((p) => `${p}: z.string()`)
+            .join(", ")} }), // TODO: add query/body parameters`
+        : `z.object({}), // TODO: add query/body parameters`;
 
     lines.push(
       `// ${c.method} ${c.routePath}`,
@@ -66,7 +112,7 @@ export function generateRoutesFile(
       `  method: "${c.method}",`,
       `  path: "${c.routePath}",`,
       `  description: "",`,
-      `  schema: z.object({}), // TODO: add query/body parameters`,
+      `  schema: ${schema}`,
       `});`,
       ``,
     );

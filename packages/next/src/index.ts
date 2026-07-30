@@ -1,4 +1,6 @@
 export { defineRoute, defineServerAction, defineAction, buildServerActionMap } from "./define";
+export { parsePathTemplate, hasPathParams } from "./path-template";
+export { buildCookieHeader } from "./cookies";
 export { TOOL_METADATA } from "./symbols";
 export type {
   ToolMetadata,

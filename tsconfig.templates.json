@@ -1,0 +1,11 @@
+{
+  "//": "Component templates are installed into other people's apps by `betteragent init` / `add`, so they have to survive stricter settings than this repo runs on. An unused import here is a build failure in someone else's CI.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "incremental": false
+  },
+  "include": ["components/chat/**/*.tsx", "components/chat/**/*.ts"]
+}

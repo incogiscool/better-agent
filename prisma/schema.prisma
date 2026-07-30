@@ -117,6 +117,9 @@ model Project {
   secretKeyPrefix    String?         @unique
   systemPrompt       String?
   allowedOrigins     String[]        @default([])
+  /// Opt-in: forward the end user's cookies to route tools. Off by default —
+  /// this sends a live session credential to the project's backend.
+  allowCookieForwarding Boolean      @default(false)
   plan               ProjectPlan     @default(FREE)
   anthropicApiKeyEncrypted String?
   anthropicApiKeyMasked    String?

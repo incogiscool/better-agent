@@ -3,6 +3,7 @@ export type ProjectActionErrors = {
   baseUrl?: string[];
   systemPrompt?: string[];
   allowedOrigins?: string[];
+  allowCookieForwarding?: string[];
 };
 
 export type CreateProjectActionState = {

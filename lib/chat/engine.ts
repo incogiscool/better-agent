@@ -19,6 +19,8 @@ export type ChatTurnContext = {
     id: string;
     baseUrl: string | null;
     systemPrompt: string | null;
+    /** Opt-in: forward the end user's cookies to route tools. */
+    allowCookieForwarding: boolean;
     /** Decrypted BYOK Anthropic key, or null to use the platform key. */
     anthropicApiKey: string | null;
   };
@@ -85,6 +87,7 @@ async function orchestrate(
   const built = await buildToolSet({
     projectId: ctx.project.id,
     baseUrl: ctx.project.baseUrl,
+    allowCookieForwarding: ctx.project.allowCookieForwarding,
     endUserToken: ctx.endUserToken,
     endUserHeaders: ctx.endUserHeaders,
     conversationId: ctx.conversationId,

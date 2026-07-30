@@ -37,6 +37,7 @@ type ProjectSettingsFormProps = {
     systemPrompt: string | null;
     clientKey: string;
     allowedOrigins: string[];
+    allowCookieForwarding: boolean;
     byokAvailable: boolean;
     anthropicApiKeyMasked: string | null;
   };
@@ -235,6 +236,29 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
               domains to lock it down.
             </p>
           ) : null}
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-start gap-2.5">
+            <input
+              type="checkbox"
+              id="allowCookieForwarding"
+              name="allowCookieForwarding"
+              defaultChecked={project.allowCookieForwarding}
+              className="mt-0.5 size-4 shrink-0 accent-foreground"
+            />
+            <label htmlFor="allowCookieForwarding" className="text-sm font-medium">
+              Forward end-user cookies to route tools
+            </label>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Route tools are called from BetterAgent&apos;s backend, so browser
+            cookies are not sent by default. Enable this only if your API
+            authenticates with a session cookie and cannot issue a token —
+            it sends a live session credential to your backend on every tool
+            call. Requires an https base URL.
+          </p>
+          <FieldError errors={updateState.errors?.allowCookieForwarding} />
         </div>
 
         {updateState.message ? (

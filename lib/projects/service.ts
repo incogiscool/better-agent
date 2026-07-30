@@ -15,6 +15,7 @@ type UpdateProjectInput = {
   baseUrl?: string;
   systemPrompt?: string;
   allowedOrigins?: string[];
+  allowCookieForwarding?: boolean;
 };
 
 type ProjectKeyInput = {
@@ -51,6 +52,7 @@ export async function getProjectForOwner(projectId: string, ownerId: string) {
       clientKey: true,
       systemPrompt: true,
       allowedOrigins: true,
+      allowCookieForwarding: true,
       plan: true,
       anthropicApiKeyMasked: true,
       createdAt: true,
@@ -103,6 +105,9 @@ export async function updateProjectForOwner(input: UpdateProjectInput) {
       systemPrompt: input.systemPrompt,
       ...(input.allowedOrigins !== undefined
         ? { allowedOrigins: input.allowedOrigins }
+        : {}),
+      ...(input.allowCookieForwarding !== undefined
+        ? { allowCookieForwarding: input.allowCookieForwarding }
         : {}),
     },
   });

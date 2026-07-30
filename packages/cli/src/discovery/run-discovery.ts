@@ -28,10 +28,11 @@ export async function runDiscovery(opts: RunDiscoveryOptions): Promise<boolean> 
 
   log.step(`Scanning ${pc.dim(cwd)}…`);
 
-  const [routes, serverActions] = await Promise.all([
+  const [routeScan, serverActions] = await Promise.all([
     scanRoutes(cwd),
     scanServerActions(cwd),
   ]);
+  const routes = routeScan.candidates;
 
   if (routes.length === 0 && serverActions.length === 0) {
     log.warn("No route handlers or server actions found.");
@@ -44,6 +45,10 @@ export async function runDiscovery(opts: RunDiscoveryOptions): Promise<boolean> 
   log.success(
     `Found ${pc.bold(String(routes.length))} route handlers · ${pc.bold(String(serverActions.length))} server action exports`,
   );
+
+  for (const skip of routeScan.skipped) {
+    log.warn(`Skipped ${skip.routePath} — ${skip.reason}.`);
+  }
 
   // --- Route selection ---
   let selectedRoutes: RouteCandidate[] = [];

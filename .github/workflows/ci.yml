@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+
+      # The Prisma client and the package dist/ folders are gitignored, but the
+      # root typecheck resolves both, so they have to exist before tsc runs.
+      - run: bunx prisma generate
+      - run: bun run packages:build
+
+      - name: Test
+        run: bun test
+
+      - name: Typecheck
+        run: |
+          bunx tsc --noEmit
+          bun run next:types
+          bun run react:types
+          bun run cli:types
+
+      # Component templates get installed into other people's apps, where
+      # stricter compiler settings are common. Catch it here, not in their CI.
+      - name: Typecheck component templates (strict)
+        run: bunx tsc -p tsconfig.templates.json
+
+      # No lint step: `bun run lint` currently reports ~1000 errors from
+      # .claude/worktrees and packages/docs build output, which the eslint
+      # config doesn't ignore. Add it here once that's cleaned up.

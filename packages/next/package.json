@@ -1,6 +1,6 @@
 {
   "name": "betteragent-next",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Define tools, server actions, and client actions for BetterAgent in Next.js.",
   "license": "MIT",
   "repository": {
@@ -9,13 +9,19 @@
     "directory": "packages/next"
   },
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     }
   },
   "files": [
@@ -23,7 +29,8 @@
     "README.md"
   ],
   "scripts": {
-    "build": "bun build src/index.ts --target=node --format=esm --outdir=dist --external zod --external next && bunx tsc --emitDeclarationOnly",
+    "build": "bun build src/index.ts --target=node --format=esm --outdir=dist --external zod --external next && bun build src/index.ts --target=node --format=cjs --outfile=dist/index.cjs --external zod --external next && bunx tsc --emitDeclarationOnly && cp dist/index.d.ts dist/index.d.cts",
+    "test": "bun test",
     "types": "bunx tsc --noEmit"
   },
   "peerDependencies": {
@@ -31,6 +38,7 @@
     "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@types/bun": "^1.3.14",
     "next": "16.2.6",
     "typescript": "^5",
     "zod": "^4.4.3"

@@ -8,6 +8,64 @@ import type {
   ServerActionOptions,
 } from "./types";
 import { safeValidateInput, toJsonSchema } from "./schema";
+import { parsePathTemplate } from "./path-template";
+
+/** JSON Schema types we accept for a value interpolated into a URL path. */
+const PATH_PARAM_TYPES = new Set(["string", "number", "integer"]);
+
+/**
+ * Check that every `{placeholder}` in a route's path is backed by a required
+ * primitive property in its schema. Catching this at definition time turns a
+ * whole class of silent runtime failures — URLs containing `undefined`, or a
+ * path segment that never gets filled — into an error at import.
+ *
+ * Skipped when the schema carries no `properties` (a hand-written loose schema,
+ * or the permissive fallback `toJsonSchema` produces when conversion fails).
+ * There is nothing to check against, and throwing would take down the whole
+ * tool file for a schema we already failed to read.
+ */
+function assertPathParamsDeclared(
+  name: string,
+  path: string,
+  jsonSchema: Record<string, unknown>,
+): void {
+  const params = parsePathTemplate(path);
+  if (params.length === 0) return;
+
+  const properties = jsonSchema.properties;
+  if (properties == null || typeof properties !== "object") return;
+
+  const props = properties as Record<string, { type?: unknown } | undefined>;
+  const required = Array.isArray(jsonSchema.required)
+    ? (jsonSchema.required as unknown[])
+    : [];
+
+  for (const param of params) {
+    const prop = props[param];
+    if (!prop) {
+      throw new Error(
+        `defineRoute("${name}"): path parameter "{${param}}" has no matching ` +
+          `property in the schema. Add \`${param}\` to the schema so the agent ` +
+          `knows to supply it.`,
+      );
+    }
+    if (!required.includes(param)) {
+      throw new Error(
+        `defineRoute("${name}"): path parameter "{${param}}" must be required — ` +
+          `an optional path segment would produce a broken URL. Remove ` +
+          `.optional() from \`${param}\`.`,
+      );
+    }
+    const type = prop.type;
+    if (typeof type !== "string" || !PATH_PARAM_TYPES.has(type)) {
+      throw new Error(
+        `defineRoute("${name}"): path parameter "{${param}}" must be a string or ` +
+          `number, not ${typeof type === "string" ? `a ${type}` : "a composite type"}. ` +
+          `Only primitive values can be interpolated into a URL path.`,
+      );
+    }
+  }
+}
 
 /**
  * Declare an HTTP route as a BetterAgent tool. The chat engine performs
@@ -22,17 +80,33 @@ import { safeValidateInput, toJsonSchema } from "./schema";
  *   schema: z.object({ q: z.string().optional() }),
  * });
  * ```
+ *
+ * `path` may contain `{placeholder}` segments, each bound to a required
+ * primitive field in the schema. Those fields are interpolated into the URL;
+ * the rest become the query string (GET) or the JSON body.
+ *
+ * ```ts
+ * export const getProject = defineRoute({
+ *   name: "getProject",
+ *   method: "GET",
+ *   path: "/api/projects/{projectId}",
+ *   schema: z.object({ projectId: z.string() }),
+ * });
+ * ```
  */
 export function defineRoute<TInput>(
   opts: RouteOptions<TInput>,
 ): RouteDefinition {
+  const schema = toJsonSchema(opts.schema, opts.name);
+  assertPathParamsDeclared(opts.name, opts.path, schema);
+
   const def: RouteDefinition = {
     kind: "route",
     name: opts.name,
     method: opts.method,
     path: opts.path,
     description: opts.description,
-    schema: toJsonSchema(opts.schema, opts.name),
+    schema,
   };
   // Also expose the metadata via the discovery symbol so CLI loaders can pick
   // up either pattern (named export of metadata, or call-time wrap).

@@ -12,6 +12,7 @@ export type DashboardProject = {
   clientKey: string;
   systemPrompt: string | null;
   allowedOrigins: string[];
+  allowCookieForwarding: boolean;
   plan: ProjectPlan;
   anthropicApiKeyMasked: string | null;
   stripeCustomerId: string | null;
@@ -57,6 +58,7 @@ export const loadProjectContext = cache(
         clientKey: true,
         systemPrompt: true,
         allowedOrigins: true,
+        allowCookieForwarding: true,
         plan: true,
         anthropicApiKeyMasked: true,
         stripeCustomerId: true,
